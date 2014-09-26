@@ -17,7 +17,9 @@ my %WriteMakefileArgs = (
     "ExtUtils::MakeMaker" => "6.30"
   },
   "DISTNAME" => "Data-Validate-Terrorist",
-  "EXE_FILES" => [],
+  "EXE_FILES" => [
+    "script/update_terrorist_csv"
+  ],
   "LICENSE" => "perl",
   "NAME" => "Data::Validate::Terrorist",
   "PREREQ_PM" => {},
