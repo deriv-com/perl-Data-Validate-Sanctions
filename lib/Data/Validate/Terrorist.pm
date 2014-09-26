@@ -35,6 +35,12 @@ sub __load_data {
     @__data;
 }
 
+# for OO
+sub new {
+    my $class = shift;
+    return bless {}, ref($class) || $class;
+}
+
 1;
 __END__
 
@@ -46,11 +52,32 @@ Data::Validate::Terrorist - Validate a name against terrorist lists
 
 =head1 SYNOPSIS
 
-  use Data::Validate::Terrorist;
+    # as exported function
+    use Data::Validate::Terrorist qw/is_terrorist/;
+
+    print 'BAD' if is_terrorist($name);
+
+    # as OO
+    use Data::Validate::Terrorist;
+
+    my $validator = Data::Validate::Terrorist->new;
+    print 'BAD' if $validator->is_terrorist($name);
 
 =head1 DESCRIPTION
 
-Data::Validate::Terrorist is
+Data::Validate::Terrorist is a simple validitor to validate a name against terrorist lists.
+
+The list is from L<http://www.treasury.gov/ofac/downloads/sdn.csv>, L<http://www.treasury.gov/resource-center/sanctions/Terrorism-Proliferation-Narcotics/Documents/plc_prim.csv>, L<http://www.treasury.gov/ofac/downloads/fse/fse_prim.csv>
+
+run L<update_terrorist_csv> to update the bundled csv.
+
+=head1 METHODS
+
+=head2 is_terrorist
+
+only accept $name. return 1 for yes, 0 for no.
+
+it will remove all non-alpha chars and compare with the list we have.
 
 =head1 AUTHOR
 
