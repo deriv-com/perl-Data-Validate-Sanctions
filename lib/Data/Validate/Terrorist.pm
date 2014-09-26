@@ -4,6 +4,37 @@ use strict;
 use 5.008_005;
 our $VERSION = '0.01';
 
+require Exporter;
+our @ISA = qw(Exporter);
+our @EXPORT_OK = qw/is_terrorist/;
+
+use Carp;
+
+sub is_terrorist {
+    my $self = shift if ref($_[0]); # OO
+    my $name = shift;
+
+    $name = uc($name);
+    $name =~ s/[[:^alpha:]]//g;
+
+    my @data = __load_data();
+    return (grep { $_ eq $name } @data) ? 1 : 0;
+}
+
+my @__data;
+sub __load_data {
+    return @__data if @__data;
+
+    my $file = __FILE__;
+    $file =~ s/\.pm/\.csv/;
+    open(my $fh, '<', $file) or croak "Can't find $file, please re-install the module.\n";
+    @__data = <$fh>;
+    close($fh);
+
+    chomp(@__data);
+    @__data;
+}
+
 1;
 __END__
 
@@ -35,5 +66,7 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =head1 SEE ALSO
+
+L<Data::OFAC>
 
 =cut

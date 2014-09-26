@@ -1,8 +1,8 @@
 use strict;
 use Test::More;
-use Data::Validate::Terrorist;
+use Data::Validate::Terrorist qw/is_terrorist/;
 
-# replace with the actual test
-ok 1;
+ok( is_terrorist('HERRERA BUITRAGO, Stella') );
+ok(! is_terrorist('Fayland Lam') );
 
 done_testing;
