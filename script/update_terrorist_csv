@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use File::Temp qw/tempfile/;
+use Data::Validate::Terrorist;
+
+die "LWP::UserAgent is required for download csv." unless eval("require LWP::UserAgent;");
+die "Text::CSV is required for parsing csv." unless eval("require Text::CSV;");
+
+my ($fh, $tmp) = tempfile();
+
+## download CSV
+my $ua = LWP::UserAgent->new;
+my @urls = ('http://www.treasury.gov/ofac/downloads/sdn.csv', 'http://www.treasury.gov/resource-center/sanctions/Terrorism-Proliferation-Narcotics/Documents/plc_prim.csv', 'http://www.treasury.gov/ofac/downloads/fse/fse_prim.csv');
+foreach my $url (@urls) {
+    my $res = $ua->get($url);
+    die "Download $url failed: " . $res->status_line . ", Please check your network or retry.\n"
+        unless $res->is_success;
+    print $fh $res->decoded_content;
+    sleep 1;
+}
+
+# parse CSV
+my @names;
+seek($fh, 0, 0); # for read
+my $csv = Text::CSV->new({ binary => 1 }) or die "Cannot use CSV: " . Text::CSV->error_diag();
+while (my $row = $csv->getline($fh)) {
+    ($row->[2] and $row->[2] eq "individual") or next;
+    my $name = $row->[1];
+    $name = uc($name);
+    $name =~ s/[[:^alpha:]]//g;
+    push @names, $name;
+}
+
+# write
+my %names = map { $_ => 1 } @names;
+@names = sort(keys %names); # usort
+
+my $csv_filepath = $INC{'Data/Validate/Terrorist.pm'};
+$csv_filepath =~ s/\.pm$/\.csv/;
+open(my $out_fh, '>', $csv_filepath) or die "Can't write to $csv_filepath: $!\n";
+print $out_fh join("\n", @names);
+close($out_fh);
+
+print "Updated.\n";
+
+1;
