@@ -2,7 +2,7 @@ package Data::Validate::Terrorist;
 
 use strict;
 use 5.008_005;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 require Exporter;
 our @ISA = qw(Exporter);
