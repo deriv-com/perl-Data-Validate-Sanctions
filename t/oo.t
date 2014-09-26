@@ -4,7 +4,7 @@ use Data::Validate::Terrorist;
 
 my $validator = Data::Validate::Terrorist->new;
 
-ok( $validator->is_terrorist('HERRERA BUITRAGO, Stella') );
-ok(! $validator->is_terrorist('Fayland Lam') );
+ok $validator->is_terrorist(qw(sergei ivanov)), "Sergei Ivanov is ia terrorist for sure";
+ok ! $validator->is_terrorist(qw(chris down)),   "Chris is a good guy";
 
 done_testing;

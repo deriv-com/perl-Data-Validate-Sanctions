@@ -12,13 +12,23 @@ use Carp;
 
 sub is_terrorist {
     my $self = shift if ref($_[0]); # OO
-    my $name = shift;
 
+    my $name = join('', @_);
     $name = uc($name);
     $name =~ s/[[:^alpha:]]//g;
 
     my @data = __load_data();
-    return (grep { $_ eq $name } @data) ? 1 : 0;
+    return 1 if grep { $_ eq $name } @data;
+
+    # try reverse
+    if (@_ > 1) {
+        $name = join('', reverse @_);
+        $name = uc($name);
+        $name =~ s/[[:^alpha:]]//g;
+        return 1 if grep { $_ eq $name } @data;
+    }
+
+    return 0;
 }
 
 my @__data;
@@ -55,13 +65,13 @@ Data::Validate::Terrorist - Validate a name against terrorist lists
     # as exported function
     use Data::Validate::Terrorist qw/is_terrorist/;
 
-    print 'BAD' if is_terrorist($name);
+    print 'BAD' if is_terrorist($first_name, $last_name);
 
     # as OO
     use Data::Validate::Terrorist;
 
     my $validator = Data::Validate::Terrorist->new;
-    print 'BAD' if $validator->is_terrorist($name);
+    print 'BAD' if $validator->is_terrorist("$last_name $first_name");
 
 =head1 DESCRIPTION
 
@@ -75,7 +85,15 @@ run L<update_terrorist_csv> to update the bundled csv.
 
 =head2 is_terrorist
 
-only accept $name. return 1 for yes, 0 for no.
+    is_terrorist($last_name, $first_name);
+    is_terrorist($first_name, $last_name);
+    is_terrorist("$last_name $first_name");
+
+when one string is passed, please be sure last_name is before first_name.
+
+or you can pass first_name, last_name (last_name, first_name), we'll check both "$last_name $first_name" and "$first_name $last_name".
+
+return 1 for yes, 0 for no.
 
 it will remove all non-alpha chars and compare with the list we have.
 

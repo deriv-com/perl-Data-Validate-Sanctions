@@ -10,13 +10,13 @@ Data::Validate::Terrorist - Validate a name against terrorist lists
     # as exported function
     use Data::Validate::Terrorist qw/is_terrorist/;
 
-    print 'BAD' if is_terrorist($name);
+    print 'BAD' if is_terrorist($first_name, $last_name);
 
     # as OO
     use Data::Validate::Terrorist;
 
     my $validator = Data::Validate::Terrorist->new;
-    print 'BAD' if $validator->is_terrorist($name);
+    print 'BAD' if $validator->is_terrorist("$last_name $first_name");
 
 # DESCRIPTION
 
@@ -30,7 +30,15 @@ run [update_terrorist_csv](https://metacpan.org/pod/update_terrorist_csv) to upd
 
 ## is\_terrorist
 
-only accept $name. return 1 for yes, 0 for no.
+    is_terrorist($last_name, $first_name);
+    is_terrorist($first_name, $last_name);
+    is_terrorist("$last_name $first_name");
+
+when one string is passed, please be sure last\_name is before first\_name.
+
+or you can pass first\_name, last\_name (last\_name, first\_name), we'll check both "$last\_name $first\_name" and "$first\_name $last\_name".
+
+return 1 for yes, 0 for no.
 
 it will remove all non-alpha chars and compare with the list we have.
 
