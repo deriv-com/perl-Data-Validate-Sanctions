@@ -57,7 +57,7 @@
          "web" : "https://github.com/binary-com/perl-Data-Validate-Sanctions"
       }
    },
-   "version" : "0.02",
+   "version" : "0.03",
    "x_contributors" : [
       "Jean-Yves Sireau <jy@binary.com>"
    ]
