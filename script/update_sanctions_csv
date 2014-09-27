@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Temp qw/tempfile/;
-use Data::Validate::Terrorist;
+use Data::Validate::Sanctions;
 
 die "LWP::UserAgent is required for download csv." unless eval("require LWP::UserAgent;");
 die "Text::CSV is required for parsing csv." unless eval("require Text::CSV;");
@@ -37,7 +37,7 @@ while (my $row = $csv->getline($fh)) {
 my %names = map { $_ => 1 } @names;
 @names = sort(keys %names); # usort
 
-my $csv_filepath = $INC{'Data/Validate/Terrorist.pm'};
+my $csv_filepath = $INC{'Data/Validate/Sanctions.pm'};
 $csv_filepath =~ s/\.pm$/\.csv/;
 open(my $out_fh, '>', $csv_filepath) or die "Can't write to $csv_filepath: $!\n";
 print $out_fh join("\n", @names);

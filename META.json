@@ -1,5 +1,5 @@
 {
-   "abstract" : "Validate a name against terrorist lists",
+   "abstract" : "Validate a name against sanctions lists",
    "author" : [
       "Binary.com <fayland@binary.com>"
    ],
@@ -12,7 +12,7 @@
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
       "version" : "2"
    },
-   "name" : "Data-Validate-Terrorist",
+   "name" : "Data-Validate-Sanctions",
    "no_index" : {
       "directory" : [
          "t",
@@ -48,13 +48,13 @@
    "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
-         "web" : "https://github.com/binary-com/perl-Data-Validate-Terrorist/issues"
+         "web" : "https://github.com/binary-com/perl-Data-Validate-Sanctions/issues"
       },
-      "homepage" : "https://github.com/binary-com/perl-Data-Validate-Terrorist",
+      "homepage" : "https://github.com/binary-com/perl-Data-Validate-Sanctions",
       "repository" : {
          "type" : "git",
-         "url" : "https://github.com/binary-com/perl-Data-Validate-Terrorist.git",
-         "web" : "https://github.com/binary-com/perl-Data-Validate-Terrorist"
+         "url" : "https://github.com/binary-com/perl-Data-Validate-Sanctions.git",
+         "web" : "https://github.com/binary-com/perl-Data-Validate-Sanctions"
       }
    },
    "version" : "0.02",

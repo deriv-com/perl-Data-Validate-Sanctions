@@ -1,4 +1,4 @@
-package Data::Validate::Terrorist;
+package Data::Validate::Sanctions;
 
 use strict;
 use 5.008_005;
@@ -6,11 +6,11 @@ our $VERSION = '0.02';
 
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = qw/is_terrorist/;
+our @EXPORT_OK = qw/is_sanctioned/;
 
 use Carp;
 
-sub is_terrorist {
+sub is_sanctioned {
     my $self = shift if ref($_[0]); # OO
 
     my $name = join('', @_);
@@ -58,36 +58,36 @@ __END__
 
 =head1 NAME
 
-Data::Validate::Terrorist - Validate a name against terrorist lists
+Data::Validate::Sanctions - Validate a name against sanctions lists
 
 =head1 SYNOPSIS
 
     # as exported function
-    use Data::Validate::Terrorist qw/is_terrorist/;
+    use Data::Validate::Sanctions qw/is_sanctioned/;
 
-    print 'BAD' if is_terrorist($first_name, $last_name);
+    print 'BAD' if is_sanctioned($first_name, $last_name);
 
     # as OO
-    use Data::Validate::Terrorist;
+    use Data::Validate::Sanctions;
 
-    my $validator = Data::Validate::Terrorist->new;
-    print 'BAD' if $validator->is_terrorist("$last_name $first_name");
+    my $validator = Data::Validate::Sanctions->new;
+    print 'BAD' if $validator->is_sanctioned("$last_name $first_name");
 
 =head1 DESCRIPTION
 
-Data::Validate::Terrorist is a simple validitor to validate a name against terrorist lists.
+Data::Validate::Sanctions is a simple validitor to validate a name against sanctions lists.
 
 The list is from L<http://www.treasury.gov/ofac/downloads/sdn.csv>, L<http://www.treasury.gov/resource-center/sanctions/Terrorism-Proliferation-Narcotics/Documents/plc_prim.csv>, L<http://www.treasury.gov/ofac/downloads/fse/fse_prim.csv>
 
-run L<update_terrorist_csv> to update the bundled csv.
+run L<update_sanctions_csv> to update the bundled csv.
 
 =head1 METHODS
 
-=head2 is_terrorist
+=head2 is_sanctioned
 
-    is_terrorist($last_name, $first_name);
-    is_terrorist($first_name, $last_name);
-    is_terrorist("$last_name $first_name");
+    is_sanctioned($last_name, $first_name);
+    is_sanctioned($first_name, $last_name);
+    is_sanctioned("$last_name $first_name");
 
 when one string is passed, please be sure last_name is before first_name.
 

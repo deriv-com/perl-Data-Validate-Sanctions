@@ -1,38 +1,38 @@
-[![Build Status](https://travis-ci.org/binary-com/perl-Data-Validate-Terrorist.svg?branch=master)](https://travis-ci.org/binary-com/perl-Data-Validate-Terrorist)
-[![Coverage Status](https://coveralls.io/repos/binary-com/perl-Data-Validate-Terrorist/badge.png?branch=master)](https://coveralls.io/r/binary-com/perl-Data-Validate-Terrorist?branch=master)
+[![Build Status](https://travis-ci.org/binary-com/perl-Data-Validate-Sanctions.svg?branch=master)](https://travis-ci.org/binary-com/perl-Data-Validate-Sanctions)
+[![Coverage Status](https://coveralls.io/repos/binary-com/perl-Data-Validate-Sanctions/badge.png?branch=master)](https://coveralls.io/r/binary-com/perl-Data-Validate-Sanctions?branch=master)
 
 # NAME
 
-Data::Validate::Terrorist - Validate a name against terrorist lists
+Data::Validate::Sanctions - Validate a name against sanctions lists
 
 # SYNOPSIS
 
     # as exported function
-    use Data::Validate::Terrorist qw/is_terrorist/;
+    use Data::Validate::Sanctions qw/is_sanctioned/;
 
-    print 'BAD' if is_terrorist($first_name, $last_name);
+    print 'BAD' if is_sanctioned($first_name, $last_name);
 
     # as OO
-    use Data::Validate::Terrorist;
+    use Data::Validate::Sanctions;
 
-    my $validator = Data::Validate::Terrorist->new;
-    print 'BAD' if $validator->is_terrorist("$last_name $first_name");
+    my $validator = Data::Validate::Sanctions->new;
+    print 'BAD' if $validator->is_sanctioned("$last_name $first_name");
 
 # DESCRIPTION
 
-Data::Validate::Terrorist is a simple validitor to validate a name against terrorist lists.
+Data::Validate::Sanctions is a simple validitor to validate a name against sanctions lists.
 
 The list is from [http://www.treasury.gov/ofac/downloads/sdn.csv](http://www.treasury.gov/ofac/downloads/sdn.csv), [http://www.treasury.gov/resource-center/sanctions/Terrorism-Proliferation-Narcotics/Documents/plc_prim.csv](http://www.treasury.gov/resource-center/sanctions/Terrorism-Proliferation-Narcotics/Documents/plc_prim.csv), [http://www.treasury.gov/ofac/downloads/fse/fse_prim.csv](http://www.treasury.gov/ofac/downloads/fse/fse_prim.csv)
 
-run [update_terrorist_csv](https://metacpan.org/pod/update_terrorist_csv) to update the bundled csv.
+run [update_sanctions_csv](https://metacpan.org/pod/update_sanctions_csv) to update the bundled csv.
 
 # METHODS
 
-## is\_terrorist
+## is\_sanctioned
 
-    is_terrorist($last_name, $first_name);
-    is_terrorist($first_name, $last_name);
-    is_terrorist("$last_name $first_name");
+    is_sanctioned($last_name, $first_name);
+    is_sanctioned($first_name, $last_name);
+    is_sanctioned("$last_name $first_name");
 
 when one string is passed, please be sure last\_name is before first\_name.
 

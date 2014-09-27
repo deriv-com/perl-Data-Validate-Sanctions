@@ -10,18 +10,18 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "Validate a name against terrorist lists",
+  "ABSTRACT" => "Validate a name against sanctions lists",
   "AUTHOR" => "Binary.com <fayland\@binary.com>",
   "BUILD_REQUIRES" => {},
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30"
   },
-  "DISTNAME" => "Data-Validate-Terrorist",
+  "DISTNAME" => "Data-Validate-Sanctions",
   "EXE_FILES" => [
-    "script/update_terrorist_csv"
+    "script/update_sanctions_csv"
   ],
   "LICENSE" => "perl",
-  "NAME" => "Data::Validate::Terrorist",
+  "NAME" => "Data::Validate::Sanctions",
   "PREREQ_PM" => {},
   "TEST_REQUIRES" => {
     "Test::More" => "0.96"
