@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/binary-com/perl-Data-Validate-Sanctions.svg?branch=master)](https://travis-ci.org/binary-com/perl-Data-Validate-Sanctions)
-[![codecov](https://codecov.io/gh/binary-com/perl-Data-Validate-Sanctions/branch/master/graph/badge.svg)](https://codecov.io/gh/binary-com/perl-Data-Validate-Sanctions)
+[![Coverage Status](https://coveralls.io/repos/binary-com/perl-Data-Validate-Sanctions/badge.svg?branch=master)](https://coveralls.io/r/binary-com/perl-Data-Validate-Sanctions?branch=master)
 
 # NAME
 
@@ -22,9 +22,9 @@ Data::Validate::Sanctions - Validate a name against sanctions lists
 
 Data::Validate::Sanctions is a simple validitor to validate a name against sanctions lists.
 
-The list is from [http://www.treasury.gov/ofac/downloads/sdn.csv](http://www.treasury.gov/ofac/downloads/sdn.csv), [http://www.treasury.gov/resource-center/sanctions/Terrorism-Proliferation-Narcotics/Documents/plc_prim.csv](http://www.treasury.gov/resource-center/sanctions/Terrorism-Proliferation-Narcotics/Documents/plc_prim.csv), [http://www.treasury.gov/ofac/downloads/fse/fse_prim.csv](http://www.treasury.gov/ofac/downloads/fse/fse_prim.csv)
+The list is from [https://www.treasury.gov/ofac/downloads/sdn.csv](https://www.treasury.gov/ofac/downloads/sdn.csv), [https://www.treasury.gov/ofac/downloads/consolidated/cons\_prim.csv](https://www.treasury.gov/ofac/downloads/consolidated/cons_prim.csv)
 
-run [update_sanctions_csv](https://metacpan.org/pod/update_sanctions_csv) to update the bundled csv.
+run [update\_sanctions\_csv](https://metacpan.org/pod/update_sanctions_csv) to update the bundled csv.
 
 # METHODS
 
