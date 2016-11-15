@@ -12,7 +12,7 @@ my ($fh, $tmp) = tempfile();
 
 ## download CSV
 my $ua = LWP::UserAgent->new;
-my @urls = ('http://www.treasury.gov/ofac/downloads/sdn.csv', 'http://www.treasury.gov/resource-center/sanctions/Terrorism-Proliferation-Narcotics/Documents/plc_prim.csv', 'http://www.treasury.gov/ofac/downloads/fse/fse_prim.csv');
+my @urls = ('https://www.treasury.gov/ofac/downloads/sdn.csv', 'https://www.treasury.gov/ofac/downloads/consolidated/cons_prim.csv');
 foreach my $url (@urls) {
     my $res = $ua->get($url);
     die "Download $url failed: " . $res->status_line . ", Please check your network or retry.\n"

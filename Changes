@@ -1,6 +1,7 @@
 Revision history for Data-Validate-Sanctions
 
 {{$NEXT}}
+        - update URL list
 
 0.03  2014-09-27 09:15:23 CST
         - rename module from Data::Validate::Terrorist to Data::Validate::Sanctions
