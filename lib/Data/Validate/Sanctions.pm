@@ -5,13 +5,22 @@ use 5.008_005;
 our $VERSION = '0.04';
 
 require Exporter;
-our @ISA = qw(Exporter);
+our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw/is_sanctioned/;
 
 use Carp;
+use File::stat;
+
+our $sanction_file = $ENV{SANCTION_FILE};
+unless ($sanction_file) {
+    $sanction_file = __FILE__;
+    $sanction_file =~ s/\.pm/\.csv/;
+}
+
+my $last_time = 0;
 
 sub is_sanctioned {
-    my $self = shift if ref($_[0]); # OO
+    my $self = shift if ref($_[0]);    # OO
 
     my $name = join('', @_);
     $name = uc($name);
@@ -32,22 +41,24 @@ sub is_sanctioned {
 }
 
 my @__data;
-sub __load_data {
-    return @__data if @__data;
 
-    my $file = __FILE__;
-    $file =~ s/\.pm/\.csv/;
-    open(my $fh, '<', $file) or croak "Can't find $file, please re-install the module.\n";
+sub __load_data {
+    my $stat = stat($sanction_file) or croak "Can't get stat of file $sanction_file, please check it.\n";
+    return @__data if ($stat->mtime <= $last_time && @__data);
+
+    open(my $fh, '<', $sanction_file) or croak "Can't open file $sanction_file, please check it.\n";
     @__data = <$fh>;
     close($fh);
-
     chomp(@__data);
+    $last_time = $stat->mtime;
     @__data;
 }
 
 # for OO
 sub new {
     my $class = shift;
+    my %args  = @_;
+    $sanction_file = $args{sanction_file} if exists $args{sanction_file};
     return bless {}, ref($class) || $class;
 }
 
