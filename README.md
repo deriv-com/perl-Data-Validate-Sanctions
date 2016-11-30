@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/binary-com/perl-Data-Validate-Sanctions.svg?branch=master)](https://travis-ci.org/binary-com/perl-Data-Validate-Sanctions)
-[![Coverage Status](https://coveralls.io/repos/binary-com/perl-Data-Validate-Sanctions/badge.svg?branch=master)](https://coveralls.io/r/binary-com/perl-Data-Validate-Sanctions?branch=master)
+[![codecov](https://codecov.io/gh/binary-com/perl-Data-Validate-Sanctions/branch/master/graph/badge.svg)](https://codecov.io/gh/binary-com/perl-Data-Validate-Sanctions)
 
 # NAME
 
