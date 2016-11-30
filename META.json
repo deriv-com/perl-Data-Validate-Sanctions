@@ -37,11 +37,16 @@
       },
       "runtime" : {
          "requires" : {
+            "File::Temp" : "0",
+            "LWP::UserAgent" : "0",
+            "Text::CSV" : "0",
             "perl" : "5.008005"
          }
       },
       "test" : {
          "requires" : {
+            "FindBin" : "0",
+            "Path::Tiny" : "0",
             "Test::More" : "0.96"
          }
       }
