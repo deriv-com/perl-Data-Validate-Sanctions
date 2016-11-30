@@ -75,13 +75,16 @@ Data::Validate::Sanctions - Validate a name against sanctions lists
 
     # as exported function
     use Data::Validate::Sanctions qw/is_sanctioned/;
+    # You can set sanction file in $ENV{SANCTION_FILE} or like this:
+    #$Data::Validate::Sanctions::sanction_file = '/var/storage/sanction.csv';
 
     print 'BAD' if is_sanctioned($first_name, $last_name);
 
     # as OO
     use Data::Validate::Sanctions;
 
-    my $validator = Data::Validate::Sanctions->new;
+    #You can also set sanction_file in the new method.
+    my $validator = Data::Validate::Sanctions->new(sanction_file => '/var/storage/sanction.csv');
     print 'BAD' if $validator->is_sanctioned("$last_name $first_name");
 
 =head1 DESCRIPTION
