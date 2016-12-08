@@ -4,11 +4,10 @@ use strict;
 use warnings;
 use File::Temp qw/tempfile/;
 use Data::Validate::Sanctions;
+use LWP::UserAgent;
+use Text::CSV;
 
-die "LWP::UserAgent is required for download csv." unless eval("require LWP::UserAgent;");
-die "Text::CSV is required for parsing csv."       unless eval("require Text::CSV;");
-
-my $sanction_file = shift // $Data::Validate::Sanctions::sanction_file;
+my $sanction_file = shift // die "auction_file name is needed";
 my ($fh, $tmp) = tempfile();
 
 ## download CSV

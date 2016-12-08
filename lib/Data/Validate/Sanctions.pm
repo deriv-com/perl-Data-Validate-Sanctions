@@ -1,65 +1,83 @@
 package Data::Validate::Sanctions;
 
 use strict;
-use 5.008_005;
 our $VERSION = '0.05';
 
 require Exporter;
 our @ISA       = qw(Exporter);
-our @EXPORT_OK = qw/is_sanctioned/;
+our @EXPORT_OK = qw/is_sanctioned set_sanction_file get_sanction_file/;
 
 use Carp;
 use File::stat;
 
-our $sanction_file = $ENV{SANCTION_FILE};
-unless ($sanction_file) {
-    $sanction_file = __FILE__;
-    $sanction_file =~ s/\.pm/\.csv/;
+# for OO
+sub new {
+    my $class = shift;
+    my %args  = @_;
+    my $self  = {};
+    $self->{sanction_file} = $args{sanction_file} // $ENV{SANCTION_FILE} // _default_sanction_file();
+    $self->{last_time} = 0;
+    return bless $self, ref($class) || $class;
 }
 
-my $last_time = 0;
+my $sanction_file = _default_sanction_file();
+my $instance;
+
+sub set_sanction_file {
+    $sanction_file = shift // die "sanction_file is needed";
+    undef $instance;
+}
+
+sub get_sanction_file {
+    return $instance ? $instance->{sanction_file} : $sanction_file;
+}
 
 sub is_sanctioned {
     my $self = shift if ref($_[0]);    # OO
+
+    $self //= $instance;
+    unless ($self) {
+        $instance = __PACKAGE__->new(sanction_file => $sanction_file);
+        $self = $instance;
+    }
 
     my $name = join('', @_);
     $name = uc($name);
     $name =~ s/[[:^alpha:]]//g;
 
-    my @data = __load_data();
-    return 1 if grep { $_ eq $name } @data;
+    my $data = $self->_load_data();
+    return 1 if grep { $_ eq $name } @$data;
 
     # try reverse
     if (@_ > 1) {
         $name = join('', reverse @_);
         $name = uc($name);
         $name =~ s/[[:^alpha:]]//g;
-        return 1 if grep { $_ eq $name } @data;
+        return 1 if grep { $_ eq $name } @$data;
     }
 
     return 0;
 }
 
-my @__data;
-
-sub __load_data {
-    my $stat = stat($sanction_file) or croak "Can't get stat of file $sanction_file, please check it.\n";
-    return @__data if ($stat->mtime <= $last_time && @__data);
+sub _load_data {
+    my $self          = shift;
+    my $sanction_file = $self->{sanction_file};
+    my $stat          = stat($sanction_file) or croak "Can't get stat of file $sanction_file, please check it.\n";
+    return $self->{_data} if ($stat->mtime <= $self->{last_time} && $self->{_data});
 
     open(my $fh, '<', $sanction_file) or croak "Can't open file $sanction_file, please check it.\n";
-    @__data = <$fh>;
+    my @_data = <$fh>;
     close($fh);
-    chomp(@__data);
-    $last_time = $stat->mtime;
-    @__data;
+    chomp(@_data);
+    $self->{last_time} = $stat->mtime;
+    $self->{_data}     = \@_data;
+    return $self->{_data};
 }
 
-# for OO
-sub new {
-    my $class = shift;
-    my %args  = @_;
-    $sanction_file = $args{sanction_file} if exists $args{sanction_file};
-    return bless {}, ref($class) || $class;
+sub _default_sanction_file {
+    my $sanction_file = __FILE__;
+    $sanction_file =~ s/\.pm/\.csv/;
+    return $sanction_file;
 }
 
 1;
