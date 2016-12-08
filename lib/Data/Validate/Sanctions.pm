@@ -93,9 +93,8 @@ Data::Validate::Sanctions - Validate a name against sanctions lists
 =head1 SYNOPSIS
 
     # as exported function
-    use Data::Validate::Sanctions qw/is_sanctioned/;
-    # You can set sanction file in $ENV{SANCTION_FILE} or like this:
-    #$Data::Validate::Sanctions::sanction_file = '/var/storage/sanction.csv';
+    use Data::Validate::Sanctions qw/is_sanctioned get_sanction_file set_sanction_file/;
+    set_sanction_file('/var/storage/sanction.csv');
 
     print 'BAD' if is_sanctioned($first_name, $last_name);
 
@@ -114,6 +113,9 @@ The list is from L<https://www.treasury.gov/ofac/downloads/sdn.csv>, L<https://w
 
 run L<update_sanctions_csv> to update the bundled csv.
 
+The path of list can be set by function L</set_sanction_file> or by method L</new>. If not set, then environment variable $ENV{SANCTION_FILE} will be checked, at last
+the default file in this package will be used.
+
 =head1 METHODS
 
 =head2 is_sanctioned
@@ -129,6 +131,20 @@ or you can pass first_name, last_name (last_name, first_name), we'll check both 
 return 1 for yes, 0 for no.
 
 it will remove all non-alpha chars and compare with the list we have.
+
+=head2 new
+
+Create the object, and set sanction_file
+
+    my $validator = Data::Validate::Sanctions->new(sanction_file => '/var/storage/sanction.csv');
+
+=head2 get_sanction_file
+
+get sanction_file which is used by L</is_sanctioned> (procedure-oriented)
+
+=head2 set_sanction_file
+
+set sanction_file which is used by L</is_sanctioned> (procedure-oriented)
 
 =head1 AUTHOR
 
