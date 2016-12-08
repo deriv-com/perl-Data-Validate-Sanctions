@@ -45,6 +45,7 @@
       },
       "test" : {
          "requires" : {
+            "Class::Unload" : "0",
             "FindBin" : "0",
             "Path::Tiny" : "0",
             "Test::More" : "0.96"

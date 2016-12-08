@@ -25,6 +25,7 @@ my %WriteMakefileArgs = (
     "Text::CSV" => 0
   },
   "TEST_REQUIRES" => {
+    "Class::Unload" => 0,
     "FindBin" => 0,
     "Path::Tiny" => 0,
     "Test::More" => "0.96"
@@ -37,6 +38,7 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
+  "Class::Unload" => 0,
   "File::Temp" => 0,
   "FindBin" => 0,
   "LWP::UserAgent" => 0,
