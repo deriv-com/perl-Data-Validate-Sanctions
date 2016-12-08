@@ -38,7 +38,7 @@ my %names = map { $_ => 1 } @names;
 @names = sort(keys %names);    # usort
 
 my $new_sanction_file = $sanction_file . ".tmp";
-open(my $out_fh, '>', $new_sanction_file) or die "Can't write to $new_sanction_file: $!\n";
+open(my $out_fh, '>:encoding(UTF8)', $new_sanction_file) or die "Can't write to $new_sanction_file: $!\n";
 print $out_fh join("\n", @names);
 close($out_fh);
 
