@@ -13,9 +13,9 @@ BEGIN {
     close($fh);
     $ENV{SANCTION_FILE} = $sanction_file;
 }
-use Data::Validate::Sanctions qw/is_sanctioned/;
+use Data::Validate::Sanctions qw/is_sanctioned get_sanction_file/;
 
-is($Data::Validate::Sanctions::sanction_file, $sanction_file, "sanction file is correct");
+is(get_sanction_file(), $sanction_file, "sanction file is correct");
 
 ok(is_sanctioned('ABCD'),  "correct file content");
 ok(!is_sanctioned('AAAA'), "correct file content");

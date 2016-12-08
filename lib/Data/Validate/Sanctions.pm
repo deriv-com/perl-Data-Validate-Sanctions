@@ -9,13 +9,14 @@ our @EXPORT_OK = qw/is_sanctioned set_sanction_file get_sanction_file/;
 
 use Carp;
 use File::stat;
+use Scalar::Util qw(blessed);
 
 # for OO
 sub new {
     my $class = shift;
     my %args  = @_;
     my $self  = {};
-    $self->{sanction_file} = $args{sanction_file} // $ENV{SANCTION_FILE} // _default_sanction_file();
+    $self->{sanction_file} = $args{sanction_file} // _default_sanction_file();
     $self->{last_time} = 0;
     return bless $self, ref($class) || $class;
 }
@@ -33,9 +34,8 @@ sub get_sanction_file {
 }
 
 sub is_sanctioned {
-    my $self = shift if ref($_[0]);    # OO
+    my $self = blessed($_[0]) ? shift : $instance;
 
-    $self //= $instance;
     unless ($self) {
         $instance = __PACKAGE__->new(sanction_file => $sanction_file);
         $self = $instance;
@@ -75,6 +75,7 @@ sub _load_data {
 }
 
 sub _default_sanction_file {
+    return $ENV{SANCTION_FILE} if $ENV{SANCTION_FILE};
     my $sanction_file = __FILE__;
     $sanction_file =~ s/\.pm/\.csv/;
     return $sanction_file;
