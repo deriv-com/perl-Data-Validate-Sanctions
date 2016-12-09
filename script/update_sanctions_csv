@@ -7,7 +7,7 @@ use Data::Validate::Sanctions;
 use LWP::UserAgent;
 use Text::CSV;
 
-my $sanction_file = shift // die "auction_file name is needed";
+my $sanction_file = shift // Data::Validate::Sanctions::get_sanction_file();
 my ($fh, $tmp) = tempfile();
 
 ## download CSV
