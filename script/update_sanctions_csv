@@ -4,10 +4,10 @@ use strict;
 use warnings;
 use File::Temp qw/tempfile/;
 use Data::Validate::Sanctions;
+use LWP::UserAgent;
+use Text::CSV;
 
-die "LWP::UserAgent is required for download csv." unless eval("require LWP::UserAgent;");
-die "Text::CSV is required for parsing csv." unless eval("require Text::CSV;");
-
+my $sanction_file = shift // Data::Validate::Sanctions::get_sanction_file();
 my ($fh, $tmp) = tempfile();
 
 ## download CSV
@@ -23,8 +23,8 @@ foreach my $url (@urls) {
 
 # parse CSV
 my @names;
-seek($fh, 0, 0); # for read
-my $csv = Text::CSV->new({ binary => 1 }) or die "Cannot use CSV: " . Text::CSV->error_diag();
+seek($fh, 0, 0);    # for read
+my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
 while (my $row = $csv->getline($fh)) {
     ($row->[2] and $row->[2] eq "individual") or next;
     my $name = $row->[1];
@@ -35,15 +35,14 @@ while (my $row = $csv->getline($fh)) {
 
 # write
 my %names = map { $_ => 1 } @names;
-@names = sort(keys %names); # usort
+@names = sort(keys %names);    # usort
 
-my $csv_filepath = $INC{'Data/Validate/Sanctions.pm'};
-$csv_filepath =~ s/\.pm$/\.csv/;
-chmod 0666, $csv_filepath;
-open(my $out_fh, '>', $csv_filepath) or die "Can't write to $csv_filepath: $!\n";
+my $new_sanction_file = $sanction_file . ".tmp";
+open(my $out_fh, '>:encoding(UTF8)', $new_sanction_file) or die "Can't write to $new_sanction_file: $!\n";
 print $out_fh join("\n", @names);
 close($out_fh);
 
+rename $new_sanction_file, $sanction_file or die "Can't rename $new_sanction_file to $sanction_file, please check it\n";
 print "Updated.\n";
 
 1;

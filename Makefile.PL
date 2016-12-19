@@ -19,11 +19,18 @@ my %WriteMakefileArgs = (
   "LICENSE" => "perl",
   "MIN_PERL_VERSION" => "5.008005",
   "NAME" => "Data::Validate::Sanctions",
-  "PREREQ_PM" => {},
+  "PREREQ_PM" => {
+    "File::Temp" => 0,
+    "LWP::UserAgent" => 0,
+    "Text::CSV" => 0
+  },
   "TEST_REQUIRES" => {
+    "Class::Unload" => 0,
+    "FindBin" => 0,
+    "Path::Tiny" => 0,
     "Test::More" => "0.96"
   },
-  "VERSION" => "0.04",
+  "VERSION" => "0.05",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -31,7 +38,13 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
-  "Test::More" => "0.96"
+  "Class::Unload" => 0,
+  "File::Temp" => 0,
+  "FindBin" => 0,
+  "LWP::UserAgent" => 0,
+  "Path::Tiny" => 0,
+  "Test::More" => "0.96",
+  "Text::CSV" => 0
 );
 
 
