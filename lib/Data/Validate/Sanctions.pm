@@ -1,6 +1,7 @@
 package Data::Validate::Sanctions;
 
 use strict;
+use warnings;
 our $VERSION = '0.05';
 
 require Exporter;
