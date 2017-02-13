@@ -99,6 +99,7 @@ Data::Validate::Sanctions - Validate a name against sanctions lists
     use Data::Validate::Sanctions qw/is_sanctioned get_sanction_file set_sanction_file/;
     set_sanction_file('/var/storage/sanction.csv');
 
+    my ($first_name, $last_name) = ("First", "Last Name");
     print 'BAD' if is_sanctioned($first_name, $last_name);
 
     # as OO
