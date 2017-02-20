@@ -11,10 +11,10 @@ use Carp;
 use File::stat;
 use Scalar::Util qw(blessed);
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 # for OO
-sub new { ## no critic (RequireArgUnpacking)
+sub new {    ## no critic (RequireArgUnpacking)
     my $class = shift;
     my %args  = @_;
     my $self  = {};
@@ -26,7 +26,7 @@ sub new { ## no critic (RequireArgUnpacking)
 my $sanction_file = _default_sanction_file();
 my $instance;
 
-sub set_sanction_file { ## no critic (RequireArgUnpacking)
+sub set_sanction_file {    ## no critic (RequireArgUnpacking)
     $sanction_file = shift // die "sanction_file is needed";
     undef $instance;
     return;
@@ -36,7 +36,7 @@ sub get_sanction_file {
     return $instance ? $instance->{sanction_file} : $sanction_file;
 }
 
-sub is_sanctioned { ## no critic (RequireArgUnpacking)
+sub is_sanctioned {        ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
 
     unless ($self) {
