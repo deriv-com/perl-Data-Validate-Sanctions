@@ -1,7 +1,7 @@
 package Data::Validate::Sanctions;
 
 use strict;
-our $VERSION = '0.05';
+use warnings;
 
 require Exporter;
 our @ISA       = qw(Exporter);
@@ -11,8 +11,10 @@ use Carp;
 use File::stat;
 use Scalar::Util qw(blessed);
 
+our $VERSION = '0.06';
+
 # for OO
-sub new {
+sub new {    ## no critic (RequireArgUnpacking)
     my $class = shift;
     my %args  = @_;
     my $self  = {};
@@ -24,16 +26,17 @@ sub new {
 my $sanction_file = _default_sanction_file();
 my $instance;
 
-sub set_sanction_file {
+sub set_sanction_file {    ## no critic (RequireArgUnpacking)
     $sanction_file = shift // die "sanction_file is needed";
     undef $instance;
+    return;
 }
 
 sub get_sanction_file {
     return $instance ? $instance->{sanction_file} : $sanction_file;
 }
 
-sub is_sanctioned {
+sub is_sanctioned {        ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
 
     unless ($self) {
@@ -96,6 +99,7 @@ Data::Validate::Sanctions - Validate a name against sanctions lists
     use Data::Validate::Sanctions qw/is_sanctioned get_sanction_file set_sanction_file/;
     set_sanction_file('/var/storage/sanction.csv');
 
+    my ($first_name, $last_name) = ("First", "Last Name");
     print 'BAD' if is_sanctioned($first_name, $last_name);
 
     # as OO
@@ -111,7 +115,7 @@ Data::Validate::Sanctions is a simple validitor to validate a name against sanct
 
 The list is from L<https://www.treasury.gov/ofac/downloads/sdn.csv>, L<https://www.treasury.gov/ofac/downloads/consolidated/cons_prim.csv>
 
-run L<update_sanctions_csv> to update the bundled csv.
+run F<update_sanctions_csv> to update the bundled csv.
 
 The path of list can be set by function L</set_sanction_file> or by method L</new>. If not set, then environment variable $ENV{SANCTION_FILE} will be checked, at last
 the default file in this package will be used.
