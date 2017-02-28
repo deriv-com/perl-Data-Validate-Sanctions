@@ -8,7 +8,7 @@ use LWP::UserAgent;
 use Text::CSV;
 
 my $sanction_file = shift // Data::Validate::Sanctions::get_sanction_file();
-my ($fh, $tmp) = tempfile();
+open my $fh, '+>', undef or die "Could not open anonymous temp file - $!";
 
 ## download CSV
 my $ua = LWP::UserAgent->new;
