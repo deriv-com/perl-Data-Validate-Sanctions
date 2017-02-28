@@ -2,13 +2,12 @@
 
 use strict;
 use warnings;
-use File::Temp qw/tempfile/;
 use Data::Validate::Sanctions;
 use LWP::UserAgent;
 use Text::CSV;
 
 my $sanction_file = shift // Data::Validate::Sanctions::get_sanction_file();
-my ($fh, $tmp) = tempfile();
+open my $fh, '+>', undef or die "Could not open anonymous temp file - $!";
 my $ua = LWP::UserAgent->new;
 my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
 
