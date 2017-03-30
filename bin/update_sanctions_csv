@@ -67,7 +67,7 @@ while (my $row = $csv->getline($fh) or not $csv->eof) {
     $name =~ s/[[:^alpha:]]//g;
     push @names, $name;
 }
-seek($fh, 0, 0);
+close $fh;
 
 # write
 my %names = map { $_ => 1 } @names;
