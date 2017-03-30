@@ -7,58 +7,53 @@ use LWP::UserAgent;
 use Text::CSV;
 
 my $sanction_file = shift // Data::Validate::Sanctions::get_sanction_file();
-open my $fh, '+>', undef or die "Could not open anonymous temp file - $!";
-my $ua = LWP::UserAgent->new;
 my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
+my (@names, $res, $lines_ref);
 
-sub _download {
-    my $url = shift;
-    sleep 1;
-    my $res = $ua->get($url);
-    die "Download $url failed: " . $res->status_line . ", Please check your network or retry.\n"
-        unless $res->is_success;
-    return $res;
-}
-
-## download CSV
-my @urls = ('https://www.treasury.gov/ofac/downloads/sdn.csv', 'https://www.treasury.gov/ofac/downloads/consolidated/cons_prim.csv');
-foreach my $url (@urls) {
-    my $res = _download($url);
-    print $fh $res->decoded_content;
-}
-
-# parse CSV
-my @names;
-seek($fh, 0, 0);    # for read
-while (my $row = $csv->getline($fh)) {
-    ($row->[2] and $row->[2] eq "individual") or next;
-    my $name = $row->[1];
-    next unless $name;
-    $name = uc($name);
-    $name =~ s/[[:^alpha:]]//g;
-    push @names, $name;
-}
-seek($fh, 0, 0);
-
-# now add aliases to our list
-my $res = _download('https://www.treasury.gov/ofac/downloads/alt.csv');
+$res = _download('https://www.treasury.gov/ofac/downloads/sdn.csv');
+open my $fh, '+>', undef or die "Could not open anonymous temp file - $!";
 print $fh $res->decoded_content;
 seek($fh, 0, 0);
-while (my $row = $csv->getline($fh)) {
+$lines_ref = $csv->getline_all($fh);
+close $fh;
+
+_push_treasury_names($lines_ref);
+
+$res = _download('https://www.treasury.gov/ofac/downloads/consolidated/cons_prim.csv');
+open $fh, '+>', undef or die "Could not open anonymous temp file - $!";
+print $fh $res->decoded_content;
+seek($fh, 0, 0);    # for read
+$lines_ref = $csv->getline_all($fh);
+close $fh;
+
+_push_treasury_names($lines_ref);
+
+# now add aliases to our list
+$res = _download('https://www.treasury.gov/ofac/downloads/alt.csv');
+open $fh, '+>', undef or die "Could not open anonymous temp file - $!";
+print $fh $res->decoded_content;
+seek($fh, 0, 0);
+$lines_ref = $csv->getline_all($fh);
+close $fh;
+
+foreach my $row (@$lines_ref) {
     my $name = $row->[3];
     next unless $name;
     $name = uc($name);
     $name =~ s/[[:^alpha:]]//g;
     push @names, $name;
 }
-seek($fh, 0, 0);
 
 # now add UK to our list
 # this list produces Text::CSV errors, be prepared
 $res = _download('http://hmt-sanctions.s3.amazonaws.com/sanctionsconlist.csv');
+open $fh, '+>', undef or die "Could not open anonymous temp file - $!";
 print $fh $res->decoded_content;
 seek($fh, 0, 0);
-while (my $row = $csv->getline($fh) or not $csv->eof) {
+$lines_ref = $csv->getline_all($fh);
+close $fh;
+
+foreach my $row (@$lines_ref) {
     ($row->[23] and $row->[23] eq "Individual") or next;
     my $name;
     map { $name .= $row->[$_] } (0 .. 5);
@@ -67,7 +62,6 @@ while (my $row = $csv->getline($fh) or not $csv->eof) {
     $name =~ s/[[:^alpha:]]//g;
     push @names, $name;
 }
-close $fh;
 
 # write
 my %names = map { $_ => 1 } @names;
@@ -80,5 +74,34 @@ close($out_fh);
 
 rename $new_sanction_file, $sanction_file or die "Can't rename $new_sanction_file to $sanction_file, please check it\n";
 print "Updated.\n";
+
+sub _download {
+    my $url = shift;
+    sleep 1;
+
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout(15);
+
+    my $res = $ua->get($url);
+    die "Download $url failed: " . $res->status_line . ", Please check your network or retry.\n"
+        unless $res->is_success;
+    return $res;
+}
+
+sub _push_treasury_names {
+    my $csv_lines = shift;
+
+    my $name;
+    foreach my $row (@$csv_lines) {
+        ($row->[2] and $row->[2] eq "individual") or next;
+        $name = $row->[1];
+        next unless $name;
+        $name = uc($name);
+        $name =~ s/[[:^alpha:]]//g;
+        push @names, $name;
+    }
+
+    return;
+}
 
 1;
