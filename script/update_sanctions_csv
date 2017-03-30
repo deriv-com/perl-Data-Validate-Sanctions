@@ -33,6 +33,7 @@ seek($fh, 0, 0);    # for read
 while (my $row = $csv->getline($fh)) {
     ($row->[2] and $row->[2] eq "individual") or next;
     my $name = $row->[1];
+    next unless $name;
     $name = uc($name);
     $name =~ s/[[:^alpha:]]//g;
     push @names, $name;
@@ -45,6 +46,7 @@ print $fh $res->decoded_content;
 seek($fh, 0, 0);
 while (my $row = $csv->getline($fh)) {
     my $name = $row->[3];
+    next unless $name;
     $name = uc($name);
     $name =~ s/[[:^alpha:]]//g;
     push @names, $name;
@@ -60,6 +62,7 @@ while (my $row = $csv->getline($fh) or not $csv->eof) {
     ($row->[23] and $row->[23] eq "Individual") or next;
     my $name;
     map { $name .= $row->[$_] } (0 .. 5);
+    next unless $name;
     $name = uc($name);
     $name =~ s/[[:^alpha:]]//g;
     push @names, $name;
