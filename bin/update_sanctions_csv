@@ -76,7 +76,7 @@ sub _download {
     sleep 1;
 
     my $ua = LWP::UserAgent->new;
-    $ua->timeout(15);
+    $ua->timeout(60);
 
     my $res = $ua->get($url);
     die "Download $url failed: " . $res->status_line . ", Please check your network or retry.\n"
