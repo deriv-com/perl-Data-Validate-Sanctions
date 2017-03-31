@@ -46,7 +46,7 @@ foreach my $row (@$lines_ref) {
 # now add UK to our list
 # this list produces Text::CSV errors, be prepared
 $res = _download('http://hmt-sanctions.s3.amazonaws.com/sanctionsconlist.csv');
-open $fh, '+>', undef or die "Could not open anonymous temp file - $!"; ## no critic (RequireBriefOpen)
+open $fh, '+>', undef or die "Could not open anonymous temp file - $!";    ## no critic (RequireBriefOpen)
 print $fh $res->decoded_content;
 seek($fh, 0, 0);
 while (my $row = $csv->getline($fh) or not $csv->eof) {
