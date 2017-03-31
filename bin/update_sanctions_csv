@@ -39,29 +39,25 @@ close $fh;
 foreach my $row (@$lines_ref) {
     my $name = $row->[3];
     next unless $name;
-    $name = uc($name);
     $name =~ s/[[:^alpha:]]//g;
-    push @names, $name;
+    push @names, uc $name;
 }
 
 # now add UK to our list
 # this list produces Text::CSV errors, be prepared
 $res = _download('http://hmt-sanctions.s3.amazonaws.com/sanctionsconlist.csv');
-open $fh, '+>', undef or die "Could not open anonymous temp file - $!";
+open $fh, '+>', undef or die "Could not open anonymous temp file - $!"; ## no critic (RequireBriefOpen)
 print $fh $res->decoded_content;
 seek($fh, 0, 0);
-$lines_ref = $csv->getline_all($fh);
-close $fh;
-
-foreach my $row (@$lines_ref) {
+while (my $row = $csv->getline($fh) or not $csv->eof) {
     ($row->[23] and $row->[23] eq "Individual") or next;
     my $name;
     map { $name .= $row->[$_] } (0 .. 5);
     next unless $name;
-    $name = uc($name);
     $name =~ s/[[:^alpha:]]//g;
-    push @names, $name;
+    push @names, uc $name;
 }
+close $fh;
 
 # write
 my %names = map { $_ => 1 } @names;
@@ -96,9 +92,8 @@ sub _push_treasury_names {
         ($row->[2] and $row->[2] eq "individual") or next;
         $name = $row->[1];
         next unless $name;
-        $name = uc($name);
         $name =~ s/[[:^alpha:]]//g;
-        push @names, $name;
+        push @names, uc $name;
     }
 
     return;
