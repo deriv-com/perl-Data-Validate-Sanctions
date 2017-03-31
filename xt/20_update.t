@@ -23,7 +23,7 @@ ok(!is_sanctioned('AAAA'), "correct file content");
 #sleep 1 to make the mtime greater than old mtime
 my $last_mtime = stat($sanction_file)->mtime;
 sleep 1;
-my $script = "$Bin/../script/update_sanctions_csv";
+my $script = "$Bin/../bin/update_sanctions_csv";
 my $lib    = "$Bin/../lib";
 is(system($^X, "-I$lib", $script, $sanction_file), 0, "download file successfully");
 ok($last_mtime < stat($sanction_file)->mtime, "mtime updated");

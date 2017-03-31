@@ -2,6 +2,9 @@ Revision history for Data-Validate-Sanctions
 
 {{$NEXT}}
 
+0.10      2017-03-31 03:30:51+00:00 UTC
+          move scripts to bin directory
+
 0.09      2017-03-30 04:09:04+00:00 UTC
           check for undefined before processing
 
