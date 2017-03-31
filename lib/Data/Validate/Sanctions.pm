@@ -11,7 +11,7 @@ use Carp;
 use File::stat;
 use Scalar::Util qw(blessed);
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 # for OO
 sub new {    ## no critic (RequireArgUnpacking)

@@ -13,6 +13,9 @@ my %WriteMakefileArgs = (
     "ExtUtils::MakeMaker" => "6.48"
   },
   "DISTNAME" => "Data-Validate-Sanctions",
+  "EXE_FILES" => [
+    "bin/update_sanctions_csv"
+  ],
   "LICENSE" => "perl",
   "MIN_PERL_VERSION" => "5.014000",
   "NAME" => "Data::Validate::Sanctions",
@@ -32,7 +35,7 @@ my %WriteMakefileArgs = (
     "Test::CheckDeps" => "0.010",
     "Test::More" => "0.96"
   },
-  "VERSION" => "0.09",
+  "VERSION" => "0.10",
   "test" => {
     "TESTS" => "t/*.t"
   }
