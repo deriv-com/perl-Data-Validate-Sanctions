@@ -5,6 +5,5 @@
 MYMETA.*
 !META.json
 /.prove
-Makefile
 blib/
 pm_to_blib
