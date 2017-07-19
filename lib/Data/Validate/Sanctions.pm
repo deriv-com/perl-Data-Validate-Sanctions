@@ -10,6 +10,8 @@ our @EXPORT_OK = qw/is_sanctioned set_sanction_file get_sanction_file/;
 use Carp;
 use File::stat;
 use Scalar::Util qw(blessed);
+use Data::Validate::Sanctions::Fetcher;
+use JSON qw/encode_json decode_json/;
 
 our $VERSION = '0.10';
 
@@ -49,14 +51,18 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
     $name =~ s/[[:^alpha:]]//g;
 
     my $data = $self->_load_data();
-    return 1 if grep { $_ eq $name } @$data;
 
-    # try reverse
-    if (@_ > 1) {
-        $name = join('', reverse @_);
-        $name = uc($name);
-        $name =~ s/[[:^alpha:]]//g;
-        return 1 if grep { $_ eq $name } @$data;
+    for my $k (sort keys %$data) {
+        my $names = $data->{$k}{names};
+        return $k if grep { $_ eq $name } @$names;
+
+        # try reverse
+        if (@_ > 1) {
+            $name = join('', reverse @_);
+            $name = uc($name);
+            $name =~ s/[[:^alpha:]]//g;
+            return $k if grep { $_ eq $name } @$names;
+        }
     }
 
     return 0;
@@ -69,18 +75,46 @@ sub _load_data {
     return $self->{_data} if ($stat->mtime <= $self->{last_time} && $self->{_data});
 
     open(my $fh, '<', $sanction_file) or croak "Can't open file $sanction_file, please check it.\n";
-    my @_data = <$fh>;
+    my $_data = decode_json(<$fh>);
     close($fh);
-    chomp(@_data);
     $self->{last_time} = $stat->mtime;
-    $self->{_data}     = \@_data;
+    $self->{_data}     = $_data;
     return $self->{_data};
+}
+
+sub update_data {
+    my $self = shift;
+
+    my $new_data = Data::Validate::Sanctions::Fetcher::run();
+    $self->_load_data();
+    my $updated;
+    foreach my $k (keys %$new_data) {
+        $self->{_data} = {} if ref($self->{_data}) ne 'HASH';
+        if (ref($self->{_data}{$k}) ne 'HASH' || $self->{_data}{$k}{updated} < $new_data->{$k}{updated}) {
+            $self->{_data}{$k} = $new_data->{$k};
+            $updated = 1;
+        }
+    }
+
+    $self->_save_data if $updated;
+    return;
+}
+
+sub _save_data {
+    my $self = shift;
+
+    my $new_sanction_file = $sanction_file . ".tmp";
+    open(my $out_fh, '>:encoding(UTF8)', $new_sanction_file) or die "Can't write to $new_sanction_file: $!\n";
+    print $out_fh encode_json($self->{_data});
+    close($out_fh);
+
+    rename $new_sanction_file, $sanction_file or die "Can't rename $new_sanction_file to $sanction_file, please check it\n";
 }
 
 sub _default_sanction_file {
     return $ENV{SANCTION_FILE} if $ENV{SANCTION_FILE};
     my $sanction_file = __FILE__;
-    $sanction_file =~ s/\.pm/\.csv/;
+    $sanction_file =~ s/\.pm/\.json/;
     return $sanction_file;
 }
 
