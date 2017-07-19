@@ -38,6 +38,15 @@ sub get_sanction_file {
     return $instance ? $instance->{sanction_file} : $sanction_file;
 }
 
+
+=head2 is_sanctioned
+
+ Arguments: list of names
+
+ Returns: 0 if match not found, list name - if found
+
+=cut
+
 sub is_sanctioned {        ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
 
@@ -116,6 +125,11 @@ sub _default_sanction_file {
     my $sanction_file = __FILE__;
     $sanction_file =~ s/\.pm/\.json/;
     return $sanction_file;
+}
+
+sub last_updated {
+    my $self = shift;
+    return $self->{last_time};
 }
 
 1;

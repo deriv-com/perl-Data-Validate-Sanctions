@@ -10,6 +10,7 @@ use DateTime::Format::Strptime;
 use IO::Uncompress::Unzip qw(unzip $UnzipError);
 use List::Util qw/uniq/;
 use Mojo::UserAgent;
+use Try::Tiny;
 
 my $config = {
     'OFAC-SDN' => {
@@ -103,10 +104,15 @@ sub run {
     $ua->connect_timeout(15);
     foreach my $id (keys %$config) {
         my $d = $config->{$id};
-        my $r = $d->{parser}->($ua->get($d->{url})->result->body);
-        if ($r->{updated} > 1) {
-            $r->{names} = [sort { $a cmp $b } uniq @{$r->{names}}];
-            $h->{$id} = $r;
+        try {
+            my $r = $d->{parser}->($ua->get($d->{url})->result->body);
+            if ($r->{updated} > 1) {
+                $r->{names} = [sort { $a cmp $b } uniq @{$r->{names}}];
+                $h->{$id} = $r;
+            }
+        }
+        catch {
+            warn "$id list update failed"
         }
     }
     return $h;
