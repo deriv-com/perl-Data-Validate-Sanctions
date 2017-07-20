@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Data::Validate::Sanctions;
+
+my $sanction_file = shift // Data::Validate::Sanctions::get_sanction_file();
+Data::Validate::Sanctions->new(sanction_file => $sanction_file)->update_data;
