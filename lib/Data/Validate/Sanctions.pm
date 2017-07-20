@@ -38,7 +38,6 @@ sub get_sanction_file {
     return $instance ? $instance->{sanction_file} : $sanction_file;
 }
 
-
 =head2 is_sanctioned
 
  Arguments: list of names
@@ -47,7 +46,7 @@ sub get_sanction_file {
 
 =cut
 
-sub is_sanctioned {        ## no critic (RequireArgUnpacking)
+sub is_sanctioned {    ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
 
     unless ($self) {
@@ -55,22 +54,14 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
         $self = $instance;
     }
 
-    my $name = join('', @_);
-    $name = uc($name);
-    $name =~ s/[[:^alpha:]]//g;
-
     my $data = $self->_load_data();
 
-    for my $k (sort keys %$data) {
-        my $names = $data->{$k}{names};
-        return $k if grep { $_ eq $name } @$names;
+    # prepare list of possible variants of names: LastnameFirstname and FirstnameLastname
+    my @name_variants = map { my $name = uc(join('', @$_)); $name =~ s/[[:^alpha:]]//g; $name } ([@_], @_ > 1 ? [reverse @_] : ());
 
-        # try reverse
-        if (@_ > 1) {
-            $name = join('', reverse @_);
-            $name = uc($name);
-            $name =~ s/[[:^alpha:]]//g;
-            return $k if grep { $_ eq $name } @$names;
+    for my $k (sort keys %$data) {
+        foreach my $name (@name_variants) {
+            return $k if grep { $_ eq $name } @{$data->{$k}{names}};
         }
     }
 
@@ -80,13 +71,18 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
 sub _load_data {
     my $self          = shift;
     my $sanction_file = $self->{sanction_file};
-    my $stat          = stat($sanction_file) or croak "Can't get stat of file $sanction_file, please check it.\n";
-    return $self->{_data} if ($stat->mtime <= $self->{last_time} && $self->{_data});
+    my $_data         = {};
+    my $mtime         = 0;
 
-    open(my $fh, '<', $sanction_file) or croak "Can't open file $sanction_file, please check it.\n";
-    my $_data = decode_json(<$fh>);
-    close($fh);
-    $self->{last_time} = $stat->mtime;
+    if (-e $sanction_file) {
+        $mtime = stat($sanction_file) or croak "Can't get stat of file $sanction_file, please check it.\n";
+        return $self->{_data} if $mtime <= $self->{last_time} && $self->{_data};
+        open(my $fh, '<', $sanction_file) or croak "Can't open file $sanction_file, please check it.\n";
+        local $/ = undef;
+        $_data = decode_json(<$fh>);
+        close($fh);
+    }
+    $self->{last_time} = $mtime;
     $self->{_data}     = $_data;
     return $self->{_data};
 }
@@ -112,9 +108,12 @@ sub update_data {
 sub _save_data {
     my $self = shift;
 
+    my $sanction_file     = $self->{sanction_file};
     my $new_sanction_file = $sanction_file . ".tmp";
+    my $json              = JSON->new->pretty(1);
+
     open(my $out_fh, '>:encoding(UTF8)', $new_sanction_file) or die "Can't write to $new_sanction_file: $!\n";
-    print $out_fh encode_json($self->{_data});
+    print $out_fh $json->encode($self->{_data});
     close($out_fh);
 
     rename $new_sanction_file, $sanction_file or die "Can't rename $new_sanction_file to $sanction_file, please check it\n";
