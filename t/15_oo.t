@@ -1,9 +1,9 @@
 use strict;
-use Test::More;
-use Data::Validate::Sanctions;
-use Path::Tiny qw(tempfile);
-use JSON qw/encode_json/;
 use Class::Unload;
+use Data::Validate::Sanctions;
+use JSON qw(encode_json);
+use Path::Tiny qw(tempfile);
+use Test::More;
 
 my $validator = Data::Validate::Sanctions->new;
 
@@ -25,7 +25,7 @@ $tmpb->spew(
                 names   => ['TMPB']}}));
 $validator = Data::Validate::Sanctions->new(sanction_file => "$tmpa");
 ok !$validator->is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov not is_sanctioned";
-is $validator->is_sanctioned(qw(tmpa)), 'test1' "now sanction file is tmpa, and tmpa is in test1 list";
+is $validator->is_sanctioned(qw(tmpa)), 'test1', "now sanction file is tmpa, and tmpa is in test1 list";
 
 Class::Unload->unload('Data::Validate::Sanctions');
 local $ENV{SANCTION_FILE} = "$tmpb";

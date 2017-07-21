@@ -1,15 +1,24 @@
 use strict;
-use Test::More;
-use Test::Exception;
+use JSON qw(encode_json);
 use Path::Tiny qw(tempfile);
+use Test::Exception;
+use Test::More;
 
 my ($tmpa, $tmpb);
 
 BEGIN {
     $tmpa = tempfile;
-    $tmpa->spew(qw(TMPA));
+    $tmpa->spew(
+        encode_json({
+                test1 => {
+                    updated => time,
+                    names   => ['TMPA']}}));
     $tmpb = tempfile;
-    $tmpb->spew(qw(TMPB));
+    $tmpb->spew(
+        encode_json({
+                test1 => {
+                    updated => time,
+                    names   => ['TMPB']}}));
     $ENV{SANCTION_FILE} = "$tmpa";
 }
 use Data::Validate::Sanctions;
