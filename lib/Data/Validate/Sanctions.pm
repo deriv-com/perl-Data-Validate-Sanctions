@@ -38,14 +38,6 @@ sub get_sanction_file {
     return $instance ? $instance->{sanction_file} : $sanction_file;
 }
 
-=head2 is_sanctioned
-
- Arguments: list of names
-
- Returns: 0 if match not found, list name - if found
-
-=cut
-
 sub is_sanctioned {    ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
 
@@ -75,7 +67,7 @@ sub _load_data {
     my $mtime         = 0;
 
     if (-e $sanction_file) {
-        $mtime = stat($sanction_file) or croak "Can't get stat of file $sanction_file, please check it.\n";
+        $mtime = stat($sanction_file)->mtime or croak "Can't get stat of file $sanction_file, please check it.\n";
         return $self->{_data} if $mtime <= $self->{last_time} && $self->{_data};
         open(my $fh, '<', $sanction_file) or croak "Can't open file $sanction_file, please check it.\n";
         local $/ = undef;
@@ -183,6 +175,14 @@ or you can pass first_name, last_name (last_name, first_name), we'll check both 
 return 1 for yes, 0 for no.
 
 it will remove all non-alpha chars and compare with the list we have.
+
+=head2 update_data
+
+Fetches latest versions of sanction lists, and updates corresponding sections of stored file, if needed
+
+=head2 last_updated
+
+Returns timestamp of stored file updated
 
 =head2 new
 

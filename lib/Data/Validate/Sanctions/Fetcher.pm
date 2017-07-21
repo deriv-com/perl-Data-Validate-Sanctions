@@ -11,6 +11,8 @@ use Text::CSV;
 use Try::Tiny;
 use XML::Fast;
 
+our $VERSION = '0.10';
+
 my $config = {
     'OFAC-SDN' => {
         descrition => 'TREASURY.GOV: Specially Designated Nationals List with a.k.a included',
@@ -43,7 +45,7 @@ sub _ofac_xml_zip {
     my $content = shift;
     my $output;
     unzip \$content => \$output or die "unzip failed: $UnzipError\n";
-    return _ofac_xml($output, @_);
+    return _ofac_xml($output);
 }
 
 sub _ofac_xml {
@@ -70,7 +72,7 @@ sub _hmt_csv {
     my @names;
     my $fh;
     my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
-    open $fh, '+>', undef or die "Could not open anonymous temp file - $!";
+    open $fh, '+>', undef or die "Could not open anonymous temp file - $!";     ## no critic (RequireBriefOpen)
     print $fh $content;
     seek($fh, 0, 0);
     my $info = $csv->getline($fh);
@@ -92,6 +94,12 @@ sub _hmt_csv {
         names   => \@names,
     };
 }
+
+=head2 run
+
+Fetches latest version of lists, and returns combined hash of successfully downloaded ones
+
+=cut
 
 sub run {
     my $h  = {};
