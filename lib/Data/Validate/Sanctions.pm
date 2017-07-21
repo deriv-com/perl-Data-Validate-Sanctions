@@ -38,7 +38,7 @@ sub get_sanction_file {
     return $instance ? $instance->{sanction_file} : $sanction_file;
 }
 
-sub is_sanctioned {    ## no critic (RequireArgUnpacking)
+sub is_sanctioned {        ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
 
     unless ($self) {
@@ -121,7 +121,8 @@ sub _default_sanction_file {
 
 sub last_updated {
     my $self = shift;
-    return $self->{last_time};
+    my $list = shift;
+    return $list ? $self->{_data}->{$list}->{updated} : $self->{last_time};
 }
 
 1;
@@ -182,7 +183,8 @@ Fetches latest versions of sanction lists, and updates corresponding sections of
 
 =head2 last_updated
 
-Returns timestamp of stored file updated
+Returns timestamp of stored file updated.
+If argument is provided - return timestamp when that list was updated.
 
 =head2 new
 
