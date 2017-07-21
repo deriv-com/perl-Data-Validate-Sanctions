@@ -13,7 +13,7 @@ requires 'Path::Tiny', 0;
 requires 'Scalar::Util', 0;
 requires 'Text::CSV', 0;
 requires 'Try::Tiny', 0;
-requires 'XML::Simple', 0;
+requires 'XML::Fast', 0;
 
 on test => sub {
     requires 'Test::More', '0.96';

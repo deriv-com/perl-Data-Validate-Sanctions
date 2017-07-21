@@ -9,7 +9,7 @@ use List::Util qw/uniq/;
 use Mojo::UserAgent;
 use Text::CSV;
 use Try::Tiny;
-use XML::Simple qw(:strict);
+use XML::Fast;
 
 my $config = {
     'OFAC-SDN' => {
@@ -49,14 +49,10 @@ sub _ofac_xml_zip {
 sub _ofac_xml {
     my $content = shift;
     my @names;
-    my $xs  = XML::Simple->new();
-    my $ref = $xs->XMLin(
-        $content,
-        ForceArray => ['sdnEntry', 'aka'],
-        KeyAttr    => ['uid1']);
+    my $ref = xml2hash($content, array => ['aka'])->{sdnList};
     foreach my $entry (@{$ref->{sdnEntry}}) {
         next unless $entry->{sdnType} eq 'Individual';
-        push @names, _process_name($_->{firstName} // '', $_->{lastName} // '') for ($entry, @{$entry->{akaList}{aka}});
+        push @names, _process_name($_->{firstName} // '', $_->{lastName} // '') for ($entry, @{$entry->{akaList}{aka} // []});
 
     }
     my $parser = DateTime::Format::Strptime->new(
@@ -111,7 +107,7 @@ sub run {
             }
         }
         catch {
-            warn "$id list update failed";
+            warn "$id list update failed: $_";
         }
     }
     return $h;
