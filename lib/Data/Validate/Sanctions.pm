@@ -8,10 +8,10 @@ our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw/is_sanctioned set_sanction_file get_sanction_file/;
 
 use Carp;
-use File::stat;
-use Scalar::Util qw(blessed);
 use Data::Validate::Sanctions::Fetcher;
+use File::stat;
 use JSON qw/encode_json decode_json/;
+use Scalar::Util qw(blessed);
 
 our $VERSION = '0.10';
 
@@ -94,7 +94,6 @@ sub update_data {
     $self->_load_data();
     my $updated;
     foreach my $k (keys %$new_data) {
-        $self->{_data} = {} if ref($self->{_data}) ne 'HASH';
         if (ref($self->{_data}{$k}) ne 'HASH' || $self->{_data}{$k}{updated} < $new_data->{$k}{updated}) {
             $self->{_data}{$k} = $new_data->{$k};
             $updated = 1;
@@ -117,6 +116,8 @@ sub _save_data {
     close($out_fh);
 
     rename $new_sanction_file, $sanction_file or die "Can't rename $new_sanction_file to $sanction_file, please check it\n";
+    $self->{last_time} = stat($sanction_file)->mtime;
+    return;
 }
 
 sub _default_sanction_file {

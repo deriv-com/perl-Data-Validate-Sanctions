@@ -3,14 +3,13 @@ package Data::Validate::Sanctions::Fetcher;
 use strict;
 use warnings;
 
-use LWP::UserAgent;
-use Text::CSV;
-use XML::Simple qw(:strict);
 use DateTime::Format::Strptime;
 use IO::Uncompress::Unzip qw(unzip $UnzipError);
 use List::Util qw/uniq/;
 use Mojo::UserAgent;
+use Text::CSV;
 use Try::Tiny;
+use XML::Simple qw(:strict);
 
 my $config = {
     'OFAC-SDN' => {
@@ -112,7 +111,7 @@ sub run {
             }
         }
         catch {
-            warn "$id list update failed"
+            warn "$id list update failed";
         }
     }
     return $h;
