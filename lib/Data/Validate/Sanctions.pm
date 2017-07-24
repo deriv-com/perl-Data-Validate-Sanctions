@@ -64,16 +64,14 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
 sub _load_data {
     my $self          = shift;
     my $sanction_file = $self->{sanction_file};
-    my $_data         = {};
-    my $mtime         = 0;
+    $self->{last_time} = 0;
+    $self->{_data}     = {};
 
     if (-e $sanction_file) {
-        $mtime = stat($sanction_file)->mtime or croak "Can't get stat of file $sanction_file, please check it.\n";
+        $self->{last_time} = stat($sanction_file)->mtime or croak "Can't get stat of file $sanction_file, please check it.\n";
         return $self->{_data} if $mtime <= $self->{last_time} && $self->{_data};
-        $_data = LoadFile($sanction_file);
+        $self->{_data} = LoadFile($sanction_file);
     }
-    $self->{last_time} = $mtime;
-    $self->{_data}     = $_data;
     return $self->{_data};
 }
 
