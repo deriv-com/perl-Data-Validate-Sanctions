@@ -15,7 +15,7 @@ our $VERSION = '0.10';
 
 my $config = {
     'OFAC-SDN' => {
-        descrition => 'TREASURY.GOV: Specially Designated Nationals List with a.k.a included',
+        description => 'TREASURY.GOV: Specially Designated Nationals List with a.k.a included',
         url    => 'https://www.treasury.gov/ofac/downloads/sdn_xml.zip',    #let's be polite and use zippped version of this 7mb+ file
         parser => \&_ofac_xml_zip,
     },
@@ -62,7 +62,7 @@ sub _ofac_xml {
         on_error => 'croak',
     );
     return {
-        updated => $parser->parse_datetime($ref->{publshInformation}{Publish_Date})->epoch,
+        updated => $parser->parse_datetime($ref->{publshInformation}{Publish_Date})->epoch,    # 'publshInformation' is a real name
         names   => \@names,
     };
 }
@@ -72,15 +72,14 @@ sub _hmt_csv {
     my @names;
     my $fh;
     my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
-    open $fh, '+>', undef or die "Could not open anonymous temp file - $!";     ## no critic (RequireBriefOpen)
+    open $fh, '+>', undef or die "Could not open anonymous temp file - $!";                    ## no critic (RequireBriefOpen)
     print $fh $content;
     seek($fh, 0, 0);
     my $info = $csv->getline($fh);
 
     while (my $row = $csv->getline($fh) or not $csv->eof) {
         ($row->[23] and $row->[23] eq "Individual") or next;
-        my $name;
-        map { $name .= $row->[$_] } (0 .. 5);
+        my $name = join '', @{$row}[0 .. 5];
         next unless $name;
         push @names, _process_name $name;
     }

@@ -1,7 +1,7 @@
 use strict;
 use Class::Unload;
 use Data::Validate::Sanctions;
-use JSON qw(encode_json);
+use YAML::XS qw(Dump);
 use Path::Tiny qw(tempfile);
 use Test::Exception;
 use Test::More;
@@ -13,7 +13,7 @@ throws_ok { Data::Validate::Sanctions::set_sanction_file() } qr/sanction_file is
 
 my $tempfile = Path::Tiny->tempfile;
 $tempfile->spew(
-    encode_json({
+    Dump({
             test1 => {
                 updated => time,
                 names   => ['CHRISDOWN']}}));

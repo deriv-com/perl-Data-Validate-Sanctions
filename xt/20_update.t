@@ -4,13 +4,13 @@ use File::Temp qw(tempfile);
 use FindBin qw($Bin);
 use File::stat;
 use Path::Tiny;
-use JSON qw(encode_json);
+use YAML::XS qw(Dump);
 
 my $sanction_file;
 my $sanction_data;
 
 BEGIN {
-    $sanction_data = encode_json({
+    $sanction_data = Dump({
             test1 => {
                 updated => time,
                 names   => ['ABCD']}});

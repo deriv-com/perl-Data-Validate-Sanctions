@@ -10,7 +10,8 @@ our @EXPORT_OK = qw/is_sanctioned set_sanction_file get_sanction_file/;
 use Carp;
 use Data::Validate::Sanctions::Fetcher;
 use File::stat;
-use JSON qw/encode_json decode_json/;
+use File::ShareDir;
+use YAML::XS qw/DumpFile LoadFile/;
 use Scalar::Util qw(blessed);
 
 our $VERSION = '0.10';
@@ -69,10 +70,7 @@ sub _load_data {
     if (-e $sanction_file) {
         $mtime = stat($sanction_file)->mtime or croak "Can't get stat of file $sanction_file, please check it.\n";
         return $self->{_data} if $mtime <= $self->{last_time} && $self->{_data};
-        open(my $fh, '<', $sanction_file) or croak "Can't open file $sanction_file, please check it.\n";
-        local $/ = undef;
-        $_data = decode_json(<$fh>);
-        close($fh);
+        $_data = LoadFile($sanction_file);
     }
     $self->{last_time} = $mtime;
     $self->{_data}     = $_data;
@@ -101,11 +99,8 @@ sub _save_data {
 
     my $sanction_file     = $self->{sanction_file};
     my $new_sanction_file = $sanction_file . ".tmp";
-    my $json              = JSON->new->pretty(1);
 
-    open(my $out_fh, '>:encoding(UTF8)', $new_sanction_file) or die "Can't write to $new_sanction_file: $!\n";
-    print $out_fh $json->encode($self->{_data});
-    close($out_fh);
+    DumpFile($new_sanction_file, $self->{_data});
 
     rename $new_sanction_file, $sanction_file or die "Can't rename $new_sanction_file to $sanction_file, please check it\n";
     $self->{last_time} = stat($sanction_file)->mtime;
@@ -113,10 +108,7 @@ sub _save_data {
 }
 
 sub _default_sanction_file {
-    return $ENV{SANCTION_FILE} if $ENV{SANCTION_FILE};
-    my $sanction_file = __FILE__;
-    $sanction_file =~ s/\.pm/\.json/;
-    return $sanction_file;
+    return $ENV{SANCTION_FILE} // File::ShareDir::dist_file('Data-Validate-Sanctions', 'sanctions.yml');
 }
 
 sub last_updated {
