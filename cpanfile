@@ -6,7 +6,6 @@ requires 'File::stat', 0;
 requires 'FindBin', 0;
 requires 'IO::Uncompress::Unzip', 0;
 requires 'JSON', 0;
-requires 'LWP::UserAgent', 0;
 requires 'List::Util', 0;
 requires 'Mojo::UserAgent', 0;
 requires 'Path::Tiny', 0;
