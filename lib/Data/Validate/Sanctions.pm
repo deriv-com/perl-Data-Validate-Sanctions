@@ -68,9 +68,9 @@ sub _load_data {
     $self->{_data}     = {};
 
     if (-e $sanction_file) {
-        $self->{last_time} = stat($sanction_file)->mtime or croak "Can't get stat of file $sanction_file, please check it.\n";
-        return $self->{_data} if $mtime <= $self->{last_time} && $self->{_data};
-        $self->{_data} = LoadFile($sanction_file);
+        return $self->{_data} if stat($sanction_file)->mtime <= $self->{last_time} && $self->{_data};
+        $self->{last_time} = stat($sanction_file)->mtime;
+        $self->{_data}     = LoadFile($sanction_file);
     }
     return $self->{_data};
 }
