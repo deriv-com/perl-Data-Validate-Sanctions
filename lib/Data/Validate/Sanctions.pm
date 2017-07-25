@@ -8,7 +8,10 @@ our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw/is_sanctioned set_sanction_file get_sanction_file/;
 
 use Carp;
+use Data::Validate::Sanctions::Fetcher;
 use File::stat;
+use File::ShareDir;
+use YAML::XS qw/DumpFile LoadFile/;
 use Scalar::Util qw(blessed);
 
 our $VERSION = '0.10';
@@ -44,19 +47,15 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
         $self = $instance;
     }
 
-    my $name = join('', @_);
-    $name = uc($name);
-    $name =~ s/[[:^alpha:]]//g;
-
     my $data = $self->_load_data();
-    return 1 if grep { $_ eq $name } @$data;
 
-    # try reverse
-    if (@_ > 1) {
-        $name = join('', reverse @_);
-        $name = uc($name);
-        $name =~ s/[[:^alpha:]]//g;
-        return 1 if grep { $_ eq $name } @$data;
+    # prepare list of possible variants of names: LastnameFirstname and FirstnameLastname
+    my @name_variants = map { my $name = uc(join('', @$_)); $name =~ s/[[:^alpha:]]//g; $name } ([@_], @_ > 1 ? [reverse @_] : ());
+
+    for my $k (sort keys %$data) {
+        foreach my $name (@name_variants) {
+            return $k if grep { $_ eq $name } @{$data->{$k}{names}};
+        }
     }
 
     return 0;
@@ -65,23 +64,55 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
 sub _load_data {
     my $self          = shift;
     my $sanction_file = $self->{sanction_file};
-    my $stat          = stat($sanction_file) or croak "Can't get stat of file $sanction_file, please check it.\n";
-    return $self->{_data} if ($stat->mtime <= $self->{last_time} && $self->{_data});
+    $self->{last_time} //= 0;
+    $self->{_data} //= {};
 
-    open(my $fh, '<', $sanction_file) or croak "Can't open file $sanction_file, please check it.\n";
-    my @_data = <$fh>;
-    close($fh);
-    chomp(@_data);
-    $self->{last_time} = $stat->mtime;
-    $self->{_data}     = \@_data;
+    if (-e $sanction_file) {
+        return $self->{_data} if stat($sanction_file)->mtime <= $self->{last_time} && $self->{_data};
+        $self->{last_time} = stat($sanction_file)->mtime;
+        $self->{_data}     = LoadFile($sanction_file);
+    }
     return $self->{_data};
 }
 
+sub update_data {
+    my $self = shift;
+
+    my $new_data = Data::Validate::Sanctions::Fetcher::run();
+    $self->_load_data();
+    my $updated;
+    foreach my $k (keys %$new_data) {
+        if (ref($self->{_data}{$k}) ne 'HASH' || $self->{_data}{$k}{updated} < $new_data->{$k}{updated}) {
+            $self->{_data}{$k} = $new_data->{$k};
+            $updated = 1;
+        }
+    }
+
+    $self->_save_data if $updated;
+    return;
+}
+
+sub _save_data {
+    my $self = shift;
+
+    my $sanction_file     = $self->{sanction_file};
+    my $new_sanction_file = $sanction_file . ".tmp";
+
+    DumpFile($new_sanction_file, $self->{_data});
+
+    rename $new_sanction_file, $sanction_file or die "Can't rename $new_sanction_file to $sanction_file, please check it\n";
+    $self->{last_time} = stat($sanction_file)->mtime;
+    return;
+}
+
 sub _default_sanction_file {
-    return $ENV{SANCTION_FILE} if $ENV{SANCTION_FILE};
-    my $sanction_file = __FILE__;
-    $sanction_file =~ s/\.pm/\.csv/;
-    return $sanction_file;
+    return $ENV{SANCTION_FILE} // File::ShareDir::dist_file('Data-Validate-Sanctions', 'sanctions.yml');
+}
+
+sub last_updated {
+    my $self = shift;
+    my $list = shift;
+    return $list ? $self->{_data}->{$list}->{updated} : $self->{last_time};
 }
 
 1;
@@ -135,6 +166,15 @@ or you can pass first_name, last_name (last_name, first_name), we'll check both 
 return 1 for yes, 0 for no.
 
 it will remove all non-alpha chars and compare with the list we have.
+
+=head2 update_data
+
+Fetches latest versions of sanction lists, and updates corresponding sections of stored file, if needed
+
+=head2 last_updated
+
+Returns timestamp of stored file updated.
+If argument is provided - return timestamp when that list was updated.
 
 =head2 new
 

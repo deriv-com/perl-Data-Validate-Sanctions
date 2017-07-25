@@ -21,7 +21,6 @@ my %WriteMakefileArgs = (
   "NAME" => "Data::Validate::Sanctions",
   "PREREQ_PM" => {
     "File::Temp" => 0,
-    "LWP::UserAgent" => 0,
     "Text::CSV" => 0
   },
   "TEST_REQUIRES" => {
@@ -50,7 +49,6 @@ my %FallbackPrereqs = (
   "FindBin" => 0,
   "IO::Handle" => 0,
   "IPC::Open3" => 0,
-  "LWP::UserAgent" => 0,
   "Path::Tiny" => 0,
   "Test::CheckDeps" => "0.010",
   "Test::More" => "0.96",
