@@ -64,8 +64,8 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
 sub _load_data {
     my $self          = shift;
     my $sanction_file = $self->{sanction_file};
-    $self->{last_time} = 0;
-    $self->{_data}     = {};
+    $self->{last_time} //= 0;
+    $self->{_data} //= {};
 
     if (-e $sanction_file) {
         return $self->{_data} if stat($sanction_file)->mtime <= $self->{last_time} && $self->{_data};
