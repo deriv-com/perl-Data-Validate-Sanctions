@@ -12,13 +12,13 @@ BEGIN {
         Dump({
                 test1 => {
                     updated => time,
-                    names   => ['TMPA']}}));
+                    names   => ['TMPA:-']}}));
     $tmpb = tempfile;
     $tmpb->spew(
         Dump({
                 test1 => {
                     updated => time,
-                    names   => ['TMPB']}}));
+                    names   => ['TMPB:-']}}));
     $ENV{SANCTION_FILE} = "$tmpa";
 }
 use Data::Validate::Sanctions;
