@@ -68,7 +68,7 @@ sub is_sanctioned_hash {    ## no critic (RequireArgUnpacking)
                 next NAME if index($name, uc($_)) < 0;
             }
             my ($n, $c) = split /:/, $name;
-            return $k if not $args->{country} or $c eq '-' or $c eq $args->{country};
+            return $k if not $args->{country} or $c eq '-' or $c eq uc($args->{country});
         }
     }
 
@@ -181,7 +181,7 @@ return 1 for yes, 0 for no.
 
 it will remove all non-alpha chars and compare with the list we have.
 
-=head1 is_sanctioned_hash
+=head2 is_sanctioned_hash
 
     is_sanctioned_hash({
         country => "Sweden",

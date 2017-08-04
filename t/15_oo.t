@@ -10,15 +10,15 @@ my $validator = Data::Validate::Sanctions->new;
 ok $validator->is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov is_sanctioned for sure";
 is $validator->is_sanctioned(qw(sergei ivanov)), 'OFAC-SDN', "Sergei Ivanov is_sanctioned for sure and in correct list";
 is $validator->is_sanctioned_hash({
-        cc    => 'Switzerland',
-        names => [qw(sergei moskalenko)]}
+        country => 'Switzerland',
+        names   => [qw(sergei moskalenko)]}
     ),
     'OFAC-SDN', "Sergei Moskalenfor from Switzerland is_sanctioned for sure and in correct list";
 ok !$validator->is_sanctioned_hash({
-        cc    => 'France',
-        names => [qw(sergei moskalenko)]}
+        country => 'France',
+        names   => [qw(sergei moskalenko)]}
     ),
-    'OFAC-SDN', "Sergei Moskalenfor from France is not sanctioned";
+    "Sergei Moskalenko from France is not sanctioned";
 ok !$validator->is_sanctioned(qw(chris down)), "Chris is a good guy";
 
 my $tmpa = tempfile;
