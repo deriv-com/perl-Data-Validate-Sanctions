@@ -50,11 +50,17 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
     my $data = $self->_load_data();
 
     # prepare list of possible variants of names: LastnameFirstname and FirstnameLastname
-    my @name_variants = map { my $name = uc(join('', @$_)); $name =~ s/[[:^alpha:]]//g; $name } ([@_], @_ > 1 ? [reverse @_] : ());
+    my @name_variants = map {
+        my $name = uc(join('.*', map { my $a = $_; $a =~ s/[[:^alpha:]]//g; $a } @$_));
+        $name
+    } ([@_], @_ > 1 ? [reverse @_] : ());
 
     for my $k (sort keys %$data) {
-        foreach my $name (@name_variants) {
-            return $k if grep { $_ eq $name } @{$data->{$k}{names}};
+        NAME:
+        foreach my $name (@{$data->{$k}{names}}) {
+            for (@name_variants) {
+                return $k if $name =~ /$_/;
+            }
         }
     }
 
