@@ -8,17 +8,7 @@ use Test::More;
 my $validator = Data::Validate::Sanctions->new;
 
 ok $validator->is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov is_sanctioned for sure";
-is $validator->is_sanctioned(qw(sergei ivanov)), 'OFAC-SDN', "Sergei Ivanov is_sanctioned for sure and in correct list";
-is $validator->is_sanctioned_hash({
-        country => 'Switzerland',
-        names   => [qw(sergei moskalenko)]}
-    ),
-    'OFAC-SDN', "Sergei Moskalenfor from Switzerland is_sanctioned for sure and in correct list";
-ok !$validator->is_sanctioned_hash({
-        country => 'France',
-        names   => [qw(sergei moskalenko)]}
-    ),
-    "Sergei Moskalenko from France is not sanctioned";
+is $validator->is_sanctioned(qw(sergei ivanov)), 'HMT-Sanctions', "Sergei Ivanov is_sanctioned for sure and in correct list";
 ok !$validator->is_sanctioned(qw(chris down)), "Chris is a good guy";
 
 my $tmpa = tempfile;
@@ -26,13 +16,13 @@ $tmpa->spew(
     Dump({
             test1 => {
                 updated => time,
-                names   => ['TMPA:-']}}));
+                names   => ['TMPA']}}));
 my $tmpb = tempfile;
 $tmpb->spew(
     Dump({
             test2 => {
                 updated => time,
-                names   => ['TMPB:-']}}));
+                names   => ['TMPB']}}));
 $validator = Data::Validate::Sanctions->new(sanction_file => "$tmpa");
 ok !$validator->is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov not is_sanctioned";
 is $validator->is_sanctioned(qw(tmpa)), 'test1', "now sanction file is tmpa, and tmpa is in test1 list";

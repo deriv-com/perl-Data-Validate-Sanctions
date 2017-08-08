@@ -13,7 +13,7 @@ BEGIN {
     $sanction_data = Dump({
             test1 => {
                 updated => time,
-                names   => ['ABCD:-']}});
+                names   => ['ABCD']}});
 
     (my $fh, $sanction_file) = tempfile();
     print $fh $sanction_data;

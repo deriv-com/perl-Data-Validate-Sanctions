@@ -51,14 +51,10 @@ sub _ofac_xml_zip {
 sub _ofac_xml {
     my $content = shift;
     my @names;
-    my $ref = xml2hash($content, array => ['aka', 'address'])->{sdnList};
+    my $ref = xml2hash($content, array => ['aka'])->{sdnList};
     foreach my $entry (@{$ref->{sdnEntry}}) {
         next unless $entry->{sdnType} eq 'Individual';
-        my $c = '-';
-        #get country out of address
-        my $address = $entry->{addressList}{address};
-        $c = $address->[0]->{country} if $address and $address->[0]->{country};
-        push @names, _process_name($_->{firstName} // '', $_->{lastName} // '') . ':' . uc($c) for ($entry, @{$entry->{akaList}{aka} // []});
+        push @names, _process_name($_->{firstName} // '', $_->{lastName} // '') for ($entry, @{$entry->{akaList}{aka} // []});
 
     }
     my $parser = DateTime::Format::Strptime->new(
@@ -85,10 +81,7 @@ sub _hmt_csv {
         ($row->[23] and $row->[23] eq "Individual") or next;
         my $name = join '', @{$row}[0 .. 5];
         next unless $name;
-        #get country from Country of Birth
-        my $c = $row->[9];
-        $c = '-' unless $c;
-        push @names, _process_name($name) . ':' . uc($c);
+        push @names, _process_name $name;
     }
     close $fh;
     my $parser = DateTime::Format::Strptime->new(

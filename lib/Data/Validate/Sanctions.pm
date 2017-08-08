@@ -41,18 +41,6 @@ sub get_sanction_file {
 
 sub is_sanctioned {        ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
-    unless ($self) {
-        $instance = __PACKAGE__->new(sanction_file => $sanction_file);
-        $self = $instance;
-    }
-    return $self->is_sanctioned_hash({
-            country => '-',
-            names   => [@_]});
-}
-
-sub is_sanctioned_hash {    ## no critic (RequireArgUnpacking)
-    my $self = blessed($_[0]) ? shift : $instance;
-    my $args = shift;
 
     unless ($self) {
         $instance = __PACKAGE__->new(sanction_file => $sanction_file);
@@ -61,14 +49,17 @@ sub is_sanctioned_hash {    ## no critic (RequireArgUnpacking)
 
     my $data = $self->_load_data();
 
+    # prepare list of possible variants of names: LastnameFirstname and FirstnameLastname
+    my @name_variants = map {
+        my $name = uc(join('.*', map { my $a = $_; $a =~ s/[[:^alpha:]]//g; $a } @$_));
+        $name
+    } ([@_], @_ > 1 ? [reverse @_] : ());
+
     for my $k (sort keys %$data) {
-        NAME:
-        for my $name (@{$data->{$k}{names}}) {
-            for (@{$args->{names}}) {
-                next NAME if index($name, uc($_)) < 0;
-            }
-            my ($n, $c) = split /:/, $name;
-            return $k if not $args->{country} or $c eq '-' or $c eq uc($args->{country});
+        foreach my $name (@{$data->{$k}{names}}) {
+            for (@name_variants) {
+                return $k if $name =~ /$_/;
+        }
         }
     }
 
@@ -180,15 +171,6 @@ or you can pass first_name, last_name (last_name, first_name), we'll check both 
 return 1 for yes, 0 for no.
 
 it will remove all non-alpha chars and compare with the list we have.
-
-=head2 is_sanctioned_hash
-
-    is_sanctioned_hash({
-        country => "Sweden",
-        names => [$first_name, $last_name]
-    });
-
-Accepts hashref with country, returns 0 or list id.
 
 =head2 update_data
 
