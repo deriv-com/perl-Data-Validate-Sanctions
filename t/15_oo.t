@@ -8,7 +8,7 @@ use Test::More;
 my $validator = Data::Validate::Sanctions->new;
 
 ok $validator->is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov is_sanctioned for sure";
-is $validator->is_sanctioned(qw(sergei ivanov)), 'OFAC-SDN', "Sergei Ivanov is_sanctioned for sure and in correct list";
+is $validator->is_sanctioned(qw(sergei ivanov)), 'HMT-Sanctions', "Sergei Ivanov is_sanctioned for sure and in correct list";
 ok !$validator->is_sanctioned(qw(chris down)), "Chris is a good guy";
 
 my $tmpa = tempfile;
