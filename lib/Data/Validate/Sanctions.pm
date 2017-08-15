@@ -57,13 +57,15 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
 
     for my $k (sort keys %$data) {
         foreach my $name (@{$data->{$k}{names}}) {
+            (my $check_name = $name) =~ s/[[:^alpha:]]//g;
+            $check_name = uc($check_name);
             for (@name_variants) {
-                return $k if $name =~ /$_/;
-        }
+                return wantarray ? ($k, $name) : $k if $check_name =~ /$_/;
+            }
         }
     }
 
-    return 0;
+    return wantarray ? (0, '') : 0;
 }
 
 sub _load_data {
@@ -168,9 +170,9 @@ when one string is passed, please be sure last_name is before first_name.
 
 or you can pass first_name, last_name (last_name, first_name), we'll check both "$last_name $first_name" and "$first_name $last_name".
 
-return 1 for yes, 0 for no.
+return list name if match is found, 0 for no. If called in array context, list of (list name, matched name from list) is returned, or (0,'') if no matches.
 
-it will remove all non-alpha chars and compare with the list we have.
+It will remove all non-alpha chars and compare with the list we have.
 
 =head2 update_data
 
