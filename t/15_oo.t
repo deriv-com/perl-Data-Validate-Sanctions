@@ -8,10 +8,10 @@ use Test::More;
 my $validator = Data::Validate::Sanctions->new;
 
 ok $validator->is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov is_sanctioned for sure";
-is $validator->is_sanctioned(qw(sergei ivanov)), 'HMT-Sanctions', "Sergei Ivanov is_sanctioned for sure and in correct list";
-my @result = $validator->is_sanctioned(qw(usama bin laden));
-is $result[0], 'OFAC-SDN',        "Usama BIN LADEN is_sanctioned in array context with correct country";
-is $result[1], 'Usama BIN LADEN', "Usama BIN LADEN is_sanctioned in array contextm with correct matched name";
+my $result = $validator->get_sanctioned_info(qw(usama bin laden));
+is $result->{matched}, 1,                 "Usama BIN LADEN is matched from get_sanctioned_info ";
+is $result->{list},    'OFAC-SDN',        "Usama BIN LADEN has correct list from get_sanctioned_info";
+is $result->{name},    'Usama BIN LADEN', "Usama BIN LADEN has correct matched name from get_sanctioned_info";
 ok !$validator->is_sanctioned(qw(chris down)), "Chris is a good guy";
 
 my $tmpa = tempfile;
@@ -28,7 +28,7 @@ $tmpb->spew(
                 names   => ['TMPB']}}));
 $validator = Data::Validate::Sanctions->new(sanction_file => "$tmpa");
 ok !$validator->is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov not is_sanctioned";
-is $validator->is_sanctioned(qw(tmpa)), 'test1', "now sanction file is tmpa, and tmpa is in test1 list";
+ok $validator->is_sanctioned(qw(tmpa)), "now sanction file is tmpa, and tmpa is in test1 list";
 
 Class::Unload->unload('Data::Validate::Sanctions');
 local $ENV{SANCTION_FILE} = "$tmpb";
