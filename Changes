@@ -2,9 +2,9 @@ Revision history for Data-Validate-Sanctions
 
 {{$NEXT}}
         Update cached list only on update any of the lists. Handle network errors.
-        Return list name in case of matching.
         Use YAML to store cached lists, to have some metadata. Store this file in `share` by default.
         Use regex for name checking.
+        Added get_sanctioned_info to return detailed info on match.
 
 0.10      2017-03-31 03:30:51+00:00 UTC
           move scripts to bin directory

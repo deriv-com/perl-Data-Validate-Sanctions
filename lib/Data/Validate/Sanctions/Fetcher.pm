@@ -37,8 +37,8 @@ my $config = {
 
 sub _process_name {
     my $r = join ' ', @_;
-    $r =~ s/[[:^alpha:]]//g;
-    return uc($r);
+    $r =~ s/^\s+|\s+$//g;
+    return $r;
 }
 
 sub _ofac_xml_zip {
@@ -79,9 +79,9 @@ sub _hmt_csv {
 
     while (my $row = $csv->getline($fh) or not $csv->eof) {
         ($row->[23] and $row->[23] eq "Individual") or next;
-        my $name = join '', @{$row}[0 .. 5];
-        next unless $name;
-        push @names, _process_name $name;
+        my $name = _process_name @{$row}[0 .. 5];
+        next if $name =~ /^\s*$/;
+        push @names, $name;
     }
     close $fh;
     my $parser = DateTime::Format::Strptime->new(

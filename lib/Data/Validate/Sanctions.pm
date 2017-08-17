@@ -40,6 +40,10 @@ sub get_sanction_file {
 }
 
 sub is_sanctioned {        ## no critic (RequireArgUnpacking)
+    return (get_sanctioned_info(@_))->{matched};
+}
+
+sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
 
     unless ($self) {
@@ -57,13 +61,19 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
 
     for my $k (sort keys %$data) {
         foreach my $name (@{$data->{$k}{names}}) {
+            (my $check_name = $name) =~ s/[[:^alpha:]]//g;
+            $check_name = uc($check_name);
             for (@name_variants) {
-                return $k if $name =~ /$_/;
-        }
+                return +{
+                    matched => 1,
+                    list    => $k,
+                    name    => $name,
+                } if $check_name =~ /$_/;
+            }
         }
     }
 
-    return 0;
+    return {matched => 0};
 }
 
 sub _load_data {
@@ -168,9 +178,21 @@ when one string is passed, please be sure last_name is before first_name.
 
 or you can pass first_name, last_name (last_name, first_name), we'll check both "$last_name $first_name" and "$first_name $last_name".
 
-return 1 for yes, 0 for no.
+retrun 1 if match is found and 0 if match is not found.
 
-it will remove all non-alpha chars and compare with the list we have.
+It will remove all non-alpha chars and compare with the list we have.
+
+=head2 get_sanctioned_info
+
+    my $result =get_sanctioned_info($last_name, $first_name);
+    print 'match: ', $result->{name}, ' on list ', $result->{list} if $result->{matched};
+
+return hashref with keys:
+    matched      1 or 0, depends if name has matched
+    list       name of list matched (present only if matched)
+    name        name of sanctioned person matched (present only if matched)
+
+It will remove all non-alpha chars and compare with the list we have.
 
 =head2 update_data
 
