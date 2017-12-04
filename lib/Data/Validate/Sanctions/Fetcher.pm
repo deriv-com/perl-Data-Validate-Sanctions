@@ -76,17 +76,17 @@ sub _hmt_csv {
     print $fh $content;
     seek($fh, 0, 0);
 
-    my $sanction_list;
+    my $last_update;
 
     while (my $row = $csv->getline($fh)) {
-        $sanction_list //= $row;
+        $last_update //= $row->[1];
         ($row->[23] and $row->[23] eq "Individual") or next;
         my $name = _process_name @{$row}[0 .. 5];
         next if $name =~ /^\s*$/;
         push @names, $name;
     }
 
-    die "Sanction file is not accessible." unless $csv->eof;
+    die "Getting HMT sancations failed: " . $csv->error_diag() unless $csv->eof();
     close $fh;
 
     my $parser = DateTime::Format::Strptime->new(
@@ -95,7 +95,7 @@ sub _hmt_csv {
     );
 
     return {
-        updated => $parser->parse_datetime($sanction_list->[1])->epoch,
+        updated => $parser->parse_datetime($last_update)->epoch,
         names   => \@names,
     };
 }
