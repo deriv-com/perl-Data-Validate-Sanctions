@@ -75,21 +75,27 @@ sub _hmt_csv {
     open $fh, '+>', undef or die "Could not open anonymous temp file - $!";                    ## no critic (RequireBriefOpen)
     print $fh $content;
     seek($fh, 0, 0);
-    my $info = $csv->getline($fh);
 
-    while (my $row = $csv->getline($fh) or not $csv->eof) {
+    my $sanction_list;
+
+    while (my $row = $csv->getline($fh)) {
+        $sanction_list //= $row;
         ($row->[23] and $row->[23] eq "Individual") or next;
         my $name = _process_name @{$row}[0 .. 5];
         next if $name =~ /^\s*$/;
         push @names, $name;
     }
+
+    die "Sanction file is not accessible." unless $csv->eof;
     close $fh;
+
     my $parser = DateTime::Format::Strptime->new(
         pattern  => '%d/%m/%Y',
         on_error => 'croak',
     );
+
     return {
-        updated => $parser->parse_datetime($info->[1])->epoch,
+        updated => $parser->parse_datetime($sanction_list->[1])->epoch,
         names   => \@names,
     };
 }
