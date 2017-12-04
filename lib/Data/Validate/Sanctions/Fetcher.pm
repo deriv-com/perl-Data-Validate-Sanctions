@@ -80,7 +80,10 @@ sub _hmt_csv {
     my $last_update;
 
     while (my $row = $csv->getline($fh)) {
+
+        # Get the date of the first line, which is the latest update
         $last_update //= $row->[1];
+
         ($row->[23] and $row->[23] eq "Individual") or next;
         my $name = _process_name @{$row}[0 .. 5];
         next if $name =~ /^\s*$/;
