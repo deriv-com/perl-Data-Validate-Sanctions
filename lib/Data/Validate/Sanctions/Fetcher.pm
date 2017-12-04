@@ -76,7 +76,7 @@ sub _hmt_csv {
     print $fh $content;
     seek($fh, 0, 0);
 
-    # Variable used to store the date of the last row
+    # Shows the last time the sanctions list has been updated
     my $last_update;
 
     while (my $row = $csv->getline($fh)) {
