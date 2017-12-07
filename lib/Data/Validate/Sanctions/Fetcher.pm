@@ -90,7 +90,7 @@ sub _hmt_csv {
         die 'Date does not match the pattern of %d/%m/%Y';
     }
 
-    while (my $row = $csv->getline($fh) or $csv->eof()) {
+    while (my $row = $csv->getline($fh) or not $csv->eof()) {
         ($row->[23] and $row->[23] eq "Individual") or next;
         my $name = _process_name @{$row}[0 .. 5];
         next if $name =~ /^\s*$/;
