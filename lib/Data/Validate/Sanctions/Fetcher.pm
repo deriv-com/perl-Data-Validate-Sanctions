@@ -86,7 +86,7 @@ sub _hmt_csv {
     my $info = $csv->getline($fh);
 
     my $pattern = '(0[1-9]|[12][0-9]|3[01])[/](0[1-9]|1[012])[/]((19|20)\d\d)';
-    if ($info->[1] =~ m/$pattern/) {
+    if ($info->[1] !~ m/$pattern/) {
         die 'Date does not match the pattern of %d/%m/%Y';
     }
 
