@@ -126,8 +126,7 @@ sub run {
 
             die "File not downloaded for " . $d->{description} if $ua->get($d->{url})->result->is_error;
 
-            my $content = $ua->get($d->{url})->result->body;
-            my $r       = $d->{parser}->{content};
+            my $r = $d->{parser}->($ua->get($d->{url})->result->body);
 
             if ($r->{updated} > 1) {
                 $r->{names} = [sort { $a cmp $b } uniq @{$r->{names}}];
