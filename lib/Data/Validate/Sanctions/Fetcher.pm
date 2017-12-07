@@ -61,6 +61,12 @@ sub _ofac_xml {
         pattern  => '%m/%d/%Y',
         on_error => 'croak',
     );
+
+    my $pattern = '((0[1-9]|1[012])[/]0[1-9]|[12][0-9]|3[01])[/]((19|20)\d\d)';
+    if ($ref->{publshInformation}{Publish_Date} !~ m/$pattern/) {
+        die 'Date does not match the pattern of %m/%d/%Y';
+    }
+
     return {
         updated => $parser->parse_datetime($ref->{publshInformation}{Publish_Date})->epoch,    # 'publshInformation' is a real name
         names   => \@names,
@@ -71,26 +77,26 @@ sub _hmt_csv {
     my $content = shift;
     my @names;
     my $fh;
+
     my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
     open $fh, '+>', undef or die "Could not open anonymous temp file - $!";                    ## no critic (RequireBriefOpen)
     print $fh $content;
     seek($fh, 0, 0);
 
-    # Shows the last time the sanctions list has been updated
-    my $last_update;
+    my $info = $csv->getline($fh);
 
-    while (my $row = $csv->getline($fh)) {
+    my $pattern = '(0[1-9]|[12][0-9]|3[01])[/](0[1-9]|1[012])[/]((19|20)\d\d)';
+    if ($info->[1] =~ m/$pattern/) {
+        die 'Date does not match the pattern of %d/%m/%Y';
+    }
 
-        # Get the date of the first line, which is the latest update
-        $last_update //= $row->[1];
-
+    while (my $row = $csv->getline($fh) or $csv->eof()) {
         ($row->[23] and $row->[23] eq "Individual") or next;
         my $name = _process_name @{$row}[0 .. 5];
         next if $name =~ /^\s*$/;
         push @names, $name;
     }
 
-    die "Getting HMT sancations failed: " . $csv->error_diag() unless $csv->eof();
     close $fh;
 
     my $parser = DateTime::Format::Strptime->new(
@@ -99,7 +105,7 @@ sub _hmt_csv {
     );
 
     return {
-        updated => $parser->parse_datetime($last_update)->epoch,
+        updated => $parser->parse_datetime($info->[1])->epoch,
         names   => \@names,
     };
 }
@@ -117,7 +123,12 @@ sub run {
     foreach my $id (keys %$config) {
         my $d = $config->{$id};
         try {
-            my $r = $d->{parser}->($ua->get($d->{url})->result->body);
+
+            die "File not downloaded for " . $d->{description} if $ua->get($d->{url})->result->is_error;
+
+            my $content = $ua->get($d->{url})->result->body;
+            my $r       = $d->{parser}->{content};
+
             if ($r->{updated} > 1) {
                 $r->{names} = [sort { $a cmp $b } uniq @{$r->{names}}];
                 $h->{$id} = $r;
