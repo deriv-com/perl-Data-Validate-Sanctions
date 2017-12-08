@@ -62,6 +62,7 @@ sub _ofac_xml {
         on_error => 'croak',
     );
 
+    # Pattern to look for: mm/dd/yyy
     my $pattern = '((0[1-9]|1[012])[/]0[1-9]|[12][0-9]|3[01])[/]((19|20)\d\d)';
     if ($ref->{publshInformation}{Publish_Date} !~ m/$pattern/) {
         die 'Date does not match the pattern of %m/%d/%Y';
@@ -85,6 +86,7 @@ sub _hmt_csv {
 
     my $info = $csv->getline($fh);
 
+    # Pattern to look for: dd/mm/yyyy
     my $pattern = '(0[1-9]|[12][0-9]|3[01])[/](0[1-9]|1[012])[/]((19|20)\d\d)';
     if ($info->[1] !~ m/$pattern/) {
         die 'Date does not match the pattern of %d/%m/%Y';
