@@ -48,6 +48,18 @@ sub _ofac_xml_zip {
     return _ofac_xml($output);
 }
 
+sub _validate_date {
+
+    my $file_date = shift;
+
+    # Date validation checker for both mm/dd/yyyy and dd/mm/yyyy
+    if ($test !~ /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/) {
+        return undef;
+    }
+
+    return 1;
+}
+
 sub _ofac_xml {
     my $content = shift;
     my @names;
@@ -57,16 +69,13 @@ sub _ofac_xml {
         push @names, _process_name($_->{firstName} // '', $_->{lastName} // '') for ($entry, @{$entry->{akaList}{aka} // []});
 
     }
+
+    die 'Datetime is invalid' unless (_validate_date($ref->{publshInformation}{Publish_Date}));
+
     my $parser = DateTime::Format::Strptime->new(
         pattern  => '%m/%d/%Y',
         on_error => 'croak',
     );
-
-    # Pattern to look for: mm/dd/yyy
-    my $pattern = '((0[1-9]|1[012])[/]0[1-9]|[12][0-9]|3[01])[/]((19|20)\d\d)';
-    if ($ref->{publshInformation}{Publish_Date} !~ m/$pattern/) {
-        die 'Date does not match the pattern of mm/dd/yyyy';
-    }
 
     return {
         updated => $parser->parse_datetime($ref->{publshInformation}{Publish_Date})->epoch,    # 'publshInformation' is a real name
@@ -86,11 +95,7 @@ sub _hmt_csv {
 
     my $info = $csv->getline($fh);
 
-    # Pattern to look for: dd/mm/yyyy
-    my $pattern = '(0[1-9]|[12][0-9]|3[01])[/](0[1-9]|1[012])[/]((19|20)\d\d)';
-    if ($info->[1] !~ m/$pattern/) {
-        die 'Date does not match the pattern of dd/mm/yyyy';
-    }
+    die 'Datetime is invalid' unless (_validate_date($info->[1]));
 
     while (my $row = $csv->getline($fh) or not $csv->eof()) {
         ($row->[23] and $row->[23] eq "Individual") or next;
