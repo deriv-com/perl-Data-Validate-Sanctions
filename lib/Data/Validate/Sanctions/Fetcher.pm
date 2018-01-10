@@ -53,7 +53,7 @@ sub _validate_date {
     my $file_date = shift;
 
     # Date validation checker for both mm/dd/yyyy and dd/mm/yyyy
-    if ($test !~ /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/) {
+    if ($file_date !~ /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/) {
         return undef;
     }
 
