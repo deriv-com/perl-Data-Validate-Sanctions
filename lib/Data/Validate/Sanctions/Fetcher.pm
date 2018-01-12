@@ -52,12 +52,10 @@ sub _validate_date {
 
     my $file_date = shift;
 
-    # Date validation checker for both mm/dd/yyyy and dd/mm/yyyy
-    if ($file_date !~ /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/) {
-        return undef;
-    }
+    # Check if datetime is valid or not
+    return 1 if $file_date =~ /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
 
-    return 1;
+        return undef;
 }
 
 sub _ofac_xml {
