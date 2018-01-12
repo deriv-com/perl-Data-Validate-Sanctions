@@ -53,9 +53,9 @@ sub _validate_date {
     my $file_date = shift;
 
     # Check if datetime is valid or not
-    return 1 if $file_date =~ /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
+    return 1 if $file_date =~ /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
 
-        return undef;
+    return 0;
 }
 
 sub _ofac_xml {
