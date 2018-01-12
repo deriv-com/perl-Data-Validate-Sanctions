@@ -48,6 +48,16 @@ sub _ofac_xml_zip {
     return _ofac_xml($output);
 }
 
+sub _validate_date {
+
+    my $file_date = shift;
+
+    # Check if datetime is valid or not
+    return 1 if $file_date =~ /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+
+    return 0;
+}
+
 sub _ofac_xml {
     my $content = shift;
     my @names;
@@ -57,10 +67,14 @@ sub _ofac_xml {
         push @names, _process_name($_->{firstName} // '', $_->{lastName} // '') for ($entry, @{$entry->{akaList}{aka} // []});
 
     }
+
+    die 'Datetime is invalid' unless (_validate_date($ref->{publshInformation}{Publish_Date}));
+
     my $parser = DateTime::Format::Strptime->new(
         pattern  => '%m/%d/%Y',
         on_error => 'croak',
     );
+
     return {
         updated => $parser->parse_datetime($ref->{publshInformation}{Publish_Date})->epoch,    # 'publshInformation' is a real name
         names   => \@names,
@@ -71,23 +85,30 @@ sub _hmt_csv {
     my $content = shift;
     my @names;
     my $fh;
+
     my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
     open $fh, '+>', undef or die "Could not open anonymous temp file - $!";                    ## no critic (RequireBriefOpen)
     print $fh $content;
     seek($fh, 0, 0);
+
     my $info = $csv->getline($fh);
 
-    while (my $row = $csv->getline($fh) or not $csv->eof) {
+    die 'Datetime is invalid' unless (_validate_date($info->[1]));
+
+    while (my $row = $csv->getline($fh) or not $csv->eof()) {
         ($row->[23] and $row->[23] eq "Individual") or next;
         my $name = _process_name @{$row}[0 .. 5];
         next if $name =~ /^\s*$/;
         push @names, $name;
     }
+
     close $fh;
+
     my $parser = DateTime::Format::Strptime->new(
         pattern  => '%d/%m/%Y',
         on_error => 'croak',
     );
+
     return {
         updated => $parser->parse_datetime($info->[1])->epoch,
         names   => \@names,
@@ -107,7 +128,11 @@ sub run {
     foreach my $id (keys %$config) {
         my $d = $config->{$id};
         try {
+
+            die "File not downloaded for " . $d->{description} if $ua->get($d->{url})->result->is_error;
+
             my $r = $d->{parser}->($ua->get($d->{url})->result->body);
+
             if ($r->{updated} > 1) {
                 $r->{names} = [sort { $a cmp $b } uniq @{$r->{names}}];
                 $h->{$id} = $r;
