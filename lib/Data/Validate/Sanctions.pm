@@ -14,7 +14,7 @@ use File::ShareDir;
 use YAML::XS qw/DumpFile LoadFile/;
 use Scalar::Util qw(blessed);
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 # for OO
 sub new {    ## no critic (RequireArgUnpacking)
@@ -55,7 +55,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 
     # prepare list of possible variants of names: LastnameFirstname and FirstnameLastname
     my @name_variants = map {
-        my $name = uc(join('.*', map { my $a = $_; $a =~ s/[[:^alpha:]]//g; $a } @$_));
+        my $name = uc(join('.*', map { my $x = $_; $x =~ s/[[:^alpha:]]//g; $x } @$_));
         $name
     } ([@_], @_ > 1 ? [reverse @_] : ());
 
