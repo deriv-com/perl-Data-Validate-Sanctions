@@ -85,7 +85,7 @@ sub _hmt_csv {
     my $content = shift;
     my @names;
     my $fh;
-    my $hash_ref;
+    my $hmt_ref;
 
     my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
     open $fh, '+>', undef or die "Could not open anonymous temp file - $!";                    ## no critic (RequireBriefOpen)
@@ -109,7 +109,7 @@ sub _hmt_csv {
         # Some DOBs are invalid (Ex. 0/0/1968)
         try {
             my $dob_epoch = Date::Utility->new($date_of_birth)->epoch;
-            push @{$hash_ref->{$name}->{dob_epoch}}, $dob_epoch;
+            push @{$hmt_ref->{$name}->{dob_epoch}}, $dob_epoch;
             
         } catch {
             next;
@@ -125,7 +125,7 @@ sub _hmt_csv {
 
     return {
         updated => $parser->parse_datetime($info->[1])->epoch,
-        names   => \@names,
+        hashref => $hmt_ref,
     };
 }
 
