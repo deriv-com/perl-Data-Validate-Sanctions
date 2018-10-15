@@ -95,6 +95,7 @@ sub update_data {
 
     my $new_data = Data::Validate::Sanctions::Fetcher::run();
     $self->_load_data();
+    
     my $updated;
     foreach my $k (keys %$new_data) {
         if (ref($self->{_data}{$k}) ne 'HASH' || $self->{_data}{$k}{updated} < $new_data->{$k}{updated}) {

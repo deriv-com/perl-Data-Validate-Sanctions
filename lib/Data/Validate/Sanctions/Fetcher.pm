@@ -112,7 +112,7 @@ sub _hmt_csv {
             push @{$hmt_ref->{$name}->{dob_epoch}}, $dob_epoch;
             
         } catch {
-            next;
+            $hmt_ref->{$name}->{dob_epoch} = [];
         }
     }
 
@@ -125,7 +125,7 @@ sub _hmt_csv {
 
     return {
         updated => $parser->parse_datetime($info->[1])->epoch,
-        hashref => $hmt_ref,
+        names_list   => $hmt_ref,
     };
 }
 
@@ -147,8 +147,8 @@ sub run {
 
             my $r = $d->{parser}->($ua->get($d->{url})->result->body);
 
-            if ($r->{updated} > 1 and exists ($r->{names})) {
-                $r->{names} = [sort { $a cmp $b } uniq @{$r->{names}}];
+            if ($r->{updated} > 1) {
+                $r->{names} = [sort { $a cmp $b } uniq @{$r->{names}}] if exists ($r->{names});
                 $h->{$id} = $r;
             }
         }
