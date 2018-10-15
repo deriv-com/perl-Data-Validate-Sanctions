@@ -58,9 +58,17 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
         my $name = uc(join('.*', map { my $x = $_; $x =~ s/[[:^alpha:]]//g; $x } @$_));
         $name
     } ([@_], @_ > 1 ? [reverse @_] : ());
-
+    
+    my @names;
     for my $k (sort keys %$data) {
-        foreach my $name (@{$data->{$k}{names}}) {
+        
+        if($k eq 'HMT-Sanctions') {
+            @names = keys %{$data->{'HMT-Sanctions'}->{names_list}};    
+        } else {
+            @names = @{$data->{$k}{names}};
+        }
+        
+        foreach my $name (@names) {
             (my $check_name = $name) =~ s/[[:^alpha:]]//g;
             $check_name = uc($check_name);
             for (@name_variants) {
