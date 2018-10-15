@@ -98,8 +98,21 @@ sub _hmt_csv {
     while (my $row = $csv->getline($fh) or not $csv->eof()) {
         ($row->[23] and $row->[23] eq "Individual") or next;
         my $name = _process_name @{$row}[0 .. 5];
+        
         next if $name =~ /^\s*$/;
         push @names, $name;
+        
+        my $date_of_birth = @{$row}[7];
+        $date_of_birth =~ tr/\//-/;
+        
+        # Some DOBs are invalid (Ex. 0/0/1968)
+        try {
+            my $dob_epoch = Date::Utility->new($date_of_birth)->epoch;
+            push @{$hash_ref->{$name}->{dob_epoch}}, $dob_epoch;
+            
+        } catch {
+            next;
+        }
     }
 
     close $fh;
@@ -134,7 +147,7 @@ sub run {
             my $r = $d->{parser}->($ua->get($d->{url})->result->body);
 
             if ($r->{updated} > 1) {
-                $r->{names} = [sort { $a cmp $b } uniq @{$r->{names}}];
+                $r->{names} = [sort { $a cmp $b } uniq @{$r->{names}}] if exists ($r->{names});
                 $h->{$id} = $r;
             }
         }
