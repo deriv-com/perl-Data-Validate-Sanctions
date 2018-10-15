@@ -85,6 +85,7 @@ sub _hmt_csv {
     my $content = shift;
     my @names;
     my $fh;
+    my $hash_ref;
 
     my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
     open $fh, '+>', undef or die "Could not open anonymous temp file - $!";                    ## no critic (RequireBriefOpen)
