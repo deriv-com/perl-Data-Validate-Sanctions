@@ -45,6 +45,7 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
 
 sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
+    #my $client = shift;
 
     unless ($self) {
         $instance = __PACKAGE__->new(sanction_file => $sanction_file);
@@ -78,7 +79,8 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
                 # First check: See if the regex matches
                 # Second check: See if the date of birth matches
                 if ($check_name =~ /$_/) {
-                    #my $checked = grep { $_ eq $client->dob->epoch } @{$data->{$k}->{names_list}->{$name}->{dob_epoch}};
+                    # my $client_dob_epoch = Date::Utility->new($client->date_of_birth)->epoch;
+                    #my $checked = grep { $_ eq $client_dob_epoch } @{$data->{$k}->{names_list}->{$name}->{dob_epoch}};
                     return +{
                         matched => 1,
                         list    => $k,
