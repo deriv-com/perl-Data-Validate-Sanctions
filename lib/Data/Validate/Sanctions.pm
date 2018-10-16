@@ -13,6 +13,7 @@ use File::stat;
 use File::ShareDir;
 use YAML::XS qw/DumpFile LoadFile/;
 use Scalar::Util qw(blessed);
+use Date::Utility;
 
 our $VERSION = '0.11';
 
@@ -45,7 +46,8 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
 
 sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
-    #my $client = shift;
+    
+    my ($first_name, $last_name, $date_of_birth) = @_;
 
     unless ($self) {
         $instance = __PACKAGE__->new(sanction_file => $sanction_file);
@@ -55,10 +57,12 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     my $data = $self->_load_data();
 
     # prepare list of possible variants of names: LastnameFirstname and FirstnameLastname
+    my @full_name = ($first_name, $last_name);
+    
     my @name_variants = map {
         my $name = uc(join('.*', map { my $x = $_; $x =~ s/[[:^alpha:]]//g; $x } @$_));
         $name
-    } ([@_], @_ > 1 ? [reverse @_] : ());
+    } ([@full_name], @full_name > 1 ? [reverse @full_name] : ());
     
     my @names;
     for my $k (sort keys %$data) {
@@ -79,8 +83,8 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
                 # First check: See if the regex matches
                 # Second check: See if the date of birth matches
                 if ($check_name =~ /$_/) {
-                    # my $client_dob_epoch = Date::Utility->new($client->date_of_birth)->epoch;
-                    #my $checked = grep { $_ eq $client_dob_epoch } @{$data->{$k}->{names_list}->{$name}->{dob_epoch}};
+                    my $client_dob_epoch = Date::Utility->new($date_of_birth)->epoch;
+                    my $checked = grep { $_ eq $client_dob_epoch } @{$data->{$k}->{names_list}->{$name}->{dob_epoch}};
                     return +{
                         matched => 1,
                         list    => $k,

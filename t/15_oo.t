@@ -7,8 +7,8 @@ use Test::More;
 
 my $validator = Data::Validate::Sanctions->new;
 
-ok $validator->is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov is_sanctioned for sure";
-my $result = $validator->get_sanctioned_info(qw(usama bin laden));
+ok $validator->is_sanctioned('sergei', 'ivanov'), "Sergei Ivanov is_sanctioned for sure";
+my $result = $validator->get_sanctioned_info('usama', 'bin laden');
 is $result->{matched}, 1,                 "Usama BIN LADEN is matched from get_sanctioned_info ";
 is $result->{list},    'OFAC-SDN',        "Usama BIN LADEN has correct list from get_sanctioned_info";
 is $result->{name},    'Usama BIN LADEN', "Usama BIN LADEN has correct matched name from get_sanctioned_info";
