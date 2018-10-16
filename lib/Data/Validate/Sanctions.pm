@@ -69,14 +69,22 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
         }
         
         foreach my $name (@names) {
+            
             (my $check_name = $name) =~ s/[[:^alpha:]]//g;
             $check_name = uc($check_name);
+            
             for (@name_variants) {
-                return +{
-                    matched => 1,
-                    list    => $k,
-                    name    => $name,
-                } if $check_name =~ /$_/;
+                
+                # First check: See if the regex matches
+                # Second check: See if the date of birth matches
+                if ($check_name =~ /$_/) {
+                    #my $checked = grep { $_ eq $client->dob->epoch } @{$data->{$k}->{names_list}->{$name}->{dob_epoch}};
+                    return +{
+                        matched => 1,
+                        list    => $k,
+                        name    => $name,
+                    };
+                }
             }
         }
     }
