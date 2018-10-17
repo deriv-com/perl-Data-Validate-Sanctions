@@ -14,6 +14,10 @@ is $result->{list},    'OFAC-SDN',        "Usama BIN LADEN has correct list from
 is $result->{name},    'Usama BIN LADEN', "Usama BIN LADEN has correct matched name from get_sanctioned_info";
 ok !$validator->is_sanctioned(qw(chris down)), "Chris is a good guy";
 
+$result = $validator->get_sanctioned_info('Abdul', 'Rahim', -254534400);
+is $result->{matched}, 1, 'Abdul Rahim (with date of birth) is matched';
+is $result->{list}, 'HMT-Sanctions', 'Matched from correct sanction list with date of birth provided';
+
 my $tmpa = tempfile;
 $tmpa->spew(
     Dump({

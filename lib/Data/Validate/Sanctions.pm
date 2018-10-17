@@ -68,7 +68,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     for my $k (sort keys %$data) {
         
         if($k eq 'HMT-Sanctions') {
-            @names = keys %{$data->{'HMT-Sanctions'}->{names_list}};    
+            @names = keys %{$data->{$k}->{names_list}};
         } else {
             @names = @{$data->{$k}{names}};
         }
@@ -82,11 +82,12 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
                 
                 my $checked_dob;
                 my $checked_name;
+                
                 # First check: See if the regex matches
                 # Second check: See if the date of birth matches
                 if ($check_name =~ /$_/) {
-                    my $client_dob_epoch = Date::Utility->new($date_of_birth)->epoch;
                     $checked_name = 1;
+                    my $client_dob_epoch = Date::Utility->new($date_of_birth)->epoch;
                     $checked_dob = grep { $_ eq $client_dob_epoch } @{$data->{$k}->{names_list}->{$name}->{dob_epoch}};
                 }
                 
