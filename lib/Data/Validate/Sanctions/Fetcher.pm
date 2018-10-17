@@ -60,11 +60,36 @@ sub _validate_date {
 
 sub _ofac_xml {
     my $content = shift;
+    
     my @names;
     my $ref = xml2hash($content, array => ['aka'])->{sdnList};
+    my $ofac_ref;
+
     foreach my $entry (@{$ref->{sdnEntry}}) {
         next unless $entry->{sdnType} eq 'Individual';
+        my @dob_list;
+        
         push @names, _process_name($_->{firstName} // '', $_->{lastName} // '') for ($entry, @{$entry->{akaList}{aka} // []});
+        my $name = pop @names;
+        
+        $ofac_ref->{$name}->{dob_epoch} = [];
+        
+        my $dob = $entry->{dateOfBirthList}{dateOfBirthItem};
+        
+        if(ref($dob) eq 'ARRAY') {
+            push @dob_list, $_->{dateOfBirth} foreach (@$dob);
+        } else {
+            push @dob_list, $dob->{dateOfBirth} if exists $dob->{dateOfBirth};
+        }
+        
+        foreach my $dob (@dob_list) {
+            $dob =~ s/ /-/g;
+            
+            try {
+                $dob = Date::Utility->new($dob);
+                push @{$ofac_ref->{$name}->{dob_epoch}}, $dob->epoch;
+            }
+        }
 
     }
 
@@ -76,14 +101,13 @@ sub _ofac_xml {
     );
 
     return {
-        updated => $parser->parse_datetime($ref->{publshInformation}{Publish_Date})->epoch,    # 'publshInformation' is a real name
-        names   => \@names,
+        updated      => $parser->parse_datetime($ref->{publshInformation}{Publish_Date})->epoch,    # 'publshInformation' is a real name
+        names_list   => $ofac_ref,
     };
 }
 
 sub _hmt_csv {
     my $content = shift;
-    my @names;
     my $fh;
     my $hmt_ref;
 
@@ -101,7 +125,6 @@ sub _hmt_csv {
         my $name = _process_name @{$row}[0 .. 5];
         
         next if $name =~ /^\s*$/;
-        push @names, $name;
         
         my $date_of_birth = @{$row}[7];
         $date_of_birth =~ tr/\//-/;
@@ -148,7 +171,7 @@ sub run {
             my $r = $d->{parser}->($ua->get($d->{url})->result->body);
 
             if ($r->{updated} > 1) {
-                $r->{names} = [sort { $a cmp $b } uniq @{$r->{names}}] if exists ($r->{names});
+                #$r->{names} = [sort { $a cmp $b } uniq @{$r->{names}}] if exists ($r->{names});
                 $h->{$id} = $r;
             }
         }
