@@ -59,6 +59,9 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     # prepare list of possible variants of names: LastnameFirstname and FirstnameLastname
     my @full_name = ($first_name, $last_name);
     
+    use Data::Dumper;
+    warn Dumper(@full_name);
+    
     my @name_variants = map {
         my $name = uc(join('.*', map { my $x = $_; $x =~ s/[[:^alpha:]]//g; $x } @$_));
         $name
@@ -80,17 +83,21 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
             
             for (@name_variants) {
                 
+                my $checked_dob;
+                my $checked_name;
                 # First check: See if the regex matches
                 # Second check: See if the date of birth matches
                 if ($check_name =~ /$_/) {
                     my $client_dob_epoch = Date::Utility->new($date_of_birth)->epoch;
-                    my $checked = grep { $_ eq $client_dob_epoch } @{$data->{$k}->{names_list}->{$name}->{dob_epoch}};
-                    return +{
-                        matched => 1,
-                        list    => $k,
-                        name    => $name,
-                    };
+                    $checked_name = 1;
+                    $checked_dob = grep { $_ eq $client_dob_epoch } @{$data->{$k}->{names_list}->{$name}->{dob_epoch}};
                 }
+                
+                return +{
+                    matched => 1,
+                    list    => $k,
+                    name    => $name,
+                } if (($checked_dob && $k eq 'HMT-Sanctions') || $checked_name) ;
             }
         }
     }
