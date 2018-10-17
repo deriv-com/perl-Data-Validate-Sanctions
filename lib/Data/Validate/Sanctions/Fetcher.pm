@@ -171,7 +171,6 @@ sub run {
             my $r = $d->{parser}->($ua->get($d->{url})->result->body);
 
             if ($r->{updated} > 1) {
-                #$r->{names} = [sort { $a cmp $b } uniq @{$r->{names}}] if exists ($r->{names});
                 $h->{$id} = $r;
             }
         }

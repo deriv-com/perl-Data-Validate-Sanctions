@@ -67,11 +67,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     my @names;
     for my $k (sort keys %$data) {
         
-        if($k eq 'HMT-Sanctions') {
-            @names = keys %{$data->{$k}->{names_list}};
-        } else {
-            @names = @{$data->{$k}{names}};
-        }
+        @names = keys %{$data->{$k}->{names_list}};
         
         foreach my $name (@names) {
             
