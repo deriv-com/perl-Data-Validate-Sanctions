@@ -57,10 +57,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     my $data = $self->_load_data();
 
     # prepare list of possible variants of names: LastnameFirstname and FirstnameLastname
-    my @full_name = ($first_name, $last_name);
-    
-    use Data::Dumper;
-    warn Dumper(@full_name);
+    my @full_name = $last_name ? ($first_name, $last_name) : $first_name;
     
     my @name_variants = map {
         my $name = uc(join('.*', map { my $x = $_; $x =~ s/[[:^alpha:]]//g; $x } @$_));
