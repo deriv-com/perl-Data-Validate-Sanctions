@@ -76,6 +76,8 @@ sub _ofac_xml {
         
         my $dob = $entry->{dateOfBirthList}{dateOfBirthItem};
         
+        # In one of the xml files, some of the clients have more than one date of birth
+        # Hence, $dob can be either an array or a hashref
         if(ref($dob) eq 'ARRAY') {
             push @dob_list, $_->{dateOfBirth} foreach (@$dob);
         } else {
@@ -129,12 +131,13 @@ sub _hmt_csv {
         my $date_of_birth = @{$row}[7];
         $date_of_birth =~ tr/\//-/;
         
-        # Some DOBs are invalid (Ex. 0/0/1968)
+        # Some DOBs are invalid (Ex. 0-0-1968)
         try {
             my $dob_epoch = Date::Utility->new($date_of_birth)->epoch;
             push @{$hmt_ref->{$name}->{dob_epoch}}, $dob_epoch;
             
         } catch {
+            # Even if a client has an invalid date of birth, they should still have an empty array
             $hmt_ref->{$name}->{dob_epoch} = [];
         }
     }

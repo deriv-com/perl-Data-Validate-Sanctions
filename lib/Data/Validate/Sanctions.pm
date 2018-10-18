@@ -95,6 +95,8 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
                     $matched_name = $name;
                     $matched_file = $file;
                     
+                    # Some clients in sanction list can have more than one date of birth
+                    # Comparison is made using the epoch value
                     my $client_dob_epoch = Date::Utility->new($date_of_birth)->epoch;
                     $checked_dob = grep { $_ eq $client_dob_epoch } @{$data->{$file}->{names_list}->{$name}->{dob_epoch}};
                     
