@@ -44,6 +44,14 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
     return (get_sanctioned_info(@_))->{matched};
 }
 
+sub _return_possible_match {
+    return +{
+        matched => 1,
+        list    => $_[0],
+        name    => $_[1],
+    };
+}
+
 sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
     
@@ -87,11 +95,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
                     $checked_dob = grep { $_ eq $client_dob_epoch } @{$data->{$k}->{names_list}->{$name}->{dob_epoch}};
                 }
                 
-                return +{
-                    matched => 1,
-                    list    => $k,
-                    name    => $name,
-                } if (($checked_dob && $k eq 'HMT-Sanctions') || $checked_name) ;
+                return _return_possible_match($k, $name) if ($checked_dob || $checked_name);
             }
         }
     }
