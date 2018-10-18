@@ -16,7 +16,13 @@ $tempfile->spew(
     Dump({
             test1 => {
                 updated => time,
-                names   => ['CHRISDOWN']}}));
+                names_list   => {
+                    'CHRISDOWN' => {
+                        'dob_epoch' => [1234]
+                    }
+                }
+            }
+        }));
 lives_ok { Data::Validate::Sanctions::set_sanction_file("$tempfile"); };
 is(Data::Validate::Sanctions::get_sanction_file(), "$tempfile", "get sanction file ok");
 
