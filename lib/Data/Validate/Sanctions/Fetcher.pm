@@ -79,7 +79,7 @@ sub _ofac_xml {
         # In one of the xml files, some of the clients have more than one date of birth
         # Hence, $dob can be either an array or a hashref
         if(ref($dob) eq 'ARRAY') {
-            push @dob_list, $_->{dateOfBirth} foreach (@$dob);
+            @dob_list = map {$_->{dateOfBirth} } @$dob;
         } else {
             push @dob_list, $dob->{dateOfBirth} if exists $dob->{dateOfBirth};
         }
