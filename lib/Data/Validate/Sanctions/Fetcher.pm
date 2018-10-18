@@ -63,7 +63,7 @@ sub _ofac_xml {
     
     my @names;
     my $ref = xml2hash($content, array => ['aka'])->{sdnList};
-    my $ofac_ref;
+    my $ofac_ref = {};
 
     foreach my $entry (@{$ref->{sdnEntry}}) {
         next unless $entry->{sdnType} eq 'Individual';
@@ -111,7 +111,7 @@ sub _ofac_xml {
 sub _hmt_csv {
     my $content = shift;
     my $fh;
-    my $hmt_ref;
+    my $hmt_ref = {};
 
     my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
     open $fh, '+>', undef or die "Could not open anonymous temp file - $!";                    ## no critic (RequireBriefOpen)
@@ -128,7 +128,7 @@ sub _hmt_csv {
         
         next if $name =~ /^\s*$/;
         
-        my $date_of_birth = @{$row}[7];
+        my $date_of_birth = $row->[7];
         $date_of_birth =~ tr/\//-/;
         
         # Some DOBs are invalid (Ex. 0-0-1968)
