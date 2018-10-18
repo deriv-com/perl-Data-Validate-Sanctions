@@ -18,7 +18,7 @@ $tempfile->spew(
                 updated => time,
                 names_list   => {
                     'CHRISDOWN' => {
-                        'dob_epoch' => [1234]
+                        'dob_epoch' => []
                     }
                 }
             }

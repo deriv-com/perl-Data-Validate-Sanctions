@@ -69,7 +69,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
         
         @names = keys %{$data->{$k}->{names_list}};
         
-        foreach my $name (@names) {
+        foreach my $name (sort @names) {
             
             (my $check_name = $name) =~ s/[[:^alpha:]]//g;
             $check_name = uc($check_name);
