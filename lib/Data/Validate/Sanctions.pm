@@ -53,7 +53,7 @@ sub _possible_match {
     };
 }
 
-sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
+sub get_sanctioned_info {
     my $self = blessed($_[0]) ? shift : $instance;
     
     my ($first_name, $last_name, $date_of_birth) = @_;
@@ -224,7 +224,7 @@ It will remove all non-alpha chars and compare with the list we have.
 
 =head2 get_sanctioned_info
 
-    my $result =get_sanctioned_info($last_name, $first_name);
+    my $result =get_sanctioned_info($last_name, $first_name, $date_of_birth);
     print 'match: ', $result->{name}, ' on list ', $result->{list} if $result->{matched};
 
 return hashref with keys:
