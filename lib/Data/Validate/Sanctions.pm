@@ -44,7 +44,7 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
     return (get_sanctioned_info(@_))->{matched};
 }
 
-sub _return_possible_match {
+sub _possible_match {
     return +{
         matched => 1,
         list    => $_[0],
@@ -72,10 +72,12 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
         $name
     } ([@full_name], @full_name > 1 ? [reverse @full_name] : ());
     
-    my @names;
-    for my $k (sort keys %$data) {
+    my $matched_name;
+    my $matched_file;
+    
+    for my $file (sort keys %$data) {
         
-        @names = keys %{$data->{$k}->{names_list}};
+        my @names = keys %{$data->{$file}->{names_list}};
         
         foreach my $name (sort @names) {
             
@@ -85,20 +87,26 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
             for (@name_variants) {
                 
                 my $checked_dob;
-                my $checked_name;
                 
                 # First check: See if the regex matches
                 # Second check: See if the date of birth matches
                 if ($check_name =~ /$_/) {
-                    $checked_name = 1;
+                    
+                    $matched_name = $name;
+                    $matched_file = $file;
+                    
                     my $client_dob_epoch = Date::Utility->new($date_of_birth)->epoch;
-                    $checked_dob = grep { $_ eq $client_dob_epoch } @{$data->{$k}->{names_list}->{$name}->{dob_epoch}};
+                    $checked_dob = grep { $_ eq $client_dob_epoch } @{$data->{$file}->{names_list}->{$name}->{dob_epoch}};
+                    
+                    return _possible_match($matched_file, $matched_name) if $checked_dob;
+                    
                 }
-                
-                return _return_possible_match($k, $name) if ($checked_dob || $checked_name);
             }
         }
     }
+    
+    # Even if date of birth does not match but the name matches, we should still return a result
+    return _possible_match($matched_file, $matched_name) if $matched_name;
 
     return {matched => 0};
 }
