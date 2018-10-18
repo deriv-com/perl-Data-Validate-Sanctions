@@ -19,17 +19,33 @@ is $result->{matched}, 1, 'Abdul Rahim (with date of birth) is matched';
 is $result->{list}, 'HMT-Sanctions', 'Matched from correct sanction list with date of birth provided';
 
 my $tmpa = tempfile;
+
 $tmpa->spew(
     Dump({
             test1 => {
                 updated => time,
-                names   => ['TMPA']}}));
+                names_list   => {
+                    'TMPA' => {
+                        'dob_epoch' => []
+                    }
+                }
+            }
+        }));
+        
 my $tmpb = tempfile;
+
 $tmpb->spew(
     Dump({
             test2 => {
                 updated => time,
-                names   => ['TMPB']}}));
+                names_list   => {
+                    'TMPB' => {
+                        'dob_epoch' => []
+                    }
+                }
+            }
+        }));
+        
 $validator = Data::Validate::Sanctions->new(sanction_file => "$tmpa");
 ok !$validator->is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov not is_sanctioned";
 ok $validator->is_sanctioned(qw(tmpa)), "now sanction file is tmpa, and tmpa is in test1 list";

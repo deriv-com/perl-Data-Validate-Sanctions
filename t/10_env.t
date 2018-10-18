@@ -16,7 +16,7 @@ BEGIN {
                     updated => time,
                     names_list   => {
                         'TMPA' => {
-                            'dob_epoch' => [1234]
+                            'dob_epoch' => []
                         }
                     }
                 }
@@ -31,7 +31,7 @@ BEGIN {
                     updated => time,
                     names_list   => {
                         'TMPB' => {
-                            'dob_epoch' => [1234]
+                            'dob_epoch' => []
                         }
                     }
                 }
