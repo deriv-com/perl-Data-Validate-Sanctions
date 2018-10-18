@@ -45,14 +45,6 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
     return (get_sanctioned_info(@_))->{matched};
 }
 
-sub _possible_match {
-    return +{
-        matched => 1,
-        list    => $_[0],
-        name    => $_[1],
-    };
-}
-
 sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
     
@@ -147,6 +139,12 @@ sub update_data {
     return;
 }
 
+sub last_updated {
+    my $self = shift;
+    my $list = shift;
+    return $list ? $self->{_data}->{$list}->{updated} : $self->{last_time};
+}
+
 sub _save_data {
     my $self = shift;
 
@@ -164,10 +162,12 @@ sub _default_sanction_file {
     return $ENV{SANCTION_FILE} // File::ShareDir::dist_file('Data-Validate-Sanctions', 'sanctions.yml');
 }
 
-sub last_updated {
-    my $self = shift;
-    my $list = shift;
-    return $list ? $self->{_data}->{$list}->{updated} : $self->{last_time};
+sub _possible_match {
+    return +{
+        matched => 1,
+        list    => $_[0],
+        name    => $_[1],
+    };
 }
 
 1;
