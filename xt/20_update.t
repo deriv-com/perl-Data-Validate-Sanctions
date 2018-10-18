@@ -13,7 +13,13 @@ BEGIN {
     $sanction_data = Dump({
             test1 => {
                 updated => time,
-                names   => ['ABCD']}});
+                names_list   => {
+                    'ABCD' => {
+                        'dob_epoch' => []
+                    }
+                }
+            }
+        });
 
     (my $fh, $sanction_file) = tempfile();
     print $fh $sanction_data;
