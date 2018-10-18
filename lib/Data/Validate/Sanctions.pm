@@ -85,13 +85,13 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
             (my $check_name = $name) =~ s/[[:^alpha:]]//g;
             $check_name = uc($check_name);
             
-            for (@name_variants) {
+            for my $variant (@name_variants) {
                 
                 my $checked_dob;
                 
                 # First check: See if the regex matches
                 # Second check: See if the date of birth matches
-                if ($check_name =~ /$_/) {
+                if ($check_name =~ /$variant/) {
                     
                     $matched_name = $name;
                     $matched_file = $file;
