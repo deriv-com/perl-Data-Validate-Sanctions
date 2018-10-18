@@ -53,7 +53,7 @@ sub _possible_match {
     };
 }
 
-sub get_sanctioned_info {
+sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
     
     my ($first_name, $last_name, $date_of_birth) = @_;
@@ -66,7 +66,7 @@ sub get_sanctioned_info {
     my $data = $self->_load_data();
 
     # prepare list of possible variants of names: LastnameFirstname and FirstnameLastname
-    my @full_name = $last_name ? ($first_name, $last_name) : $first_name;
+    my @full_name = ($first_name, $last_name || ());
     
     my @name_variants = map {
         my $name = uc(join('.*', map { my $x = $_; $x =~ s/[[:^alpha:]]//g; $x } @$_));
