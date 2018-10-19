@@ -80,6 +80,11 @@ sub _ofac_xml {
         my @dob_list = map {$_->{dateOfBirth} ||()} (ref($dob) eq 'ARRAY' ? @$dob : $dob);
         
         foreach my $dob (@dob_list) {
+            
+            # Some of the values are only years (ex. '1946')
+            # We don't want to include them
+            next unless $dob !~ /^\d{4}$/;
+            
             $dob =~ s/ /-/g;
             
             try {
