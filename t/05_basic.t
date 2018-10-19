@@ -6,7 +6,7 @@ use Path::Tiny qw(tempfile);
 use Test::Exception;
 use Test::More;
 
-ok Data::Validate::Sanctions::is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov is_sanctioned for sure";
+ok Data::Validate::Sanctions::is_sanctioned(qw('sergei', 'ivanov', -253411200)), "Sergei Ivanov is_sanctioned for sure";
 ok !Data::Validate::Sanctions::is_sanctioned(qw(chris down)),   "Chris is a good guy";
 
 throws_ok { Data::Validate::Sanctions::set_sanction_file() } qr/sanction_file is needed/, "sanction file is required";

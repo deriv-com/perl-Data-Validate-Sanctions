@@ -7,12 +7,15 @@ use Test::More;
 
 my $validator = Data::Validate::Sanctions->new;
 
-ok $validator->is_sanctioned('sergei', 'ivanov'), "Sergei Ivanov is_sanctioned for sure";
+ok $validator->is_sanctioned('sergei', 'ivanov', -253411200), "Sergei Ivanov is_sanctioned for sure";
 my $result = $validator->get_sanctioned_info('abu', 'usama', -306028800);
 is $result->{matched}, 1,                 "Abu Usama is matched from get_sanctioned_info ";
 is $result->{list},    'HMT-Sanctions',   "Abu Usama has correct list from get_sanctioned_info";
 is $result->{name},    'ABU USAMA',       "Abu Usama has correct matched name from get_sanctioned_info";
 ok !$validator->is_sanctioned(qw(chris down)), "Chris is a good guy";
+
+$result = $validator->get_sanctioned_info('ABBATTAY', 'Mohamed', 174614567);
+is $result->{matched}, 0, 'ABBATTAY Mohamed is safe';
 
 $result = $validator->get_sanctioned_info('Abdul', 'Rahim');
 is $result->{matched}, 1, 'Abdul Rahim  is matched';
