@@ -100,8 +100,8 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
         }
     }
     
-    # Return a possible match if the name matches and no date of birth is provided
-    return _possible_match($matched_file, $matched_name) if ($matched_name && !$date_of_birth);
+    # Return a possible match if the name matches and no date of birth matches
+    return _possible_match($matched_file, $matched_name) if $matched_name;
     
     # Return if no possible match, regardless if date of birth is provided or not
     return {matched => 0};
