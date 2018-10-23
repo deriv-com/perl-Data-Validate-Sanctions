@@ -13,6 +13,8 @@ use File::stat;
 use File::ShareDir;
 use YAML::XS qw/DumpFile LoadFile/;
 use Scalar::Util qw(blessed);
+use Date::Utility;
+use List::Util qw(any);
 
 our $VERSION = '0.11';
 
@@ -43,8 +45,10 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
     return (get_sanctioned_info(@_))->{matched};
 }
 
-sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
+sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
+    
+    my ($first_name, $last_name, $date_of_birth) = @_;
 
     unless ($self) {
         $instance = __PACKAGE__->new(sanction_file => $sanction_file);
@@ -54,25 +58,61 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     my $data = $self->_load_data();
 
     # prepare list of possible variants of names: LastnameFirstname and FirstnameLastname
+    my @full_name = ($first_name, $last_name || ());
+    
     my @name_variants = map {
         my $name = uc(join('.*', map { my $x = $_; $x =~ s/[[:^alpha:]]//g; $x } @$_));
         $name
-    } ([@_], @_ > 1 ? [reverse @_] : ());
-
-    for my $k (sort keys %$data) {
-        foreach my $name (@{$data->{$k}{names}}) {
+    } ([@full_name], @full_name > 1 ? [reverse @full_name] : ());
+    
+    my $matched_name;
+    my $matched_file;
+    my $dob_missing;
+    
+    for my $file (sort keys %$data) {
+        
+        my @names = keys %{$data->{$file}->{names_list}};
+        
+        foreach my $name (sort @names) {
+            
             (my $check_name = $name) =~ s/[[:^alpha:]]//g;
             $check_name = uc($check_name);
-            for (@name_variants) {
-                return +{
-                    matched => 1,
-                    list    => $k,
-                    name    => $name,
-                } if $check_name =~ /$_/;
+            
+            for my $variant (@name_variants) {
+                
+                my $checked_dob;
+                
+                # First check: See if the regex matches
+                # Second check: See if the date of birth matches
+                if ($check_name =~ /$variant/) {
+                    
+                    $matched_name = $name;
+                    $matched_file = $file;
+                    
+                    # Some clients in sanction list can have more than one date of birth
+                    # Comparison is made using the epoch value
+                    my $client_dob_epoch = Date::Utility->new($date_of_birth)->epoch;
+                    my $sanctions_dob_list = $data->{$file}->{names_list}->{$name}->{dob_epoch};
+                    
+                    # If the dob_epoch is missing from the sanctions.yml, automatically mark
+                    # the client as a terrorist, regardless of further checks
+                    unless (@$sanctions_dob_list) {
+                        $dob_missing = 1;
+                    }
+                    
+                    $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_dob_list};
+                    
+                    return _possible_match($matched_file, $matched_name) if $checked_dob;
+                    
+                }
             }
         }
     }
-
+    
+    # Return a possible match if the name matches and no date of birth is present in sanctions
+    return _possible_match($matched_file, $matched_name) if ($matched_name && $dob_missing);
+    
+    # Return if no possible match, regardless if date of birth is provided or not
     return {matched => 0};
 }
 
@@ -95,6 +135,7 @@ sub update_data {
 
     my $new_data = Data::Validate::Sanctions::Fetcher::run();
     $self->_load_data();
+    
     my $updated;
     foreach my $k (keys %$new_data) {
         if (ref($self->{_data}{$k}) ne 'HASH' || $self->{_data}{$k}{updated} < $new_data->{$k}{updated}) {
@@ -105,6 +146,12 @@ sub update_data {
 
     $self->_save_data if $updated;
     return;
+}
+
+sub last_updated {
+    my $self = shift;
+    my $list = shift;
+    return $list ? $self->{_data}->{$list}->{updated} : $self->{last_time};
 }
 
 sub _save_data {
@@ -124,10 +171,12 @@ sub _default_sanction_file {
     return $ENV{SANCTION_FILE} // File::ShareDir::dist_file('Data-Validate-Sanctions', 'sanctions.yml');
 }
 
-sub last_updated {
-    my $self = shift;
-    my $list = shift;
-    return $list ? $self->{_data}->{$list}->{updated} : $self->{last_time};
+sub _possible_match {
+    return +{
+        matched => 1,
+        list    => $_[0],
+        name    => $_[1],
+    };
 }
 
 1;
@@ -184,7 +233,7 @@ It will remove all non-alpha chars and compare with the list we have.
 
 =head2 get_sanctioned_info
 
-    my $result =get_sanctioned_info($last_name, $first_name);
+    my $result =get_sanctioned_info($last_name, $first_name, $date_of_birth);
     print 'match: ', $result->{name}, ' on list ', $result->{list} if $result->{matched};
 
 return hashref with keys:

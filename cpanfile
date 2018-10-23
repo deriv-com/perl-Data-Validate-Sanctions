@@ -14,6 +14,7 @@ requires 'Text::CSV', 0;
 requires 'Try::Tiny', 0;
 requires 'XML::Fast', 0;
 requires 'YAML::XS', 0;
+requires 'Date::Utility', 0;
 
 on test => sub {
     requires 'Test::More', '0.96';

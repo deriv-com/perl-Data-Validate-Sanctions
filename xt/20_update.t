@@ -13,7 +13,13 @@ BEGIN {
     $sanction_data = Dump({
             test1 => {
                 updated => time,
-                names   => ['ABCD']}});
+                names_list   => {
+                    'ABCD' => {
+                        'dob_epoch' => []
+                    }
+                }
+            }
+        });
 
     (my $fh, $sanction_file) = tempfile();
     print $fh $sanction_data;
@@ -38,8 +44,8 @@ ok($last_mtime < stat($sanction_file)->mtime, "mtime updated");
 
 ok(!is_sanctioned('ABCD'), "correct file content");
 $last_mtime = stat($sanction_file)->mtime;
-ok(is_sanctioned(qw(sergei ivanov)), "correct file content");
+ok(is_sanctioned(qw('sergei', 'ivanov', -253411200)), "correct file content");
 path($sanction_file)->spew($sanction_data);
 ok(utime($last_mtime, $last_mtime, $sanction_file), 'change mtime to pretend the file not changed');
-ok(is_sanctioned(qw(sergei ivanov)), "the module still use old data because it think the file is not changed");
+ok(is_sanctioned(qw('sergei', 'ivanov', -253411200)), "the module still use old data because it think the file is not changed");
 done_testing;
