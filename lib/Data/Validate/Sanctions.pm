@@ -18,6 +18,9 @@ use List::Util qw(any);
 
 our $VERSION = '0.11';
 
+my $sanction_file = _default_sanction_file();
+my $instance;
+
 # for OO
 sub new {    ## no critic (RequireArgUnpacking)
     my $class = shift;
@@ -28,8 +31,29 @@ sub new {    ## no critic (RequireArgUnpacking)
     return bless $self, ref($class) || $class;
 }
 
-my $sanction_file = _default_sanction_file();
-my $instance;
+sub update_data {
+    my $self = shift;
+
+    my $new_data = Data::Validate::Sanctions::Fetcher::run();
+    $self->_load_data();
+    
+    my $updated;
+    foreach my $k (keys %$new_data) {
+        if (ref($self->{_data}{$k}) ne 'HASH' || $self->{_data}{$k}{updated} < $new_data->{$k}{updated}) {
+            $self->{_data}{$k} = $new_data->{$k};
+            $updated = 1;
+        }
+    }
+
+    $self->_save_data if $updated;
+    return;
+}
+
+sub last_updated {
+    my $self = shift;
+    my $list = shift;
+    return $list ? $self->{_data}->{$list}->{updated} : $self->{last_time};
+}
 
 sub set_sanction_file {    ## no critic (RequireArgUnpacking)
     $sanction_file = shift // die "sanction_file is needed";
@@ -102,7 +126,7 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
                     
                     $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_dob_list};
                     
-                    return _possible_match($matched_file, $matched_name) if $checked_dob;
+                    return _possible_match($matched_file, $matched_name, 'Date of birth matches') if $checked_dob;
                     
                 }
             }
@@ -110,7 +134,7 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
     }
     
     # Return a possible match if the name matches and no date of birth is present in sanctions
-    return _possible_match($matched_file, $matched_name) if ($matched_name && $dob_missing);
+    return _possible_match($matched_file, $matched_name, 'Name is similar') if ($matched_name && $dob_missing);
     
     # Return if no possible match, regardless if date of birth is provided or not
     return {matched => 0};
@@ -128,30 +152,6 @@ sub _load_data {
         $self->{_data}     = LoadFile($sanction_file);
     }
     return $self->{_data};
-}
-
-sub update_data {
-    my $self = shift;
-
-    my $new_data = Data::Validate::Sanctions::Fetcher::run();
-    $self->_load_data();
-    
-    my $updated;
-    foreach my $k (keys %$new_data) {
-        if (ref($self->{_data}{$k}) ne 'HASH' || $self->{_data}{$k}{updated} < $new_data->{$k}{updated}) {
-            $self->{_data}{$k} = $new_data->{$k};
-            $updated = 1;
-        }
-    }
-
-    $self->_save_data if $updated;
-    return;
-}
-
-sub last_updated {
-    my $self = shift;
-    my $list = shift;
-    return $list ? $self->{_data}->{$list}->{updated} : $self->{last_time};
 }
 
 sub _save_data {
@@ -176,6 +176,7 @@ sub _possible_match {
         matched => 1,
         list    => $_[0],
         name    => $_[1],
+        reason  => $_[2]
     };
 }
 
