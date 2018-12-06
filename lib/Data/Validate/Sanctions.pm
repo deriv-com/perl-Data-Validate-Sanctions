@@ -126,7 +126,7 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
                     
                     $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_dob_list};
                     
-                    return _possible_match($matched_file, $matched_name, 'Date of birth matches', Date::Utility->new(1249637400)->date_ddmmmyyyy) if $checked_dob;
+                    return _possible_match($matched_file, $matched_name, 'Date of birth matches', Date::Utility->new($date_of_birth)->date_ddmmmyyyy) if $checked_dob;
                     
                 }
             }
