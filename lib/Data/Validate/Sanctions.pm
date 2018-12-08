@@ -126,7 +126,7 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
                     
                     $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_dob_list};
                     
-                    return _possible_match($matched_file, $matched_name, 'Date of birth matches') if $checked_dob;
+                    return _possible_match($matched_file, $matched_name, 'Date of birth matches', $date_of_birth) if $checked_dob;
                     
                 }
             }
@@ -134,7 +134,7 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
     }
     
     # Return a possible match if the name matches and no date of birth is present in sanctions
-    return _possible_match($matched_file, $matched_name, 'Name is similar') if ($matched_name && $dob_missing);
+    return _possible_match($matched_file, $matched_name, 'Name is similar', 'N/A') if ($matched_name && $dob_missing);
     
     # Return if no possible match, regardless if date of birth is provided or not
     return {matched => 0};
@@ -174,9 +174,10 @@ sub _default_sanction_file {
 sub _possible_match {
     return +{
         matched => 1,
-        list    => $_[0],
-        name    => $_[1],
-        reason  => $_[2]
+        list        => $_[0],
+        name        => $_[1],
+        reason      => $_[2],
+        matched_dob => $_[3]
     };
 }
 
