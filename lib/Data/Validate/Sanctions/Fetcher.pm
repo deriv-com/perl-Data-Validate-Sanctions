@@ -60,33 +60,33 @@ sub _validate_date {
 
 sub _ofac_xml {
     my $content = shift;
-    
+
     my @names;
     my $ref = xml2hash($content, array => ['aka'])->{sdnList};
     my $ofac_ref = {};
 
     foreach my $entry (@{$ref->{sdnEntry}}) {
         next unless $entry->{sdnType} eq 'Individual';
-        
+
         push @names, _process_name($_->{firstName} // '', $_->{lastName} // '') for ($entry, @{$entry->{akaList}{aka} // []});
         my $name = pop @names;
-        
-        $ofac_ref->{$name}->{dob_epoch} = [];
-        
+
+        $ofac_ref->{$name}->{dob_epoch} = [] unless $ofac_ref->{$name};
+
         my $dob = $entry->{dateOfBirthList}{dateOfBirthItem};
-        
+
         # In one of the xml files, some of the clients have more than one date of birth
         # Hence, $dob can be either an array or a hashref
-        my @dob_list = map {$_->{dateOfBirth} ||()} (ref($dob) eq 'ARRAY' ? @$dob : $dob);
-        
+        my @dob_list = map { $_->{dateOfBirth} || () } (ref($dob) eq 'ARRAY' ? @$dob : $dob);
+
         foreach my $dob (@dob_list) {
-            
+
             # Some of the values are only years (ex. '1946')
             # We don't want to include them
             next unless $dob !~ /^\d{4}$/;
-            
+
             $dob =~ s/ /-/g;
-            
+
             try {
                 $dob = Date::Utility->new($dob);
                 push @{$ofac_ref->{$name}->{dob_epoch}}, $dob->epoch;
@@ -103,8 +103,8 @@ sub _ofac_xml {
     );
 
     return {
-        updated      => $parser->parse_datetime($ref->{publshInformation}{Publish_Date})->epoch,    # 'publshInformation' is a real name
-        names_list   => $ofac_ref,
+        updated    => $parser->parse_datetime($ref->{publshInformation}{Publish_Date})->epoch,    # 'publshInformation' is a real name
+        names_list => $ofac_ref,
     };
 }
 
@@ -114,7 +114,7 @@ sub _hmt_csv {
     my $hmt_ref = {};
 
     my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
-    open $fh, '+>', undef or die "Could not open anonymous temp file - $!";                    ## no critic (RequireBriefOpen)
+    open $fh, '+>', undef or die "Could not open anonymous temp file - $!";                       ## no critic (RequireBriefOpen)
     print $fh $content;
     seek($fh, 0, 0);
 
@@ -125,19 +125,19 @@ sub _hmt_csv {
     while (my $row = $csv->getline($fh) or not $csv->eof()) {
         ($row->[23] and $row->[23] eq "Individual") or next;
         my $name = _process_name @{$row}[0 .. 5];
-        
+
         next if $name =~ /^\s*$/;
-        
+
         my $date_of_birth = $row->[7];
         $date_of_birth =~ tr/\//-/;
-        
-        $hmt_ref->{$name}->{dob_epoch} = [];
-        
+
+        $hmt_ref->{$name}->{dob_epoch} = [] unless $hmt_ref->{$name};
+
         # Some DOBs are invalid (Ex. 0-0-1968)
         try {
             my $dob_epoch = Date::Utility->new($date_of_birth)->epoch;
             push @{$hmt_ref->{$name}->{dob_epoch}}, $dob_epoch;
-            
+
         }
     }
 
@@ -149,8 +149,8 @@ sub _hmt_csv {
     );
 
     return {
-        updated => $parser->parse_datetime($info->[1])->epoch,
-        names_list   => $hmt_ref,
+        updated    => $parser->parse_datetime($info->[1])->epoch,
+        names_list => $hmt_ref,
     };
 }
 
