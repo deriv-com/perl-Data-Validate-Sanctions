@@ -10,6 +10,7 @@ use Mojo::UserAgent;
 use Text::CSV;
 use Try::Tiny;
 use XML::Fast;
+use Path::Tiny;
 
 our $VERSION = '0.10';
 
@@ -114,7 +115,9 @@ sub _hmt_csv {
     my $hmt_ref = {};
 
     my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
-    open $fh, '+>', undef or die "Could not open anonymous temp file - $!";                       ## no critic (RequireBriefOpen)
+    #open $fh, '+>', undef or die "Could not open anonymous temp file - $!";                       ## no critic (RequireBriefOpen)
+    my $temp = Path::Tiny->tempfile or die "Could not open anonymous temp file - $!";
+    $fh = $temp->openrw;
     print $fh $content;
     seek($fh, 0, 0);
 
