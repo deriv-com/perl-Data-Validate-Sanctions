@@ -10,7 +10,7 @@ use Mojo::UserAgent;
 use Text::CSV;
 use Try::Tiny;
 use XML::Fast;
-use Path::Tiny;
+
 
 our $VERSION = '0.10';
 
@@ -72,7 +72,7 @@ sub _ofac_xml {
         push @names, _process_name($_->{firstName} // '', $_->{lastName} // '') for ($entry, @{$entry->{akaList}{aka} // []});
         my $name = pop @names;
 
-        $ofac_ref->{$name}->{dob_epoch} = [] unless $ofac_ref->{$name};
+        $ofac_ref->{$name}->{dob_epoch} ||= [] ;
 
         my $dob = $entry->{dateOfBirthList}{dateOfBirthItem};
 
@@ -111,21 +111,25 @@ sub _ofac_xml {
 
 sub _hmt_csv {
     my $content = shift;
-    my $fh;
     my $hmt_ref = {};
 
     my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
-    #open $fh, '+>', undef or die "Could not open anonymous temp file - $!";                       ## no critic (RequireBriefOpen)
-    my $temp = Path::Tiny->tempfile or die "Could not open anonymous temp file - $!";
-    $fh = $temp->openrw;
-    print $fh $content;
-    seek($fh, 0, 0);
 
-    my $info = $csv->getline($fh);
-
-    die 'Datetime is invalid' unless (_validate_date($info->[1]));
-
-    while (my $row = $csv->getline($fh) or not $csv->eof()) {
+    my @lines = split("\n",$content);
+    my @info;
+    my $i = 0;
+    foreach (@lines){
+        $i++;
+        chop;
+        my $status =  $csv->parse($_);
+        if (1==$i){
+            @info = $status ? $csv->fields() : () ;
+            die 'Datetime is invalid' unless (@info && _validate_date($info[1]));
+        }
+        
+        next unless $status;
+        my @row = $csv->fields();
+        my $row = \@row; 
         ($row->[23] and $row->[23] eq "Individual") or next;
         my $name = _process_name @{$row}[0 .. 5];
 
@@ -134,7 +138,7 @@ sub _hmt_csv {
         my $date_of_birth = $row->[7];
         $date_of_birth =~ tr/\//-/;
 
-        $hmt_ref->{$name}->{dob_epoch} = [] unless $hmt_ref->{$name};
+        $hmt_ref->{$name}->{dob_epoch} ||= [] ;
 
         # Some DOBs are invalid (Ex. 0-0-1968)
         try {
@@ -144,15 +148,13 @@ sub _hmt_csv {
         }
     }
 
-    close $fh;
-
     my $parser = DateTime::Format::Strptime->new(
         pattern  => '%d/%m/%Y',
         on_error => 'croak',
     );
 
     return {
-        updated    => $parser->parse_datetime($info->[1])->epoch,
+        updated    => $parser->parse_datetime($info[1])->epoch,
         names_list => $hmt_ref,
     };
 }
