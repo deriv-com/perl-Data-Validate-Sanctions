@@ -97,7 +97,7 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
     my $matched_file;
     my $dob_missing;
     
-    for my $file (sort keys %{$data}) {
+    for my $file (sort keys %$data) {
         
         my @names = keys %{$data->{$file}->{names_list}};
         
