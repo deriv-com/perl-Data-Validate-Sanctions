@@ -28,7 +28,6 @@ sub new {    ## no critic (RequireArgUnpacking)
     my $self  = {};
     $self->{sanction_file} = $args{sanction_file} // _default_sanction_file();
     $self->{last_time} = 0;
-    $self->{data} = $self->_load_data();
     return bless $self, ref($class) || $class;
 }
 
@@ -79,7 +78,12 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
         $instance = __PACKAGE__->new(sanction_file => $sanction_file);
         $self = $instance;
     }
-
+    
+    unless($self->{data}) {
+        $self->{data} = $self->_load_data();
+        warn "I RUN ONCE!!\n\n";
+    }
+    
     my $data = $self->{data};
 
     # prepare list of possible variants of names: LastnameFirstname and FirstnameLastname
@@ -94,7 +98,7 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
     my $matched_file;
     my $dob_missing;
     
-    for my $file (sort keys %$data) {
+    for my $file (sort keys %{$data}) {
         
         my @names = keys %{$data->{$file}->{names_list}};
         
