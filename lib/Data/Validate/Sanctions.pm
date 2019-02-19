@@ -28,6 +28,7 @@ sub new {    ## no critic (RequireArgUnpacking)
     my $self  = {};
     $self->{sanction_file} = $args{sanction_file} // _default_sanction_file();
     $self->{last_time} = 0;
+    $self->{data} = _load_data();
     return bless $self, ref($class) || $class;
 }
 
@@ -79,7 +80,7 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
         $self = $instance;
     }
 
-    my $data = $self->_load_data();
+    my $data = $self->{data};
 
     # prepare list of possible variants of names: LastnameFirstname and FirstnameLastname
     my @full_name = ($first_name, $last_name || ());
