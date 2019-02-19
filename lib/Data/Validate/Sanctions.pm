@@ -28,7 +28,7 @@ sub new {    ## no critic (RequireArgUnpacking)
     my $self  = {};
     $self->{sanction_file} = $args{sanction_file} // _default_sanction_file();
     $self->{last_time} = 0;
-    $self->{data} = _load_data();
+    $self->{data} = $self->_load_data();
     return bless $self, ref($class) || $class;
 }
 
