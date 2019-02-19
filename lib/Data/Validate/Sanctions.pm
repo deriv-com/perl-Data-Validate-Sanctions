@@ -81,7 +81,6 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
     
     unless($self->{data}) {
         $self->{data} = $self->_load_data();
-        warn "I RUN ONCE!!\n\n";
     }
     
     my $data = $self->{data};
