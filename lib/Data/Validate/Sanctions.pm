@@ -84,6 +84,12 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
     # prepare list of possible variants of names: LastnameFirstname and FirstnameLastname
     my @full_name = ($first_name, $last_name || ());
     
+    # Join first name and last name
+    
+    # Remove non-alphabets
+    
+    # Split into tokens
+    
     my @name_variants = map {
         my $name = uc(join('.*', map { my $x = $_; $x =~ s/[[:^alpha:]]//g; $x } @$_));
         $name
@@ -179,6 +185,19 @@ sub _possible_match {
         reason      => $_[2],
         matched_dob => $_[3]
     };
+}
+
+sub _name_matches {
+    my ($small_tokens_list, $bigger_tokens_list) = @_;
+    
+    ($small_tokens_list, $bigger_tokens_list) = ($bigger_tokens_list, $small_tokens_list) 
+        if (@$small_tokens_list > @$bigger_tokens_list);
+    
+    foreach my $token (@$small_tokens_list) {
+        return undef unless any { $_ eq $token } @$bigger_tokens_list;
+    }
+    
+    return 1;
 }
 
 1;
