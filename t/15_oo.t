@@ -7,7 +7,7 @@ use Test::More;
 
 my $validator = Data::Validate::Sanctions->new;
 
-ok $validator->is_sanctioned('sergei', 'ivanov', -253411200), "Sergei Ivanov is_sanctioned for sure";
+ok $validator->is_sanctioned('NEVEROV', 'Sergei Ivanovich', -253411200), "Sergei Ivanov is_sanctioned for sure";
 my $result = $validator->get_sanctioned_info('abu', 'usama', -306028800);
 is $result->{matched}, 1,                 "Abu Usama is matched from get_sanctioned_info ";
 is $result->{list},    'HMT-Sanctions',   "Abu Usama has correct list from get_sanctioned_info";
