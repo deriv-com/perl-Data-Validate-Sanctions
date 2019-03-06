@@ -80,20 +80,21 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
     }
 
     my $data = $self->_load_data();
+    
+    # Sub to remove non-alphabets from the name
+    my $clean_names = sub {
+        my ($full_name) = @_;
 
-    # prepare list of possible variants of names: LastnameFirstname and FirstnameLastname
-    my @full_name = ($first_name, $last_name || ());
+        return uc(join(' ', map {my $x = $_; $x =~ s/[^[:alpha:]\s]//g; $x } split(' ', $full_name)));
+    };
+
+    my $client_full_name = join(' ', $first_name, $last_name || ());
     
     # Join first name and last name
-    
-    # Remove non-alphabets
+    $client_full_name = $clean_names->($client_full_name);
     
     # Split into tokens
-    
-    my @name_variants = map {
-        my $name = uc(join('.*', map { my $x = $_; $x =~ s/[[:^alpha:]]//g; $x } @$_));
-        $name
-    } ([@full_name], @full_name > 1 ? [reverse @full_name] : ());
+    my @client_name_tokens = split(' ',$client_full_name);
     
     my $matched_name;
     my $matched_file;
@@ -103,39 +104,31 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
         
         my @names = keys %{$data->{$file}->{names_list}};
         
-        foreach my $name (sort @names) {
+        foreach my $sanctioned_name (sort @names) {
             
-            (my $check_name = $name) =~ s/[[:^alpha:]]//g;
-            $check_name = uc($check_name);
+            my @sanctioned_name_tokens = split(' ', $clean_names->($sanctioned_name));
             
-            for my $variant (@name_variants) {
-                
-                my $checked_dob;
-                
-                # First check: See if the regex matches
-                # Second check: See if the date of birth matches
-                if ($check_name =~ /$variant/) {
-                    
-                    $matched_name = $name;
-                    $matched_file = $file;
-                    
-                    # Some clients in sanction list can have more than one date of birth
-                    # Comparison is made using the epoch value
-                    my $client_dob_epoch = Date::Utility->new($date_of_birth)->epoch;
-                    my $sanctions_dob_list = $data->{$file}->{names_list}->{$name}->{dob_epoch};
-                    
-                    # If the dob_epoch is missing from the sanctions.yml, automatically mark
-                    # the client as a terrorist, regardless of further checks
-                    unless (@$sanctions_dob_list) {
-                        $dob_missing = 1;
-                    }
-                    
-                    $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_dob_list};
-                    
-                    return _possible_match($matched_file, $matched_name, 'Date of birth matches', $date_of_birth) if $checked_dob;
-                    
-                }
+            next unless _name_matches(\@client_name_tokens, \@sanctioned_name_tokens);
+            
+            my $checked_dob;
+            
+            $matched_name = $name;
+            $matched_file = $file;
+            
+            # Some clients in sanction list can have more than one date of birth
+            # Comparison is made using the epoch value
+            my $client_dob_epoch = Date::Utility->new($date_of_birth)->epoch;
+            my $sanctions_dob_list = $data->{$file}->{names_list}->{$name}->{dob_epoch};
+            
+            # If the dob_epoch is missing from the sanctions.yml, automatically mark
+            # the client as a terrorist, regardless of further checks
+            unless (@$sanctions_dob_list) {
+                $dob_missing = 1;
             }
+            
+            $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_dob_list};
+            
+            return _possible_match($matched_file, $matched_name, 'Date of birth matches', $date_of_birth) if $checked_dob;
         }
     }
     
