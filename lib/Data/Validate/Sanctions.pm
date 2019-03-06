@@ -112,13 +112,13 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
             
             my $checked_dob;
             
-            $matched_name = $name;
+            $matched_name = $sanctioned_name;
             $matched_file = $file;
             
             # Some clients in sanction list can have more than one date of birth
             # Comparison is made using the epoch value
             my $client_dob_epoch = Date::Utility->new($date_of_birth)->epoch;
-            my $sanctions_dob_list = $data->{$file}->{names_list}->{$name}->{dob_epoch};
+            my $sanctions_dob_list = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_epoch};
             
             # If the dob_epoch is missing from the sanctions.yml, automatically mark
             # the client as a terrorist, regardless of further checks
