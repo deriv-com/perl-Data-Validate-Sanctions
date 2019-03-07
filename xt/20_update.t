@@ -48,4 +48,6 @@ ok(is_sanctioned('NEVEROV', 'Sergei Ivanovich', -253411200), "correct file conte
 path($sanction_file)->spew($sanction_data);
 ok(utime($last_mtime, $last_mtime, $sanction_file), 'change mtime to pretend the file not changed');
 ok(is_sanctioned('NEVEROV', 'Sergei Ivanovich', -253411200), "the module still use old data because it think the file is not changed");
+ok(is_sanctioned('Nashwan', 'Razzaq'), "Name matches regardless of order");
+ok(is_sanctioned('Nashwan1234~!@!','Al-Razzaq'), "Name matches even if non-alphabets are present");
 done_testing;

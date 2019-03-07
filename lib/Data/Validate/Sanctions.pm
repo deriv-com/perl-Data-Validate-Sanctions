@@ -83,18 +83,22 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
     
     # Sub to remove non-alphabets from the name
     my $clean_names = sub {
+        
         my ($full_name) = @_;
+        
+        # Remove non-alphabets
+        my @cleaned_full_name = map {my $x = $_; $x =~ s/[^[:alpha:]\s]/ /g; $x } split(' ', $full_name);
+        
+        # Remove trailing and leading whitespaces
+        @cleaned_full_name = map { my $x = $_; $x =~ s/^\s*(.*?)\s*$/$1/; split(' ', uc($x)) } @cleaned_full_name;
 
-        return uc(join(' ', map {my $x = $_; $x =~ s/[^[:alpha:]\s]//g; $x } split(' ', $full_name)));
+        return @cleaned_full_name;
     };
 
     my $client_full_name = join(' ', $first_name, $last_name || ());
     
-    # Join first name and last name
-    $client_full_name = $clean_names->($client_full_name);
-    
-    # Split into tokens
-    my @client_name_tokens = split(' ',$client_full_name);
+    # Split into tokens after cleaning
+    my @client_name_tokens = $clean_names->($client_full_name);
     
     my $matched_name;
     my $matched_file;
@@ -106,7 +110,7 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
         
         foreach my $sanctioned_name (sort @names) {
             
-            my @sanctioned_name_tokens = split(' ', $clean_names->($sanctioned_name));
+            my @sanctioned_name_tokens = $clean_names->($sanctioned_name);
             
             next unless _name_matches(\@client_name_tokens, \@sanctioned_name_tokens);
             
@@ -279,6 +283,10 @@ get sanction_file which is used by L</is_sanctioned> (procedure-oriented)
 =head2 set_sanction_file
 
 set sanction_file which is used by L</is_sanctioned> (procedure-oriented)
+
+=head2 _name_matches
+
+Pass in the client's name and sanctioned individual's name to see if they are similar or not
 
 =head1 AUTHOR
 
