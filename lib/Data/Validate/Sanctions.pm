@@ -89,10 +89,10 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
         my ($full_name) = @_;
         
         # Remove non-alphabets
-        my @cleaned_full_name = map { $_ =~ s/[^[:alpha:]\s]/ /g; $_ } split(' ', $full_name);
+        my @cleaned_full_name = map { s/[^[:alpha:]\s]/ /g; $_ } split(' ', $full_name);
         
         # Remove trailing and leading whitespaces
-        @cleaned_full_name = map { $_ =~ s/^\s*(.*?)\s*$/$1/; split(' ', uc($_)) } @cleaned_full_name;
+        @cleaned_full_name = map { s/^\s*(.*?)\s*$/$1/; split(' ', uc($_)) } @cleaned_full_name;
 
         return @cleaned_full_name;
     };
