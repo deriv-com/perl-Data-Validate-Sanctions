@@ -81,8 +81,6 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
 
     my $data = $self->_load_data();
     
-    use Data::Dumper;
-    
     # Sub to remove non-alphabets from the name
     my $clean_names = sub {
         
