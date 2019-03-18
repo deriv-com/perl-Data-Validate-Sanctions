@@ -36,7 +36,7 @@ $tmpa->spew(
                 }
             }
         }));
-        
+
 my $tmpb = tempfile;
 
 $tmpb->spew(
@@ -50,7 +50,7 @@ $tmpb->spew(
                 }
             }
         }));
-        
+
 $validator = Data::Validate::Sanctions->new(sanction_file => "$tmpa");
 ok !$validator->is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov not is_sanctioned";
 ok $validator->is_sanctioned(qw(tmpa)), "now sanction file is tmpa, and tmpa is in test1 list";

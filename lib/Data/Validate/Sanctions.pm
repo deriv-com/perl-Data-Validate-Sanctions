@@ -36,7 +36,7 @@ sub update_data {
 
     my $new_data = Data::Validate::Sanctions::Fetcher::run();
     $self->_load_data();
-    
+
     my $updated;
     foreach my $k (keys %$new_data) {
         if (ref($self->{_data}{$k}) ne 'HASH' || $self->{_data}{$k}{updated} < $new_data->{$k}{updated}) {
@@ -71,7 +71,7 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
 
 sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
-    
+
     my ($first_name, $last_name, $date_of_birth) = @_;
 
     unless ($self) {
@@ -80,15 +80,15 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
     }
 
     my $data = $self->_load_data();
-    
+
     # Sub to remove non-alphabets from the name
     my $clean_names = sub {
-        
+
         my ($full_name) = @_;
-        
+
         # Remove non-alphabets
-        my @cleaned_full_name = map { my $x = $_; $x =~ s/[^[:alpha:]\s]/ /g; $x } split(' ', $full_name);
-        
+        my @cleaned_full_name = map { s/[^[:alpha:]\s]/ /gr } split /,/, $full_name;
+
         # Remove trailing and leading whitespaces
         @cleaned_full_name = map { my $x = $_; $x =~ s/^\s*(.*?)\s*$/$1/; split(' ', uc($x)) } @cleaned_full_name;
 
@@ -96,49 +96,49 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
     };
 
     my $client_full_name = join(' ', $first_name, $last_name || ());
-    
+
     # Split into tokens after cleaning
     my @client_name_tokens = $clean_names->($client_full_name);
-    
+
     my $matched_name;
     my $matched_file;
     my $dob_missing;
-    
+
     for my $file (sort keys %$data) {
-        
+
         my @names = keys %{$data->{$file}->{names_list}};
-        
+
         foreach my $sanctioned_name (sort @names) {
-            
+
             my @sanctioned_name_tokens = $clean_names->($sanctioned_name);
-            
+
             next unless _name_matches(\@client_name_tokens, \@sanctioned_name_tokens);
-            
+
             my $checked_dob;
-            
+
             $matched_name = $sanctioned_name;
             $matched_file = $file;
-            
+
             # Some clients in sanction list can have more than one date of birth
             # Comparison is made using the epoch value
             my $client_dob_epoch = Date::Utility->new($date_of_birth)->epoch;
             my $sanctions_dob_list = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_epoch};
-            
+
             # If the dob_epoch is missing from the sanctions.yml, automatically mark
             # the client as a terrorist, regardless of further checks
             unless (@$sanctions_dob_list) {
                 $dob_missing = 1;
             }
-            
+
             $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_dob_list};
-            
+
             return _possible_match($matched_file, $matched_name, 'Date of birth matches', $date_of_birth) if $checked_dob;
         }
     }
-    
+
     # Return a possible match if the name matches and no date of birth is present in sanctions
     return _possible_match($matched_file, $matched_name, 'Name is similar', 'N/A') if ($matched_name && $dob_missing);
-    
+
     # Return if no possible match, regardless if date of birth is provided or not
     return {matched => 0};
 }
@@ -186,14 +186,14 @@ sub _possible_match {
 
 sub _name_matches {
     my ($small_tokens_list, $bigger_tokens_list) = @_;
-    
-    ($small_tokens_list, $bigger_tokens_list) = ($bigger_tokens_list, $small_tokens_list) 
+
+    ($small_tokens_list, $bigger_tokens_list) = ($bigger_tokens_list, $small_tokens_list)
         if (@$small_tokens_list > @$bigger_tokens_list);
-    
+
     foreach my $token (@$small_tokens_list) {
         return undef unless any { $_ eq $token } @$bigger_tokens_list;
     }
-    
+
     return 1;
 }
 
