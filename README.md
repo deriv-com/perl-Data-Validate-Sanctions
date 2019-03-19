@@ -58,7 +58,7 @@ d.) **Mismatch**: If the client is `Gary Sheikh` and the sanctioned individual i
 
 6. Scenarios to consider when **date_of_birth** is taken into consideration:
 a.) `name matches and no date_of_birth value found in sanctions list`: This returns a positive result
-b.) `name matches and date_of_birth matches`: This retruns a positive result
+b.) `name matches and date_of_birth matches`: This returns a positive result
 c.) `name matches but date_of_birth does not match from all given values`: This returns a negative result 
 d.) `name matches but no date_of_birth value is passed`: This returns a positive result
 
