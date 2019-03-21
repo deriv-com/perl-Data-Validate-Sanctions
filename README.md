@@ -52,7 +52,8 @@ Example: `ABDUL-QADER Ahmad Sheik` becomes `ABDUL QADER AHMAD SHEIKH`
 a.) **Exact name**: If the client is `Ahmad Sheikh` and the sanctioned individual is `Ahmad Sheikh`, it is a **positive match**. Even if the names were reversed, the match would stil be positive, as it looks for **exact** wording and regardless of order.
 b.) **Partial exact match (I)**: If the client is `Ahmad Sheikh` and the sanctioned individual is `Abdul Qader Ahmad Sheikh`, then it is also a positive match. This is because the client's name `Ahmad Sheikh` is a substring of `Abdul Qader Ahmad Sheikh`.
 c.) **Partial exact match (II)**: If the client is `Abdul Qader Ahmad Sheikh` and the sanctioned individual is `Ahmad Sheikh`, then it is also a positive match. This is because, as mentioned above, it is a substring **and** also because we take the shortest name into consideration first and compare with the longer name.
-d.) **Mismatch**: If the client is `Gary Sheikh` and the sanctioned individual is `Abdul Qader Ahmad Sheikh` , then it is a negative match. Even though `Sheikh` is present in both, the string `Gary` is not found in the sanctioned individual.
+
+**NOTE**: As long as there are **two** or more matches, the result will always be a positive match due to name similarity. If the shortest name has only one token and there is a match, then it is also a positive result.
 
 5. If a `date_of_birth` value is passed, it is compared to the list of **date_of_birth** in the sanction lists (if a value is found), based on epoch value and the sanctioned individual's name.
 
