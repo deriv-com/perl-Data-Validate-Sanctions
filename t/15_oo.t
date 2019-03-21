@@ -32,6 +32,12 @@ $tmpa->spew(
                 names_list   => {
                     'TMPA' => {
                         'dob_epoch' => []
+                    },
+                    'MOHAMMAD EWAZ Mohammad Wali' => {
+                        'dob_epoch' => []
+                    },
+                    'Zaki Izzat Zaki AHMAD' => {
+                        'dob_epoch' => []
                     }
                 }
             }
@@ -54,6 +60,10 @@ $tmpb->spew(
 $validator = Data::Validate::Sanctions->new(sanction_file => "$tmpa");
 ok !$validator->is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov not is_sanctioned";
 ok $validator->is_sanctioned(qw(tmpa)), "now sanction file is tmpa, and tmpa is in test1 list";
+ok !$validator->is_sanctioned("Mohammad reere yuyuy", "wqwqw  qqqqq"), "is not in test1 list";
+ok $validator->is_sanctioned("Zaki", "Ahmad"), "is in test1 list";
+ok $validator->is_sanctioned("Ahmad", "Ahmad"), "is in test1 list";
+
 
 Class::Unload->unload('Data::Validate::Sanctions');
 local $ENV{SANCTION_FILE} = "$tmpb";
