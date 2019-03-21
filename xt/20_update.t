@@ -50,4 +50,6 @@ ok(utime($last_mtime, $last_mtime, $sanction_file), 'change mtime to pretend the
 ok(is_sanctioned('NEVEROV', 'Sergei Ivanovich', -253411200), "the module still use old data because it think the file is not changed");
 ok(is_sanctioned('Nashwan', 'Razzaq'), "Name matches regardless of order");
 ok(is_sanctioned('Nashwan1234~!@!      ','Al-Razzaq'), "Name matches even if non-alphabets are present");
+ok(is_sanctioned('Nashwan', 'Razzaq Abcert1234'), "Sanctioned when two words match");
+ok(is_sanctioned('Haroon'), "Sanctioned when sanctioned individual has only one name");
 done_testing;

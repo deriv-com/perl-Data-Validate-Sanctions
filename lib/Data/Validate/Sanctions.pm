@@ -186,12 +186,21 @@ sub _name_matches {
 
     ($small_tokens_list, $bigger_tokens_list) = ($bigger_tokens_list, $small_tokens_list)
         if (@$small_tokens_list > @$bigger_tokens_list);
-
+    
+    my $name_matches_count = 0;
+    
     foreach my $token (@$small_tokens_list) {
-        return undef unless any { $_ eq $token } @$bigger_tokens_list;
+        $name_matches_count++ if any { $_ eq $token } @$bigger_tokens_list;
     }
-
-    return 1;
+    
+    my $small_tokens_size = scalar @$small_tokens_list;
+    
+    # Compliance Requirement: 
+    # - If more than one word matches, return it as possible match
+    # - Some sanctioned individuals have only one name (ex. Hamza); this should be returned as well
+    return 1 if (($name_matches_count > 1) || ($name_matches_count == 1 && $small_tokens_size == 1));
+    
+    return 0;
 }
 
 1;
