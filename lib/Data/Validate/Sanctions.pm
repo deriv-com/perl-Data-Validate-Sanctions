@@ -52,7 +52,17 @@ sub update_data {
 sub last_updated {
     my $self = shift;
     my $list = shift;
-    return $list ? $self->{_data}->{$list}->{updated} : $self->{last_time};
+    
+    if ($list) {
+        return $self->{_data}->{$list}->{updated};
+    } else {
+        $self->_load_data();
+        return max (
+        	map ( 
+        		$self->{_data}->{$_}->{updated},  keys %{$self->{_data}}
+        	)
+        );
+    }
 }
 
 sub set_sanction_file {    ## no critic (RequireArgUnpacking)
