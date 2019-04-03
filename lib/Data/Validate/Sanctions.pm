@@ -16,7 +16,7 @@ use Scalar::Util qw(blessed);
 use Date::Utility;
 use List::Util qw(any uniq);
 
-our $VERSION = '0.12';
+our $VERSION = '0.11';
 
 my $sanction_file = _default_sanction_file();
 my $instance;
