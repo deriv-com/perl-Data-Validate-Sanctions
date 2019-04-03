@@ -58,9 +58,7 @@ sub last_updated {
     } else {
         $self->_load_data();
         return max (
-        	map ( 
-        		$self->{_data}->{$_}->{updated},  keys %{$self->{_data}}
-        	)
+        	map { $_->{updated} } values %{$self->{_data}}
         );
     }
 }
