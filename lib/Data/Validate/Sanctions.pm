@@ -16,7 +16,7 @@ use Scalar::Util qw(blessed);
 use Date::Utility;
 use List::Util qw(any uniq);
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 my $sanction_file = _default_sanction_file();
 my $instance;
@@ -279,8 +279,8 @@ Fetches latest versions of sanction lists, and updates corresponding sections of
 
 =head2 last_updated
 
-Returns timestamp of stored file updated.
-If argument is provided - return timestamp when that list was updated.
+Returns timestamp of when the latest list was updated.
+If argument is provided - return timestamp of when that list was updated.
 
 =head2 new
 
