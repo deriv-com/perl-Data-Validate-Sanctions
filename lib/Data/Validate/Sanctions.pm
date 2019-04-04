@@ -14,7 +14,7 @@ use File::ShareDir;
 use YAML::XS qw/DumpFile LoadFile/;
 use Scalar::Util qw(blessed);
 use Date::Utility;
-use List::Util qw(any uniq);
+use List::Util qw(any uniq max);
 
 our $VERSION = '0.11';
 
