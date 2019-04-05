@@ -14,7 +14,7 @@ use File::ShareDir;
 use YAML::XS qw/DumpFile LoadFile/;
 use Scalar::Util qw(blessed);
 use Date::Utility;
-use List::Util qw(any uniq);
+use List::Util qw(any uniq max);
 
 our $VERSION = '0.11';
 
@@ -52,7 +52,15 @@ sub update_data {
 sub last_updated {
     my $self = shift;
     my $list = shift;
-    return $list ? $self->{_data}->{$list}->{updated} : $self->{last_time};
+    
+    if ($list) {
+        return $self->{_data}->{$list}->{updated};
+    } else {
+        $self->_load_data();
+        return max (
+        	map { $_->{updated} } values %{$self->{_data}}
+        );
+    }
 }
 
 sub set_sanction_file {    ## no critic (RequireArgUnpacking)
@@ -269,8 +277,8 @@ Fetches latest versions of sanction lists, and updates corresponding sections of
 
 =head2 last_updated
 
-Returns timestamp of stored file updated.
-If argument is provided - return timestamp when that list was updated.
+Returns timestamp of when the latest list was updated.
+If argument is provided - return timestamp of when that list was updated.
 
 =head2 new
 
