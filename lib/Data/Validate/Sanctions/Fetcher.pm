@@ -27,7 +27,7 @@ my $config = {
     },
     'HMT-Sanctions' => {
         description => 'GOV.UK: Financial sanctions: consolidated list of targets',
-        url         => 'http://hmt-sanctions.s3.amazonaws.com/sanctionsconlist.csv',
+        url         => 'https://ofsistorage.blob.core.windows.net/publishlive/ConList.csv',
         parser      => \&_hmt_csv,
     },
 };
@@ -126,8 +126,9 @@ sub _hmt_csv {
             @info = $status ? $csv->fields() : () ;
             die 'Datetime is invalid' unless (@info && _validate_date($info[1]));
         }
-        
+
         next unless $status;
+
         my @row = $csv->fields();
         my $row = \@row; 
         ($row->[23] and $row->[23] eq "Individual") or next;
