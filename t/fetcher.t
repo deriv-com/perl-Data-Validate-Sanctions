@@ -13,8 +13,8 @@ cmp_ok($data->{'OFAC-SDN'}{updated}, '>=', 1541376000, "Fetcher::run OFAC-SDN sa
 
 cmp_ok($data->{'OFAC-Consolidated'}{updated}, '>=', 1541376000, "Fetcher::run OFAC-Consolidated sanctions.yml");
 
-cmp_ok(scalar keys %{$data->{'HMT-Sanctions'}{'names_list'}}, '>',1000, "HMT-Sanctions namelist");
+cmp_ok(scalar keys %{$data->{'HMT-Sanctions'}{'names_list'}}, '>', 1000, "HMT-Sanctions namelist");
 
-is(scalar @{$data->{'HMT-Sanctions'}{'names_list'}{'ADAM Nureldine'}{'dob_epoch'}}, 1, "check ADAM Nureldine");
+cmp_ok(scalar @{$data->{'HMT-Sanctions'}{'names_list'}{'ADAM Nureldine'}{'dob_epoch'}}, '>=', 1, "check ADAM Nureldine");
 
 done_testing;

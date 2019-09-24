@@ -52,14 +52,12 @@ sub update_data {
 sub last_updated {
     my $self = shift;
     my $list = shift;
-    
+
     if ($list) {
         return $self->{_data}->{$list}->{updated};
     } else {
         $self->_load_data();
-        return max (
-        	map { $_->{updated} } values %{$self->{_data}}
-        );
+        return max(map { $_->{updated} } values %{$self->{_data}});
     }
 }
 
@@ -77,7 +75,7 @@ sub is_sanctioned {        ## no critic (RequireArgUnpacking)
     return (get_sanctioned_info(@_))->{matched};
 }
 
-sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
+sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
 
     my ($first_name, $last_name, $date_of_birth) = @_;
@@ -126,7 +124,7 @@ sub get_sanctioned_info { ## no critic (RequireArgUnpacking)
 
             # Some clients in sanction list can have more than one date of birth
             # Comparison is made using the epoch value
-            my $client_dob_epoch = Date::Utility->new($date_of_birth)->epoch;
+            my $client_dob_epoch   = Date::Utility->new($date_of_birth)->epoch;
             my $sanctions_dob_list = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_epoch};
 
             # If the dob_epoch is missing from the sanctions.yml, automatically mark
@@ -181,12 +179,11 @@ sub _default_sanction_file {
 
 sub _possible_match {
     return +{
-        matched => 1,
+        matched     => 1,
         list        => $_[0],
         name        => $_[1],
         reason      => $_[2],
-        matched_dob => $_[3]
-    };
+        matched_dob => $_[3]};
 }
 
 sub _name_matches {
