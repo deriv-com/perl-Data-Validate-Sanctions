@@ -7,39 +7,25 @@ use Test::More;
 my ($tmpa, $tmpb);
 
 BEGIN {
-    
+
     $tmpa = tempfile;
-    
+
     $tmpa->spew(
         Dump({
                 test1 => {
-                    updated => time,
-                    names_list   => {
-                        'TMPA' => {
-                            'dob_epoch' => []
-                        }
-                    }
-                }
-            }
-        ));
-   
+                    updated    => time,
+                    names_list => {'TMPA' => {'dob_epoch' => []}}}}));
+
     $tmpb = tempfile;
-    
+
     $tmpb->spew(
         Dump({
                 test1 => {
-                    updated => time,
-                    names_list   => {
-                        'TMPB' => {
-                            'dob_epoch' => []
-                        }
-                    }
-                }
-            }
-        ));
-    
+                    updated    => time,
+                    names_list => {'TMPB' => {'dob_epoch' => []}}}}));
+
     $ENV{SANCTION_FILE} = "$tmpa";
-    
+
 }
 use Data::Validate::Sanctions;
 

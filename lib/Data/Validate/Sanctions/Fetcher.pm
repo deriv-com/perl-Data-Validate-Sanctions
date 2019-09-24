@@ -11,7 +11,6 @@ use Text::CSV;
 use Try::Tiny;
 use XML::Fast;
 
-
 our $VERSION = '0.10';
 
 my $config = {
@@ -72,7 +71,7 @@ sub _ofac_xml {
         push @names, _process_name($_->{firstName} // '', $_->{lastName} // '') for ($entry, @{$entry->{akaList}{aka} // []});
         my $name = pop @names;
 
-        $ofac_ref->{$name}->{dob_epoch} ||= [] ;
+        $ofac_ref->{$name}->{dob_epoch} ||= [];
 
         my $dob = $entry->{dateOfBirthList}{dateOfBirthItem};
 
@@ -115,22 +114,22 @@ sub _hmt_csv {
 
     my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
 
-    my @lines = split("\n",$content);
+    my @lines = split("\n", $content);
     my @info;
     my $i = 0;
-    foreach (@lines){
+    foreach (@lines) {
         $i++;
         chop;
-        my $status =  $csv->parse($_);
-        if (1==$i){
-            @info = $status ? $csv->fields() : () ;
+        my $status = $csv->parse($_);
+        if (1 == $i) {
+            @info = $status ? $csv->fields() : ();
             die 'Datetime is invalid' unless (@info && _validate_date($info[1]));
         }
 
         next unless $status;
 
         my @row = $csv->fields();
-        my $row = \@row; 
+        my $row = \@row;
         ($row->[23] and $row->[23] eq "Individual") or next;
         my $name = _process_name @{$row}[0 .. 5];
 
@@ -139,7 +138,7 @@ sub _hmt_csv {
         my $date_of_birth = $row->[7];
         $date_of_birth =~ tr/\//-/;
 
-        $hmt_ref->{$name}->{dob_epoch} ||= [] ;
+        $hmt_ref->{$name}->{dob_epoch} ||= [];
 
         # Some DOBs are invalid (Ex. 0-0-1968)
         try {
