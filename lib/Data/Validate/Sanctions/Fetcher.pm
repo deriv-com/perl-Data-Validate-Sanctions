@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use DateTime::Format::Strptime;
+use Date::Utility;
 use IO::Uncompress::Unzip qw(unzip $UnzipError);
 use List::Util qw/uniq/;
 use Mojo::UserAgent;
@@ -29,9 +30,9 @@ my $config = {
         url         => 'https://ofsistorage.blob.core.windows.net/publishlive/ConList.csv',
         parser      => \&_hmt_csv,
     },
-    'EU_Sanctions' => {
+    'EU-Sanctions' => {
         description => 'EUROPA.EU: Consolidated list of persons, groups and entities subject to EU financial sanctions',
-        url         => 'https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw'
+        url         => 'https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw',
         parser      => \&_eu_xml,
     },
 };
@@ -56,7 +57,6 @@ sub _ofac_xml_zip {
 sub _validate_date {
 
     my $file_date = shift;
-
     # Check if datetime is valid or not
     return 1 if $file_date =~ /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
 
@@ -166,51 +166,57 @@ sub _hmt_csv {
 
 sub _eu_xml {
     my $content = shift;
+    my $ref     = xml2hash($content, array => ['nameAlias', 'birthdate'])->{export};
+    my $eu_ref  = {};
 
-    my @names;
-    my $ref = xml2hash($content, array => ['nameAlias', 'birthdate'])->{export};
-    my $eu_ref = {};
-    
-     die 'Publication Datetime is invalid' unless (_validate_date($ref->{generationDate}));
+    my $count_all;
+    my $count_without_dob;
+
+    my $generation_date = $ref->{'-generationDate'};
+    $generation_date = "$3/$2/$1" if $generation_date =~ m/^(\d+)-(\d+)-(\d+)T/;
+    die 'Publication Date is invalid' unless $generation_date and _validate_date($generation_date);
 
     foreach my $entry (@{$ref->{sanctionEntity}}) {
-        next unless $entry->{subjectType}->{code} eq 'person';
+        next unless $entry->{subjectType}->{'-code'} eq 'person';
 
+        my @names;
         for (@{$entry->{nameAlias} // []}) {
-            my $name = $_->{full_name};
-            $name = ($_->{firstName} // '') .  ($_->{lastName} // '') unless $name;
-            
-            push @names, $name;
+            my $name = $_->{'-wholeName'};
+            $name = join ' ', ($_->{'-firstName'} // '', $_->{'-lastName'} // '') unless $name;
+            push @names, $name if $name ne ' ';
         }
-        my $name = pop @names;
 
-        $eu_ref->{$name}->{dob_epoch} ||= [];
+        my @dob_list;
 
-        my @dob_list = map { $_->{birthdate} || () } $entry->{birthdate}->@*;
-
-        foreach my $dob (@dob_list) {
-
-            # Some of the values are only years (ex. '1946')
-            # We don't want to include them
-            next unless $dob !~ /^\d{4}$/;
-
-            $dob =~ s/ /-/g;
-
+        foreach my $dob ($entry->{birthdate}->@*) {
             try {
-                $dob = Date::Utility->new($dob);
-                push @{$eu_ref->{$name}->{dob_epoch}}, $dob->epoch;
+                my $dob_combined = join '-', ($dob->{'-year'} // '', $dob->{'-monthOfYear'} // '', $dob->{'-dayOfMonth'} // '');
+                $dob = $dob->{'-birthdate'} // $dob_combined;
+                push @dob_list, Date::Utility->new($dob)->epoch if $dob and ($dob =~ /^\d{4}-\d{1,2}-\d{1,2}$/);
             }
         }
 
+        foreach my $name (@names) {
+            $eu_ref->{$name}->{dob_epoch} ||= [];
+            foreach my $dob (@dob_list) {
+                push $eu_ref->{$name}->{dob_epoch}->@*, $dob;
+            }
+        }
+
+        $count_all += 1;
+        $count_without_dob += 1 unless @dob_list;
     }
 
+    my $parser = DateTime::Format::Strptime->new(
+        pattern  => '%d/%m/%Y',
+        on_error => 'croak',
+    );
+
     return {
-        updated    => Date::Utility->new($ref->{generationDate})->epoch,
+        updated    => $parser->parse_datetime($generation_date)->epoch,
         names_list => $eu_ref,
     };
 }
-
-
 
 =head2 run
 
