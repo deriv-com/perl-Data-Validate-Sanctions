@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<export xmlns="http://eu.europa.ec/fpi/fsd/export" generationDate="2020-04-15T15:29:22.497+02:00" globalFileId="123465">
+    <sanctionEntity designationDetails="" unitedNationId="" euReferenceNumber="EU.27.28" logicalId="13">
+        <remark>UNSC RESOLUTION 1483</remark>
+        <regulation regulationType="regulation" organisationType="commission" publicationDate="2003-07-08" entryIntoForceDate="2003-07-07" numberTitle="1210/2003 (OJ L169)" programme="IRQ" logicalId="348">
+            <publicationUrl>http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF</publicationUrl>
+        </regulation>
+        <subjectType code="person" classificationCode="P"/>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Abou Ali" function="" title="" nameLanguage="FR" strong="true" regulationLanguage="en" logicalId="380">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Abu Ali" function="" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="19">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="Saddam" middleName="" lastName="Hussein Al-Tikriti" wholeName="Saddam Hussein Al-Tikriti" function="" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="17">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <citizenship region="" countryIso2Code="IQ" countryDescription="IRAQ" regulationLanguage="en" logicalId="1">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </citizenship>
+        <birthdate circa="false" calendarType="GREGORIAN" city="al-Awja, near Tikrit" zipCode="" birthdate="1937-04-28" dayOfMonth="28" monthOfYear="4" year="1937" region="" place="" countryIso2Code="IQ" countryDescription="IRAQ" regulationLanguage="en" logicalId="14">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </birthdate>
+    </sanctionEntity>
+    <sanctionEntity designationDetails="" unitedNationId="" euReferenceNumber="EU.39.56" logicalId="20">
+        <remark>Saddam's second son</remark>
+        <regulation regulationType="regulation" organisationType="commission" publicationDate="2003-07-08" entryIntoForceDate="2003-07-07" numberTitle="1210/2003 (OJ L169)" programme="IRQ" logicalId="348">
+            <publicationUrl>http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF</publicationUrl>
+        </regulation>
+        <subjectType code="person" classificationCode="P"/>
+        <nameAlias firstName="Qusay" middleName="Saddam" lastName="Hussein Al-Tikriti" wholeName="Qusay Saddam Hussein Al-Tikriti" function="Oversaw Special Republican Guard, Special Security Organisation, and Republican Guard" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="26">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="Qoussaï" middleName="Saddam" lastName="Hussein Al-Tikriti" wholeName="Qoussaï Saddam Hussein Al-Tikriti" function="" title="" nameLanguage="FR" strong="true" regulationLanguage="en" logicalId="381">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <citizenship region="" countryIso2Code="IQ" countryDescription="IRAQ" regulationLanguage="en" logicalId="2">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </citizenship>
+        <birthdate circa="false" calendarType="GREGORIAN" city="Baghdad" zipCode="" year="1965" region="" place="" countryIso2Code="00" countryDescription="UNKNOWN" regulationLanguage="en" logicalId="19">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </birthdate>
+        <birthdate circa="false" calendarType="GREGORIAN" city="Baghdad" zipCode="" year="1966" region="" place="" countryIso2Code="00" countryDescription="UNKNOWN" regulationLanguage="en" logicalId="20">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </birthdate>
+    </sanctionEntity>
+    <sanctionEntity designationDetails="" unitedNationId="" euReferenceNumber="EU.16.62" logicalId="23">
+        <remark>Saddam's eldest son</remark>
+        <regulation regulationType="regulation" organisationType="commission" publicationDate="2003-07-08" entryIntoForceDate="2003-07-07" numberTitle="1210/2003 (OJ L169)" programme="IRQ" logicalId="348">
+            <publicationUrl>http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF</publicationUrl>
+        </regulation>
+        <subjectType code="person" classificationCode="P"/>
+        <nameAlias firstName="Uday" middleName="Saddam" lastName="Hussein Al-Tikriti" wholeName="Uday Saddam Hussein Al-Tikriti" function="Leader of Paramilitary Organisation Fedayeen Saddam" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="29">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="Oudaï" middleName="Saddam" lastName="Hussein Al-Tikriti" wholeName="Oudaï Saddam Hussein Al-Tikriti" function="" title="" nameLanguage="FR" strong="true" regulationLanguage="en" logicalId="383">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <citizenship region="" countryIso2Code="IQ" countryDescription="IRAQ" regulationLanguage="en" logicalId="4">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </citizenship>
+        <birthdate circa="false" calendarType="GREGORIAN" city="Baghdad" zipCode="" year="1967" region="" place="" countryIso2Code="00" countryDescription="UNKNOWN" regulationLanguage="en" logicalId="24">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </birthdate>
+        <birthdate circa="false" calendarType="GREGORIAN" city="Baghdad" zipCode="" year="1964" region="" place="" countryIso2Code="00" countryDescription="UNKNOWN" regulationLanguage="en" logicalId="23">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </birthdate>
+    </sanctionEntity>
+    <sanctionEntity designationDetails="" unitedNationId="" euReferenceNumber="EU.11.43" logicalId="25">
+        <regulation regulationType="regulation" organisationType="commission" publicationDate="2003-07-08" entryIntoForceDate="2003-07-07" numberTitle="1210/2003 (OJ L169)" programme="IRQ" logicalId="348">
+            <publicationUrl>http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF</publicationUrl>
+        </regulation>
+        <subjectType code="person" classificationCode="P"/>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Abid Hamid Mahmoud Al-Tikriti" function="" title="" nameLanguage="FR" strong="true" regulationLanguage="en" logicalId="384">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Abid Hamid Bid Hamid Mahmud" function="Saddam's Presidential Secretary and Key Advisor" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="32">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Abed Mahmoud Hammoud" function="" title="" nameLanguage="FR" strong="true" regulationLanguage="en" logicalId="386">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Abid Hamid Bid Hamid Mahmoud" function="" title="" nameLanguage="FR" strong="true" regulationLanguage="en" logicalId="385">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Abid Hamid Mahmud Al-Tikriti" function="Saddam's Presidential Secretary and Key Advisor" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="31">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Abed Mahmoud Hammud" function="Saddam's Presidential Secretary and Key Advisor" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="35">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Abdel Hamid Mahmoud" function="Saddam's Presidential Secretary and Key Advisor" gender="M" title="Col" nameLanguage="" strong="true" regulationLanguage="en" logicalId="34">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <citizenship region="" countryIso2Code="IQ" countryDescription="IRAQ" regulationLanguage="en" logicalId="5">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </citizenship>
+        <birthdate circa="true" calendarType="GREGORIAN" city="al-Awja, near Tikrit" zipCode="" year="1957" region="" place="" countryIso2Code="00" countryDescription="UNKNOWN" regulationLanguage="en" logicalId="28">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </birthdate>
+    </sanctionEntity>
+    <sanctionEntity designationDetails="" unitedNationId="" euReferenceNumber="EU.22.9" logicalId="29">
+        <remark>UNSC RESOLUTION 1483 BASIS</remark>
+        <regulation regulationType="regulation" organisationType="commission" publicationDate="2003-07-08" entryIntoForceDate="2003-07-07" numberTitle="1210/2003 (OJ L169)" programme="IRQ" logicalId="348">
+            <publicationUrl>http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF</publicationUrl>
+        </regulation>
+        <subjectType code="person" classificationCode="P"/>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Ali Hassan Al-Majid Al-Tikriti" function="Presidential Advisor and Senior Member of Revolutionary Command Council" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="39">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Al-Kimawi" function="Presidential Advisor and Senior Member of Revolutionary Command Council" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="40">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <citizenship region="" countryIso2Code="IQ" countryDescription="IRAQ" regulationLanguage="en" logicalId="6">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </citizenship>
+        <birthdate circa="false" calendarType="GREGORIAN" city="al-Awja, near Tikrit" zipCode="" year="1943" region="" place="" countryIso2Code="IQ" countryDescription="IRAQ" regulationLanguage="en" logicalId="31">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </birthdate>
+        <birthdate circa="false" calendarType="GREGORIAN" city="Al-Awja, near Tikrit (J.O. ES)" zipCode="" region="" place="" countryIso2Code="00" countryDescription="UNKNOWN" regulationLanguage="en" logicalId="160">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </birthdate>
+    </sanctionEntity>
+    <sanctionEntity designationDetails="" unitedNationId="" euReferenceNumber="EU.42.11" logicalId="33">
+        <remark>UNSC RESOLUTION 1483 BASIS</remark>
+        <regulation regulationType="regulation" organisationType="commission" publicationDate="2003-07-08" entryIntoForceDate="2003-07-07" numberTitle="1210/2003 (OJ L169)" programme="IRQ" logicalId="348">
+            <publicationUrl>http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF</publicationUrl>
+        </regulation>
+        <subjectType code="person" classificationCode="P"/>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Abu Ahmad" function="Vice Chairman, Revolutionary Command Council" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="46">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Abu Brays" function="Deputy Secretary, Ba'th Party Regional Command" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="45">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Izzat Ibrahim al-Duri" function="Deputy Commander-in-Chief of Iraqi Military" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="44">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Izzat Ibrahim al-Douri" function="" title="" nameLanguage="FR" strong="true" regulationLanguage="en" logicalId="387">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Izzat Ibrahim al-Duri" function="Vice Chairman, Revolutionary Command Council" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="51">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Abu Brays" function="Deputy Commander-in-Chief of Iraqi Military" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="52">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Izzat Ibrahim al-Duri" function="Deputy Secretary, Ba'th Party Regional Command" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="49">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Izzat Ibrahim Al-Duri" function="" title="" nameLanguage="ES" strong="true" regulationLanguage="en" logicalId="244">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Abu Ahmad" function="Deputy Secretary, Ba'th Party Regional Command" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="56">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Abu Ahmad" function="Deputy Commander-in-Chief of Iraqi Military," gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="55">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Abu Brays" function="Vice Chairman, Revolutionary Command Council" gender="M" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="54">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <citizenship region="" countryIso2Code="IQ" countryDescription="IRAQ" regulationLanguage="en" logicalId="7">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </citizenship>
+        <birthdate circa="false" calendarType="GREGORIAN" city="Al-Dur (J.O. ES)" zipCode="" region="" place="" countryIso2Code="00" countryDescription="UNKNOWN" regulationLanguage="en" logicalId="161">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </birthdate>
+        <birthdate circa="false" calendarType="GREGORIAN" city="al-Dur" zipCode="" year="1942" region="" place="" countryIso2Code="00" countryDescription="UNKNOWN" regulationLanguage="en" logicalId="33">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </birthdate>
+    </sanctionEntity>
+    <sanctionEntity designationDetails="" unitedNationId="" euReferenceNumber="EU.35.2" logicalId="39">
+        <regulation regulationType="regulation" organisationType="commission" publicationDate="2003-07-08" entryIntoForceDate="2003-07-07" numberTitle="1210/2003 (OJ L169)" programme="IRQ" logicalId="348">
+            <publicationUrl>http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF</publicationUrl>
+        </regulation>
+        <subjectType code="person" classificationCode="P"/>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Hani Abd-Al-Latif Tilfah Al-Tikriti" function="No 2 in Special Security Organisation" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="59">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <nameAlias firstName="" middleName="" lastName="" wholeName="Hani Abdel-Latif Tilfah Al-Tikriti" function="" title="" nameLanguage="FR" strong="true" regulationLanguage="en" logicalId="388">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </nameAlias>
+        <citizenship region="" countryIso2Code="IQ" countryDescription="IRAQ" regulationLanguage="en" logicalId="8">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </citizenship>
+        <birthdate circa="true" calendarType="GREGORIAN" city="al-Awja, near Tikrit" zipCode="" year="1962" region="" place="" countryIso2Code="00" countryDescription="UNKNOWN" regulationLanguage="en" logicalId="39">
+            <regulationSummary regulationType="regulation" publicationDate="2003-07-08" numberTitle="1210/2003 (OJ L169)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2003:169:0006:0023:EN:PDF"/>
+        </birthdate>
+    </sanctionEntity>
+</export>

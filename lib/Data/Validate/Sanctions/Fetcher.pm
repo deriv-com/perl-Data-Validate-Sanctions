@@ -14,8 +14,11 @@ use XML::Fast;
 
 our $VERSION = '0.10';
 
-my $config = {
-    'OFAC-SDN' => {
+sub config {
+    my %args = @_;
+    my $eu_sanctions_token = $args{eu_sanctions_token} // ENV{EU_SANCTIONS_TOKEN};
+    
+    return 'OFAC-SDN' => {
         description => 'TREASURY.GOV: Specially Designated Nationals List with a.k.a included',
         url    => 'https://www.treasury.gov/ofac/downloads/sdn_xml.zip',    #let's be polite and use zippped version of this 7mb+ file
         parser => \&_ofac_xml_zip,
@@ -32,7 +35,7 @@ my $config = {
     },
     'EU-Sanctions' => {
         description => 'EUROPA.EU: Consolidated list of persons, groups and entities subject to EU financial sanctions',
-        url         => 'https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw',
+        url         => $args{eu_sanctions_url} // "https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_sanctions_token",
         parser      => \&_eu_xml,
     },
 };
@@ -225,9 +228,14 @@ Fetches latest version of lists, and returns combined hash of successfully downl
 =cut
 
 sub run {
+    my @args = @_;
+    
     my $h  = {};
     my $ua = Mojo::UserAgent->new;
     $ua->connect_timeout(15);
+    
+    my $config = config(@args);
+    
     foreach my $id (keys %$config) {
         my $d = $config->{$id};
         try {

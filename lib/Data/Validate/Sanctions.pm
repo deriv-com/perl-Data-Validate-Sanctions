@@ -27,6 +27,7 @@ sub new {    ## no critic (RequireArgUnpacking)
     my %args  = @_;
     my $self  = {};
     $self->{sanction_file} = $args{sanction_file} // _default_sanction_file();
+    $self->{eu_sanctions_token} = $args{sanction_file};
     $self->{last_time} = 0;
     return bless $self, ref($class) || $class;
 }
@@ -34,7 +35,7 @@ sub new {    ## no critic (RequireArgUnpacking)
 sub update_data {
     my $self = shift;
 
-    my $new_data = Data::Validate::Sanctions::Fetcher::run();
+    my $new_data = Data::Validate::Sanctions::Fetcher::run(eu_sanctions_token => $self->{eu_sanctions_token});
     $self->_load_data();
 
     my $updated;
