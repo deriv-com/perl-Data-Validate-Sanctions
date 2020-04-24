@@ -27,7 +27,7 @@ sub new {    ## no critic (RequireArgUnpacking)
     my %args  = @_;
     my $self  = {};
     $self->{sanction_file} = $args{sanction_file} // _default_sanction_file();
-    $self->{eu_sanctions_token} = $args{sanction_file};
+    $self->{eu_sanctions_token} = $args{eu_sanctions_token};
     $self->{last_time} = 0;
     return bless $self, ref($class) || $class;
 }
