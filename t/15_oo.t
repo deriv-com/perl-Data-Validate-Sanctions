@@ -110,4 +110,5 @@ $validator = Data::Validate::Sanctions->new;
 ok $validator->is_sanctioned(qw(tmpb)), "get sanction file from ENV";
 $validator = Data::Validate::Sanctions->new(sanction_file => "$tmpa");
 ok $validator->is_sanctioned(qw(tmpa)), "get sanction file from args";
+
 done_testing;

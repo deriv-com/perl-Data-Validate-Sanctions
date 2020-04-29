@@ -95,7 +95,6 @@ sub _process_name_and_dob {
         } elsif ($dob =~ m/^(\d{4})-(\d0{1,2})-(\d{1,2})$/) {
             $dob = $1 if $2 == 0 or $3 == 0;
         }
-        #dobs with missing day of month is converted to year.
         $dob = $1 if $dob =~ m/^[A-Z][a-z]{2}-(\d{4})$/;
 
         if ($dob =~ m/^\d{4}$/) {
@@ -151,9 +150,6 @@ sub _ofac_xml {
         names_list => $ofac_ref,
     };
 }
-my $zero_date   = 0;
-my $empty_dates = 0;
-my $total       = 0;
 
 sub _hmt_csv {
     my $content = shift;
@@ -166,7 +162,9 @@ sub _hmt_csv {
     my $i = 0;
     foreach (@lines) {
         $i++;
-        chop;
+
+        s/^\s+|\s+$//g;
+
         my $status = $csv->parse($_);
         if (1 == $i) {
             @info = $status ? $csv->fields() : ();
