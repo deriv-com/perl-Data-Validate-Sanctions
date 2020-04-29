@@ -15,6 +15,7 @@ requires 'Try::Tiny', 0;
 requires 'XML::Fast', 0;
 requires 'YAML::XS', 0;
 requires 'Date::Utility', 0;
+requires 'Getopt::Long', '2.42';
 
 on test => sub {
     requires 'Test::More', '0.96';

@@ -10,16 +10,12 @@ my $validator = Data::Validate::Sanctions->new;
 
 ok $validator->is_sanctioned('NEVEROV', 'Sergei Ivanovich', -253411200), "Sergei Ivanov is_sanctioned for sure";
 my $result = $validator->get_sanctioned_info('abu', 'usama', -306028800);
-is $result->{matched}, 1,                       "Abu Usama is matched from get_sanctioned_info ";
-is $result->{list},    'HMT-Sanctions',         "Abu Usama has correct list from get_sanctioned_info";
-is $result->{name},    'ABU USAMA',             "Abu Usama has correct matched name from get_sanctioned_info";
-is $result->{reason},  'Date of birth matches', "Reason is due to matching date of birth";
 is_deeply $result,
     {
-    list        => 'HMT-Sanctions',
+    list        => 'EU-Sanctions',
     matched     => 1,
     matched_dob => -306028800,
-    name        => 'ABU USAMA',
+    name        => 'Abu Usama',
     reason      => 'Date of birth matches'
     },
     'Validation details are correct';
@@ -30,13 +26,16 @@ $result = $validator->get_sanctioned_info('ABBATTAY', 'Mohamed', 174614567);
 is $result->{matched}, 0, 'ABBATTAY Mohamed is safe';
 
 $result = $validator->get_sanctioned_info('Abu', 'Salem');
+is $result->{matched}, 0, 'He used to match previously; but he has date of birth now.';
+
+$result = $validator->get_sanctioned_info('Abu', 'Salem', '1948-10-10');
 is_deeply $result,
     {
-    list        => 'OFAC-SDN',
+    list        => 'OFAC-Consolidated',
     matched     => 1,
-    matched_dob => 'N/A',
-    name        => 'al Idrisi Fehmi Abu Zaid SALEM',
-    reason      => 'Name is similar'
+    matched_dob => '1948',
+    name        => 'Ibrahim ABU SALEM',
+    reason      => 'Year of birth matches'
     },
     'Validation details are correct';
 
@@ -88,7 +87,7 @@ is_deeply $validator->get_sanctioned_info("Zaki", "Ahmad", '1999-01-05'),
     matched     => 1,
     list        => 'test1',
     reason      => 'Year of birth matches',
-    matched_dob => '1999-01-05',
+    matched_dob => '1999',
     },
     'Sanction info is correct';
 ok $validator->is_sanctioned("Ahmad", "Ahmad", '1999-10-10'), "is in test1 list";

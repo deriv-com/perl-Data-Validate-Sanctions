@@ -73,10 +73,11 @@ subtest 'Fetch all sources' => sub {
     $disable_mock = 1;
 
     my $data;
-    warning_like {
+    warnings_like {
         $data = Data::Validate::Sanctions::Fetcher::run();
     }
-    qr/Url is empty for EU-Sanctions/, 'Correct warning when the EU sanctions token is missing';
+    [qr/EU Sanctions will fail whithout eu_sanctions_token or eu_url/, qr/Url is empty for EU-Sanctions/],
+        'Correct warning when the EU sanctions token is missing';
 
     is_deeply [sort keys %$data], [qw(HMT-Sanctions OFAC-Consolidated OFAC-SDN )], 'sanction source list is correct';
 
@@ -121,10 +122,12 @@ subtest 'EU Sanctions' => sub {
     my $data;
 
     undef %requested_urls;
-    warning_like {
+    warnings_like {
         $data = Data::Validate::Sanctions::Fetcher::run();
     }
-    qr/Url is empty for EU-Sanctions/, 'Correct warning when there is no EU sanction list token';
+    [qr/EU Sanctions will fail whithout eu_sanctions_token or eu_url/, qr/Url is empty for EU-Sanctions/],
+        'Correct warning when the EU sanctions token is missing';
+
     is $data->{$source_name}, undef, 'Result is empty as expected';
     is $requested_urls{$source_name}, undef, 'No http request';
 

@@ -1,4 +1,6 @@
 use strict;
+use warnings;
+
 use Class::Unload;
 use Data::Validate::Sanctions;
 use YAML::XS qw(Dump);

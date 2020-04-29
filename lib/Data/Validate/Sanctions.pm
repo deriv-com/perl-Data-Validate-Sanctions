@@ -23,13 +23,12 @@ my $instance;
 
 # for OO
 sub new {    ## no critic (RequireArgUnpacking)
-    my $class = shift;
-    my %args  = @_;
+    my ($class, %args) = @_;
 
     my $self = {};
     $self->{sanction_file} = $args{sanction_file} // _default_sanction_file();
 
-    $self->{args} = [%args];
+    $self->{args} = {%args};
 
     $self->{last_time} = 0;
     return bless $self, ref($class) || $class;
@@ -39,7 +38,7 @@ sub update_data {
     my $self = shift;
 
     my $new_data = Data::Validate::Sanctions::Fetcher::run($self->{args}->%*);
-    $self->_load_data();
+    my $old_data = $self->_load_data();
 
     my $updated;
     foreach my $k (keys %$new_data) {
@@ -145,7 +144,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
             return _possible_match($matched_file, $matched_name, 'Date of birth matches', $date_of_birth) if $checked_dob;
 
             $checked_dob = any { $_ eq $client_dob_year } @{$sanctions_year_list} unless $checked_dob;
-            return _possible_match($matched_file, $matched_name, 'Year of birth matches', $date_of_birth) if $checked_dob;
+            return _possible_match($matched_file, $matched_name, 'Year of birth matches', $client_dob_year) if $checked_dob;
         }
     }
     # Return a possible match if the name matches and no date of birth is present in sanctions

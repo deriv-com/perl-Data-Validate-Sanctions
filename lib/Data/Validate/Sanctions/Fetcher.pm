@@ -20,6 +20,8 @@ sub config {
     my $eu_sanctions_token = $args{eu_sanctions_token} // $ENV{EU_SANCTIONS_TOKEN};
     my $eu_url             = $args{eu_url}             // $ENV{EU_SANCTIONS_URL};
 
+    warn 'EU Sanctions will fail whithout eu_sanctions_token or eu_url' unless $eu_sanctions_token or $eu_url;
+
     if ($eu_sanctions_token) {
         $eu_url //= "https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_sanctions_token";
     }
@@ -107,6 +109,9 @@ sub _process_name_and_dob {
     }
 
     for my $name (@$name_list) {
+        # some names contain comma
+        $name =~ s/,//g;
+
         $dataset->{$name}->{dob_epoch} //= [] if @epoch_list;
         $dataset->{$name}->{dob_year}  //= [] if @year_list;
         push @{$dataset->{$name}->{dob_epoch}}, @epoch_list;
