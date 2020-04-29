@@ -3,6 +3,7 @@ use Class::Unload;
 use Data::Validate::Sanctions;
 use YAML::XS qw(Dump);
 use Path::Tiny qw(tempfile);
+use Test::Warnings;
 use Test::More;
 
 my $validator = Data::Validate::Sanctions->new;
@@ -13,15 +14,31 @@ is $result->{matched}, 1,                       "Abu Usama is matched from get_s
 is $result->{list},    'HMT-Sanctions',         "Abu Usama has correct list from get_sanctioned_info";
 is $result->{name},    'ABU USAMA',             "Abu Usama has correct matched name from get_sanctioned_info";
 is $result->{reason},  'Date of birth matches', "Reason is due to matching date of birth";
+is_deeply $result,
+    {
+    list        => 'HMT-Sanctions',
+    matched     => 1,
+    matched_dob => -306028800,
+    name        => 'ABU USAMA',
+    reason      => 'Date of birth matches'
+    },
+    'Validation details are correct';
+
 ok !$validator->is_sanctioned(qw(chris down)), "Chris is a good guy";
 
 $result = $validator->get_sanctioned_info('ABBATTAY', 'Mohamed', 174614567);
 is $result->{matched}, 0, 'ABBATTAY Mohamed is safe';
 
 $result = $validator->get_sanctioned_info('Abu', 'Salem');
-is $result->{matched}, 1,                 'Abu Salem  is matched';
-is $result->{list},    'OFAC-SDN',        'Matched from correct sanction list with no date of birth provided';
-is $result->{reason},  'Name is similar', 'Correct reasoning found';
+is_deeply $result,
+    {
+    list        => 'OFAC-SDN',
+    matched     => 1,
+    matched_dob => 'N/A',
+    name        => 'al Idrisi Fehmi Abu Zaid SALEM',
+    reason      => 'Name is similar'
+    },
+    'Validation details are correct';
 
 my $tmpa = tempfile;
 
@@ -30,9 +47,21 @@ $tmpa->spew(
             test1 => {
                 updated    => time,
                 names_list => {
-                    'TMPA'                        => {'dob_epoch' => []},
-                    'MOHAMMAD EWAZ Mohammad Wali' => {'dob_epoch' => []},
-                    'Zaki Izzat Zaki AHMAD'       => {'dob_epoch' => []}}}}));
+                    'TMPA' => {
+                        'dob_epoch' => [],
+                        'dob_year'  => []
+                    },
+                    'MOHAMMAD EWAZ Mohammad Wali' => {
+                        'dob_epoch' => [],
+                        'dob_year'  => []
+                    },
+                    'Zaki Izzat Zaki AHMAD' => {
+                        'dob_epoch' => [],
+                        'dob_year'  => [1999]
+                    },
+                },
+            },
+        }));
 
 my $tmpb = tempfile;
 
@@ -40,14 +69,39 @@ $tmpb->spew(
     Dump({
             test2 => {
                 updated    => time,
-                names_list => {'TMPB' => {'dob_epoch' => []}}}}));
+                names_list => {
+                    'TMPB' => {
+                        'dob_epoch' => [],
+                        'dob_year'  => []}}
+            },
+        }));
 
 $validator = Data::Validate::Sanctions->new(sanction_file => "$tmpa");
 ok !$validator->is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov not is_sanctioned";
 ok $validator->is_sanctioned(qw(tmpa)), "now sanction file is tmpa, and tmpa is in test1 list";
 ok !$validator->is_sanctioned("Mohammad reere yuyuy", "wqwqw  qqqqq"), "is not in test1 list";
-ok $validator->is_sanctioned("Zaki",  "Ahmad"), "is in test1 list";
-ok $validator->is_sanctioned("Ahmad", "Ahmad"), "is in test1 list";
+ok !$validator->is_sanctioned("Zaki",                 "Ahmad"),        "is in test1 list - but with a dob year";
+ok $validator->is_sanctioned("Zaki", "Ahmad", '1999-01-05'), 'the guy is sanctioned when dob year is matching';
+is_deeply $validator->get_sanctioned_info("Zaki", "Ahmad", '1999-01-05'),
+    {
+    name        => 'Zaki Izzat Zaki AHMAD',
+    matched     => 1,
+    list        => 'test1',
+    reason      => 'Year of birth matches',
+    matched_dob => '1999-01-05',
+    },
+    'Sanction info is correct';
+ok $validator->is_sanctioned("Ahmad", "Ahmad", '1999-10-10'), "is in test1 list";
+
+is_deeply $validator->get_sanctioned_info("TMPA"),
+    {
+    list        => 'test1',
+    matched     => 1,
+    matched_dob => 'N/A',
+    name        => 'TMPA',
+    reason      => 'Name is similar'
+    },
+    'Sanction info is correct';
 
 Class::Unload->unload('Data::Validate::Sanctions');
 local $ENV{SANCTION_FILE} = "$tmpb";

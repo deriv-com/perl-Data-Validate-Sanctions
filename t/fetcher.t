@@ -1,40 +1,84 @@
 use strict;
 use warnings;
+
 use Class::Unload;
 use Data::Validate::Sanctions;
 use YAML::XS qw(Dump);
 use Path::Tiny qw(tempfile);
+use List::Util qw(first);
+
 use Test::More;
+use Test::Warnings;
 use Test::MockModule;
 use Test::Warn;
+use Test::MockObject;
 
-        my $mocked_ua = Test::MockModule->new('Mojo::UserAgent');
-    $mocked_ua->redefine(
-        get => sub {
-            my $self = shift;
+my %sources = (
+    'OFAC-SDN' => {
+        url_pattern => 'www.treasury.gov/ofac/downloads/sdn_xml.zip',
+        sample_file => 't/data/sample_ofac_sdn.zip'
+    },
+    'OFAC-Consolidated' => {
+        url_pattern => 'www.treasury.gov/ofac/downloads/consolidated',
+        sample_file => 't/data/sample_ofac_consolidated.xml'
+    },
+    'HMT-Sanctions' => {
+        url_pattern => 'ofsistorage.blob.core.windows.net/publishlive/ConList.csv',
+        sample_file => 't/data/sample_hmt.csv'
+    },
+    'EU-Sanctions' => {
+        url_pattern => 'webgate.ec.europa.eu',
+        sample_file => 't/data/sample_eu.xml'
+    },
+);
 
-            return 'Mocked User Agent Result';
-        });
+my $disable_mock = 0;
 
-my %args = (eu_url => '',
-        ofac_consolidated_url => '',
-        ofac_sdn_url => '',
-        hmt_url => 'file://t/data/sample_hmt.csv',
-    );
-my $data = Data::Validate::Sanctions::Fetcher::run(%args);
-exit;
+my %requested_urls;
+my $mocked_ua = Test::MockModule->new('Mojo::UserAgent');
+$mocked_ua->mock(
+    get => sub {
+        my ($self, $url) = @_;
+
+        my $source = first { $url =~ qr($sources{$_}->{url_pattern}) } keys %sources;
+        $source //= 'Unknown';
+
+        $requested_urls{$source} = $url;
+
+        # called the unmocked sub if flag is cleared
+        return $mocked_ua->original('get')->(@_) if $disable_mock;
+
+        my $mocked_response = Test::MockObject->new;
+        $mocked_response->mock(
+            result => sub {
+                my $mocked_result = Test::MockObject->new;
+
+                $mocked_result->mock(is_error => sub { return $source eq 'Unknown' });
+                $mocked_result->mock(
+                    body => sub {
+                        return undef if $source eq 'Unknown';
+
+                        my $file_name = $sources{$source}->{sample_file};
+                        open my $fh, '<', $file_name or die "Can't open file $file_name $!";
+                        return do { local $/; <$fh> };
+                    },
+                );
+
+                return $mocked_result;
+            });
+        return $mocked_response;
+    });
 
 subtest 'Fetch all sources' => sub {
+    $disable_mock = 1;
 
-    my %args = (eu_url => 'file://t/data/sample_eu.xml',
-        ofac_consolidated_url => 'file://t/data/sample_ofac_consolidated.xml',
-        ofac_sdn_url => 'file://t/data/sample_ofac_sdn.zip',
-        hmt_url => 'file://t/data/sample_hmt.csv',
-    );
-        
-    my $data = Data::Validate::Sanctions::Fetcher::run(%args);
+    my $data;
+    warning_like {
+        $data = Data::Validate::Sanctions::Fetcher::run();
+    }
+    qr/Url is empty for EU-Sanctions/, 'Correct warning when the EU sanctions token is missing';
 
-    is_deeply [sort keys %$data], [qw(EU-Sanctions HMT-Sanctions OFAC-Consolidated OFAC-SDN )], 'sanction source list is correct';
+    is_deeply [sort keys %$data], [qw(HMT-Sanctions OFAC-Consolidated OFAC-SDN )], 'sanction source list is correct';
 
     cmp_ok($data->{'HMT-Sanctions'}{updated}, '>=', 1541376000, "Fetcher::run HMT-Sanctions sanctions.yml");
 
@@ -46,61 +90,93 @@ subtest 'Fetch all sources' => sub {
 
     cmp_ok(scalar @{$data->{'HMT-Sanctions'}{'names_list'}{'ADAM Nureldine'}{'dob_epoch'}}, '>=', 1, "check ADAM Nureldine");
 
-    is $data->{'EU-Sanctions'}{updated}, 1586908800, "EU sanctions update date is accepatble";
+    # better to always test with mock enabled
+    $disable_mock = 0;
 
-    is scalar keys %{$data->{'EU-Sanctions'}{'names_list'}}, 23, "Number of names in EU sanctions is high enough";
+    my %args = (
+        eu_url                => 'eu.binary.com',
+        ofac_sdn_url          => 'ofac_snd.binary.com',
+        ofac_consolidated_url => 'ofac_con.binary.com',
+        hmt_url               => 'hmt.binary.com',
+    );
+
+    undef %requested_urls;
+    warnings_like {
+        $data = Data::Validate::Sanctions::Fetcher::run(%args);
+    }
+    [
+        qr(EU-Sanctions list update failed: File not downloaded for eu.binary.com),
+        qr(HMT-Sanctions list update failed: File not downloaded for hmt.binary.com),
+        qr(OFAC-Consolidated list update failed: File not downloaded for ofac_con.binary.com),
+        qr(OFAC-SDN list update failed: File not downloaded for ofac_snd.binary.com),
+    ],
+        'Source urls are updated by params';
+    is_deeply [keys %requested_urls], ['Unknown'], 'All requested urls are unknown for the ';
+    is_deeply $data, {}, 'There is no result with invalid urls';
+
 };
 
 subtest 'EU Sanctions' => sub {
-    my $requested_url;
-    my $mocked_ua = Test::MockModule->new('Mojo::UserAgent');
-    $mocked_ua->redefine(
-        get => sub {
-            my $self = shift;
-            $requested_url = shift;
-
-            return 'Mocked User Agent Result';
-        });
-
-    my %args = (eu_url => undef,
-        ofac_consolidated_url => 'file://t/data/sample_ofac_consolidated.xml',
-        ofac_sdn_url => 'file://t/data/sample_ofac_sdn.zip',
-        hmt_url => 'file://t/data/sample_hmt.xml',
-    );
+    my $source_name = 'EU-Sanctions';
     my $data;
+
+    undef %requested_urls;
     warning_like {
-        $data = Data::Validate::Sanctions::Fetcher::run(%args);
+        $data = Data::Validate::Sanctions::Fetcher::run();
     }
     qr/Url is empty for EU-Sanctions/, 'Correct warning when there is no EU sanction list token';
-    is_deeply $data, {}, 'Result is empty as expected';
-    is $requested_url, undef, 'No http request';
+    is $data->{$source_name}, undef, 'Result is empty as expected';
+    is $requested_urls{$source_name}, undef, 'No http request';
 
-    $args{eu_sanctions_token} = 'ASDF';
-    warning_like {
-        $data = Data::Validate::Sanctions::Fetcher::run(%args);
-    }
-    qr/Mocked User Agent Result/, 'Correct warning from mocked user agent';
-    is $requested_url, 'https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=ASDF',
+    undef %requested_urls;
+    $data = Data::Validate::Sanctions::Fetcher::run(eu_sanctions_token => 'ASDF');
+    is $requested_urls{$source_name}, 'https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=ASDF',
         'Correct http is requested';
-    is_deeply $data, {}, 'Result is empty as expected';
-    $requested_url = undef;
+    ok $data->{'EU-Sanctions'}, 'EU Sanctions are are loaded from the sample file path';
+    is $data->{'EU-Sanctions'}{updated}, 1586908800, "EU sanctions update date matches the sample file";
+    is scalar keys %{$data->{'EU-Sanctions'}{'names_list'}}, 13, "Number of names matches the content of the sample EU sanction";
 
-    $args{eu_url} = 'http://dummy.binary.com';
+    undef %requested_urls;
     warning_like {
-        $data = Data::Validate::Sanctions::Fetcher::run(%args);
+        $data = Data::Validate::Sanctions::Fetcher::run(
+            eu_url             => 'http://dummy.binary.com',
+            eu_sanctions_token => 'ASDF'
+        );
     }
-    qr/Mocked User Agent Result/, 'Correct warning from mocked user agent';
-    is $requested_url, 'http://dummy.binary.com', 'The default url masked by eu_sanctions_url argument';
-    is_deeply $data, {}, 'Result is empty as expected';
-    $requested_url = undef;
+    qr(File not downloaded for http://dummy.binary.com), 'Correct warning, because the url was UNKNOWN for the mocked User Agent';
+    is $requested_urls{'Unknown'}, 'http://dummy.binary.com', 'The default url masked by eu_sanctions_url argument';
 
-    $args{eu_url} = 'file://t/data/sample_eu.xml';
-    $data = Data::Validate::Sanctions::Fetcher::run(%args);
-    is $requested_url, undef, 'No http request is made for file url';
-    is_deeply [sort keys %$data], [qw(EU-Sanctions)], 'sanction source list is correct';
-    is $data->{'EU-Sanctions'}{updated}, 1586908800, "EU sanctions update date is accepatble";
-    is scalar keys %{$data->{'EU-Sanctions'}{'names_list'}}, 23, "Number of names in EU sanctions is high enough";
+    $data = Data::Validate::Sanctions::Fetcher::run(eu_sanctions_token => 'ASDF');
 
+    for my $ailias_name ('Fahd Bin Adballah BIN KHALID', 'Khalid Shaikh MOHAMMED', 'Khalid Adbul WADOOD', 'Ashraf Refaat Nabith HENIN', 'Salem ALI') {
+        is_deeply $data->{$source_name}->{names_list}->{$ailias_name},
+            {
+            'dob_epoch' => [-148867200, -184204800],
+            'dob_year'  => []
+            },
+            'Aslias names have the same dates + multiple epochs extacted from a single entry';
+    }
+
+    is_deeply $data->{$source_name}->{names_list}->{'Youcef Adel'},
+        {
+        'dob_epoch' => [-127958400],
+        'dob_year'  => ['1958']
+        },
+        'Cases with both epoch and year';
+
+    is_deeply $data->{$source_name}->{names_list}->{'Yu-ro Han'},
+        {
+        'dob_epoch' => [],
+        'dob_year'  => []
+        },
+        'Cases without epoch or year';
+
+    is_deeply $data->{$source_name}->{names_list}->{'Leo Manzi'},
+        {
+        'dob_epoch' => [],
+        'dob_year'  => ['1954', '1953']
+        },
+        'Case with multiple years';
 };
 
 done_testing;

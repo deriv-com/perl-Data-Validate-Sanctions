@@ -29,7 +29,7 @@ sub new {    ## no critic (RequireArgUnpacking)
     my $self = {};
     $self->{sanction_file} = $args{sanction_file} // _default_sanction_file();
 
-    $self->{$_} = $args{$_} for qw(eu_sanctions_token eu_sanctions_file);
+    $self->{args} = [%args];
 
     $self->{last_time} = 0;
     return bless $self, ref($class) || $class;
@@ -38,7 +38,7 @@ sub new {    ## no critic (RequireArgUnpacking)
 sub update_data {
     my $self = shift;
 
-    my $new_data = Data::Validate::Sanctions::Fetcher::run(map { $_ => $self->{$_} } qw(eu_sanctions_token eu_sanctions_file));
+    my $new_data = Data::Validate::Sanctions::Fetcher::run($self->{args}->%*);
     $self->_load_data();
 
     my $updated;
@@ -127,22 +127,27 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
             $matched_file = $file;
 
             # Some clients in sanction list can have more than one date of birth
-            # Comparison is made using the epoch value
-            my $client_dob_epoch   = Date::Utility->new($date_of_birth)->epoch;
-            my $sanctions_dob_list = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_epoch};
+            # Comparison is made using the epoch and year values
+            my $client_dob_date  = Date::Utility->new($date_of_birth);
+            my $client_dob_epoch = $client_dob_date->epoch;
+            my $client_dob_year  = $client_dob_date->year;
 
-            # If the dob_epoch is missing from the sanctions.yml, automatically mark
+            my $sanctions_epoch_list = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_epoch} // [];
+            my $sanctions_year_list  = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_year}  // [];
+
+            # If the dob_epoch and dob_year are missing from the sanctions.yml, automatically mark
             # the client as a terrorist, regardless of further checks
-            unless (@$sanctions_dob_list) {
+            unless (@$sanctions_epoch_list or @$sanctions_year_list) {
                 $dob_missing = 1;
             }
 
-            $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_dob_list};
-
+            $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_epoch_list};
             return _possible_match($matched_file, $matched_name, 'Date of birth matches', $date_of_birth) if $checked_dob;
+
+            $checked_dob = any { $_ eq $client_dob_year } @{$sanctions_year_list} unless $checked_dob;
+            return _possible_match($matched_file, $matched_name, 'Year of birth matches', $date_of_birth) if $checked_dob;
         }
     }
-
     # Return a possible match if the name matches and no date of birth is present in sanctions
     return _possible_match($matched_file, $matched_name, 'Name is similar', 'N/A') if ($matched_name && $dob_missing);
 
