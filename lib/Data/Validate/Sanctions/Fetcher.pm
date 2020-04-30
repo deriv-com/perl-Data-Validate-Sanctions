@@ -14,15 +14,15 @@ use XML::Fast;
 
 our $VERSION = '0.10';
 
-=head2 run
+=head2 config
 
 Creastes a hash-ref of sanction source configuration, including their url, description and parser callback.
 It accepts the following list of named args:
-    
+
 =over 4
 
 =item B<-eu_token>: required if B<eu_url> is empty
- 
+
 The token required for accessing EU sanctions (usually added as an arg to URL).
 
 =item <eu_url>: required if B<eu_token> is empty
@@ -40,7 +40,7 @@ OFAC Consilidated download url.
 =item B<hmt_url>: optional
 
 MHT Sanctions download url.
- 
+
 =back
 
 =cut
