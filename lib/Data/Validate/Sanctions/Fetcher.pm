@@ -146,8 +146,8 @@ sub _ofac_xml {
         _process_name_and_dob(\@names, \@dob_list, $ofac_ref);
     }
 
-    $ref->{publshInformation}{Publish_Date} =~ m/(\d{1,2})\/(\d{1,2})\/(\d{4})/;
-    my $publish_epoch = _date_to_epoch("$3-$1-$2");
+    my $publish_epoch = $ref->{publshInformation}{Publish_Date} =~ m/(\d{1,2})\/(\d{1,2})\/(\d{4})/
+      ? _date_to_epoch("$3-$1-$2") : undef; 
     die 'Publication date is invalid' unless defined $publish_epoch;
 
     return {
