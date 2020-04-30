@@ -125,6 +125,11 @@ sub _ofac_xml {
     my $content = shift;
 
     my $ref = xml2hash($content, array => ['aka'])->{sdnList};
+    
+    my $publish_epoch = $ref->{publshInformation}{Publish_Date} =~ m/(\d{1,2})\/(\d{1,2})\/(\d{4})/
+      ? _date_to_epoch("$3-$1-$2") : undef;                      # publshInformation is a typo in ofac xml tags
+    die 'Publication date is invalid' unless defined $publish_epoch;
+    
     my $ofac_ref = {};
 
     foreach my $entry (@{$ref->{sdnEntry}}) {
@@ -145,10 +150,6 @@ sub _ofac_xml {
 
         _process_name_and_dob(\@names, \@dob_list, $ofac_ref);
     }
-
-    my $publish_epoch = $ref->{publshInformation}{Publish_Date} =~ m/(\d{1,2})\/(\d{1,2})\/(\d{4})/
-      ? _date_to_epoch("$3-$1-$2") : undef; 
-    die 'Publication date is invalid' unless defined $publish_epoch;
 
     return {
         updated    => $publish_epoch,
