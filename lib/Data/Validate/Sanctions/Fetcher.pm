@@ -17,13 +17,13 @@ our $VERSION = '0.10';
 sub config {
     my %args = @_;
 
-    my $eu_sanctions_token = $args{eu_sanctions_token} // $ENV{EU_SANCTIONS_TOKEN};
-    my $eu_url             = $args{eu_url}             // $ENV{EU_SANCTIONS_URL};
+    my $eu_token = $args{eu_token} // $ENV{EU_SANCTIONS_TOKEN};
+    my $eu_url   = $args{eu_url}   // $ENV{EU_SANCTIONS_URL};
 
-    warn 'EU Sanctions will fail whithout eu_sanctions_token or eu_url' unless $eu_sanctions_token or $eu_url;
+    warn 'EU Sanctions will fail whithout eu_token or eu_url' unless $eu_token or $eu_url;
 
-    if ($eu_sanctions_token) {
-        $eu_url //= "https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_sanctions_token";
+    if ($eu_token) {
+        $eu_url //= "https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_token";
     }
 
     return {
@@ -125,11 +125,13 @@ sub _ofac_xml {
     my $content = shift;
 
     my $ref = xml2hash($content, array => ['aka'])->{sdnList};
-    
-    my $publish_epoch = $ref->{publshInformation}{Publish_Date} =~ m/(\d{1,2})\/(\d{1,2})\/(\d{4})/
-      ? _date_to_epoch("$3-$1-$2") : undef;                      # publshInformation is a typo in ofac xml tags
+
+    my $publish_epoch =
+        $ref->{publshInformation}{Publish_Date} =~ m/(\d{1,2})\/(\d{1,2})\/(\d{4})/
+        ? _date_to_epoch("$3-$1-$2")
+        : undef;    # publshInformation is a typo in ofac xml tags
     die 'Publication date is invalid' unless defined $publish_epoch;
-    
+
     my $ofac_ref = {};
 
     foreach my $entry (@{$ref->{sdnEntry}}) {
@@ -229,6 +231,7 @@ sub _eu_xml {
 
     my @date_parts = split('T', $ref->{'-generationDate'} // '');
     my $publish_epoch = _date_to_epoch($date_parts[0] // '');
+
     die 'Publication date is invalid' unless $publish_epoch;
 
     return {
@@ -257,11 +260,17 @@ sub run {
         try {
             die "Url is empty for $id" unless $d->{url};
 
-            my $result = $ua->get($d->{url})->result;
+            my $content;
 
-            die "File not downloaded for $d->{url}" if $result->is_error;
+            if ($d->{url} =~ m/^file:\/\/(.*)$/) {
+                open my $fh, '<', "$1" or die "Can't open $id file $1 $!";
+                $content = do { local $/; <$fh> };
+            } else {
+                die "File not downloaded for $d->{id}" if $ua->get($d->{url})->result->is_error;
+                $content = $ua->get($d->{url})->result->body;
+            }
 
-            my $r = $d->{parser}->($result->body);
+            my $r = $d->{parser}->($content);
 
             $h->{$id} = $r if ($r->{updated} > 1);
         }

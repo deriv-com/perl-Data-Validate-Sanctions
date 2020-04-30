@@ -79,7 +79,7 @@
             <regulationSummary regulationType="repealing" publicationDate="2015-08-01" numberTitle="2015/1325 (OJ L206)" publicationUrl="http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32015R1325&amp;rid=1"/>
         </identification>
     </sanctionEntity>
-        <sanctionEntity designationDate="2010-12-01" designationDetails="" unitedNationId="" euReferenceNumber="EU.3734.6" logicalId="5807">
+    <sanctionEntity designationDate="2010-12-01" designationDetails="" unitedNationId="" euReferenceNumber="EU.3734.6" logicalId="5807">
         <regulation regulationType="amendment" organisationType="council" publicationDate="2017-03-08" entryIntoForceDate="2017-03-09" numberTitle="2017/396 (OJ L60)" programme="COD" logicalId="100709">
             <publicationUrl>http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32017R0396&amp;from=EN</publicationUrl>
         </regulation>
@@ -106,5 +106,14 @@
             <remark>FDLR HQ at Kikoma forest, Bogoyi, Walikale, North Kivu, Democratic Republic of the Congo (as of June 2011).</remark>
             <regulationSummary regulationType="amendment" publicationDate="2017-03-08" numberTitle="2017/396 (OJ L60)" publicationUrl="http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32017R0396&amp;from=EN"/>
         </address>
+    </sanctionEntity>
+    <sanctionEntity designationDate="2009-07-16" designationDetails="" unitedNationId="" euReferenceNumber="EU.4009.74" logicalId="5468">
+        <regulation regulationType="repealing" organisationType="council" publicationDate="2017-08-31" entryIntoForceDate="2017-09-01" numberTitle="2017/1509 (OJ L224)" programme="PRK" logicalId="107441">
+            <publicationUrl>http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32017R1509&amp;from=EN</publicationUrl>
+        </regulation>
+        <subjectType code="person" classificationCode="P"/>
+        <nameAlias wholeName="TestOneWord" function="Test one word entry" title="" nameLanguage="" strong="true" regulationLanguage="en" logicalId="7111">
+            <regulationSummary regulationType="amendment" publicationDate="2009-07-31" numberTitle="689/2009 (OJ L199)" publicationUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2009:199:0003:0005:EN:PDF"/>
+        </nameAlias>
     </sanctionEntity>
 </export>
