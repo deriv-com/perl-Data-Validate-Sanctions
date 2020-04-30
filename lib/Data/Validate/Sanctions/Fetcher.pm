@@ -14,6 +14,37 @@ use XML::Fast;
 
 our $VERSION = '0.10';
 
+=head2 run
+
+Creastes a hash-ref of sanction source configuration, including their url, description and parser callback.
+It accepts the following list of named args:
+    
+=over 4
+
+=item B<-eu_token>: required if B<eu_url> is empty
+ 
+The token required for accessing EU sanctions (usually added as an arg to URL).
+
+=item <eu_url>: required if B<eu_token> is empty
+
+EU Sanctions full url, token included.
+
+=item B<ofac_sdn_url>: optional
+
+OFAC-SDN download url.
+
+=item B<ofac_consolidated_url>: optional
+
+OFAC Consilidated download url.
+
+=item B<hmt_url>: optional
+
+MHT Sanctions download url.
+ 
+=back
+
+=cut
+
 sub config {
     my %args = @_;
 
@@ -73,12 +104,7 @@ sub _date_to_epoch {
 
     $date = "$3-$2-$1" if $date =~ m/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/;
 
-    try {
-        return Date::Utility->new($date)->epoch;
-    }
-    catch {
-        return undef;
-    }
+    return eval {Date::Utility->new($date)->epoch;}
 }
 
 sub _process_name_and_dob {
@@ -119,6 +145,8 @@ sub _process_name_and_dob {
         $dataset->{$name}->{dob_epoch} = [uniq $dataset->{$name}->{dob_epoch}->@*];
         $dataset->{$name}->{dob_year}  = [uniq $dataset->{$name}->{dob_year}->@*];
     }
+    
+    return $dataset;
 }
 
 sub _ofac_xml {
@@ -207,9 +235,6 @@ sub _eu_xml {
     my $ref     = xml2hash($content, array => ['nameAlias', 'birthdate'])->{export};
     my $eu_ref  = {};
 
-    my $count_all;
-    my $count_without_dob;
-
     foreach my $entry (@{$ref->{sanctionEntity}}) {
         next unless $entry->{subjectType}->{'-code'} eq 'person';
 
@@ -265,6 +290,7 @@ sub run {
             if ($d->{url} =~ m/^file:\/\/(.*)$/) {
                 open my $fh, '<', "$1" or die "Can't open $id file $1 $!";
                 $content = do { local $/; <$fh> };
+                close $fh;
             } else {
                 die "File not downloaded for $d->{id}" if $ua->get($d->{url})->result->is_error;
                 $content = $ua->get($d->{url})->result->body;

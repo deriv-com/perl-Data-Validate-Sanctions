@@ -38,7 +38,6 @@ sub update_data {
     my $self = shift;
 
     my $new_data = Data::Validate::Sanctions::Fetcher::run($self->{args}->%*);
-    my $old_data = $self->_load_data();
 
     my $updated;
     foreach my $k (keys %$new_data) {
