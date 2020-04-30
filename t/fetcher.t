@@ -107,7 +107,7 @@ subtest 'EU Sanctions' => sub {
     $data = Data::Validate::Sanctions::Fetcher::run(%args);
     ok $data->{$source_name}, 'EU Sanctions are loaded from the sample file';
     is $data->{$source_name}{updated}, 1586908800, "EU sanctions update date matches the sample file";
-    is scalar keys %{$data->{$source_name}{names_list}}, 13, "Number of names matches the content of the sample EU sanction";
+    is scalar keys %{$data->{$source_name}{names_list}}, 14, "Number of names matches the content of the sample EU sanction";
 
     for my $ailias_name ('Fahd Bin Adballah BIN KHALID', 'Khalid Shaikh MOHAMMED', 'Khalid Adbul WADOOD', 'Ashraf Refaat Nabith HENIN', 'Salem ALI') {
         is_deeply $data->{$source_name}->{names_list}->{$ailias_name},
