@@ -78,7 +78,7 @@ sub _date_to_epoch {
     }
     catch {
         return undef;
-    };
+    }
 }
 
 sub _process_name_and_dob {
