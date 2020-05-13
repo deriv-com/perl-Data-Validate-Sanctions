@@ -26,7 +26,7 @@ subtest 'Fetch all sources' => sub {
     }
     [qr/EU Sanctions will fail whithout eu_token or eu_url/, qr/Url is empty for EU-Sanctions/],
         'Correct warning when the EU sanctions token is missing';
-
+    $data = Data::Validate::Sanctions::Fetcher::run();
     is_deeply [sort keys %$data], [qw(HMT-Sanctions OFAC-Consolidated OFAC-SDN )], 'sanction source list is correct';
 
     cmp_ok($data->{'HMT-Sanctions'}{updated}, '>=', 1541376000, "Fetcher::run HMT-Sanctions sanctions.yml");
@@ -113,7 +113,8 @@ subtest 'EU Sanctions' => sub {
         is_deeply $data->{$source_name}->{names_list}->{$ailias_name},
             {
             dob_epoch => [-148867200, -184204800],
-            dob_year  => []
+            dob_year  => [],
+            dob_other => [],
             },
             'Aslias names have the same dates + multiple epochs extacted from a single entry';
     }
@@ -128,14 +129,16 @@ subtest 'EU Sanctions' => sub {
     is_deeply $data->{$source_name}->{names_list}->{'Yu-ro Han'},
         {
         dob_epoch => [],
-        dob_year  => []
+        dob_year  => [],
+            dob_other => [],
         },
         'Cases without epoch or year';
 
     is_deeply $data->{$source_name}->{names_list}->{'Leo Manzi'},
         {
         dob_epoch => [],
-        dob_year  => ['1954', '1953']
+        dob_year  => ['1954', '1953'],
+            dob_other => [],
         },
         'Case with multiple years';
 };
@@ -154,7 +157,8 @@ subtest 'HMT Sanctions' => sub {
     is_deeply $dataset->{'HOJATI Mohsen'},
         {
         'dob_epoch' => [-450057600],
-        'dob_year'  => []
+        'dob_year'  => [],
+            dob_other => [],
         },
         'Cases with a single epoch';
 
@@ -168,28 +172,32 @@ subtest 'HMT Sanctions' => sub {
     is_deeply $dataset->{'AL-TARAZI Mazen'},
         {
         'dob_epoch' => [],
-        'dob_year'  => ['1962']
+        'dob_year'  => ['1962'],
+            dob_other => [],
         },
         'Case with multiple years';
 
     is_deeply $dataset->{'SO Sang Kuk'},
         {
         'dob_epoch' => [],
-        'dob_year'  => ['1936', '1937', '1938', '1932', '1933', '1934', '1935']
+        'dob_year'  => ['1936', '1937', '1938', '1932', '1933', '1934', '1935'],
+            dob_other => [],
         },
         'Case with multiple years';
 
     is_deeply $dataset->{'SO Sang-kuk'},
         {
         'dob_epoch' => [],
-        'dob_year'  => ['1936', '1937', '1938', '1932', '1933', '1934', '1935']
+        'dob_year'  => ['1936', '1937', '1938', '1932', '1933', '1934', '1935'],
+            dob_other => [],
         },
         'Case with multiple years';
 
     is_deeply $dataset->{'PLOTNITSKII Igor Venediktovich'},
         {
         'dob_epoch' => [-174268800, -174182400, -174096000],
-        'dob_year'  => []
+        'dob_year'  => [],
+            dob_other => [],
         },
         'Case with multiple years';
 
@@ -223,7 +231,8 @@ subtest 'OFAC Sanctions' => sub {
             is_deeply $dataset->{$name},
                 {
                 'dob_epoch' => [-617760000],
-                'dob_year'  => []
+                'dob_year'  => [],
+            dob_other => [],
                 },
                 "Alias names share the same dob information ($name)";
         }
@@ -245,7 +254,8 @@ subtest 'OFAC Sanctions' => sub {
             is_deeply $dataset->{$name},
                 {
                 'dob_epoch' => [],
-                'dob_year'  => [1976, 1977, 1978, 1979]
+                'dob_year'  => [1976, 1977, 1978, 1979],
+            dob_other => [],
                 },
                 "Alias names share the same dob information ($name)";
         }
@@ -271,7 +281,8 @@ subtest 'OFAC Sanctions' => sub {
             is_deeply $dataset->{$name},
                 {
                 'dob_epoch' => [],
-                'dob_year'  => [1951, 1952, 1953, 1960, 1961, 1962]
+                'dob_year'  => [1951, 1952, 1953, 1960, 1961, 1962],
+            dob_other => [],
                 },
                 "Alias names share the same dob information ($name)";
         }

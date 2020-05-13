@@ -110,7 +110,7 @@ sub _date_to_epoch {
 sub _process_name_and_dob {
     my ($name_list, $dob_list, $dataset) = @_;
 
-    my (@epoch_list, @year_list);
+    my (@epoch_list, @year_list, @other_list);
 
     for my $dob (@$dob_list) {
         $dob =~ s/^\s+|\s+$//g;
@@ -129,8 +129,9 @@ sub _process_name_and_dob {
             push @year_list, $dob;
         } elsif ($dob =~ m/(\d{4}).*to.*(\d{4})$/) {
             push @year_list, ($1 .. $2);
-        } elsif (my $epoch = _date_to_epoch($dob)) {
-            push @epoch_list, $epoch if defined $epoch;
+        } else { 
+            my $epoch = _date_to_epoch($dob);
+            (defined $epoch)? push (@epoch_list, $epoch): push(@other_list, $dob);
         }
     }
 
@@ -138,12 +139,17 @@ sub _process_name_and_dob {
         # some names contain comma
         $name =~ s/,//g;
 
-        $dataset->{$name}->{dob_epoch} //= [] if @epoch_list;
-        $dataset->{$name}->{dob_year}  //= [] if @year_list;
+        $dataset->{$name}->{dob_epoch} //= [];
+        $dataset->{$name}->{dob_year}  //= [];
+        $dataset->{$name}->{dob_other}  //= [];
         push @{$dataset->{$name}->{dob_epoch}}, @epoch_list;
         push @{$dataset->{$name}->{dob_year}},  @year_list;
+        push @{$dataset->{$name}->{dob_other}},  @other_list;
         $dataset->{$name}->{dob_epoch} = [uniq $dataset->{$name}->{dob_epoch}->@*];
         $dataset->{$name}->{dob_year}  = [uniq $dataset->{$name}->{dob_year}->@*];
+        $dataset->{$name}->{dob_other}  = [uniq $dataset->{$name}->{dob_other}->@*];
+        
+        use Data::Dumper; warn Dumper $dataset->{$name} if scalar $dataset->{$name}->{dob_other}->@*; 
     }
     
     return $dataset;
