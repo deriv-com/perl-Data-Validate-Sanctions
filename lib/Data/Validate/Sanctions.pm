@@ -108,6 +108,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     my $matched_name;
     my $matched_file;
     my $dob_missing;
+    my $dob_other;
 
     for my $file (sort keys %$data) {
 
@@ -132,6 +133,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 
             my $sanctions_epoch_list = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_epoch} // [];
             my $sanctions_year_list  = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_year}  // [];
+            $dob_other = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_other} // [];
 
             # If the dob_epoch and dob_year are missing from the sanctions.yml, automatically mark
             # the client as a terrorist, regardless of further checks
@@ -146,8 +148,11 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
             return _possible_match($matched_file, $matched_name, 'Year of birth matches', $client_dob_year) if $checked_dob;
         }
     }
+    
+    my $reason = 'Name is similar';
+    $reason = 'Name is similar - unprocessed dob: ' . join (',', @$dob_other) if scalar @$dob_other;
     # Return a possible match if the name matches and no date of birth is present in sanctions
-    return _possible_match($matched_file, $matched_name, 'Name is similar', 'N/A') if ($matched_name && $dob_missing);
+    return _possible_match($matched_file, $matched_name, $reason, 'N/A')) if ($matched_name && $dob_missing);
 
     # Return if no possible match, regardless if date of birth is provided or not
     return {matched => 0};
