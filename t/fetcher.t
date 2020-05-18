@@ -26,7 +26,7 @@ subtest 'Fetch all sources' => sub {
     }
     [qr/EU Sanctions will fail whithout eu_token or eu_url/, qr/Url is empty for EU-Sanctions/],
         'Correct warning when the EU sanctions token is missing';
-    $data = Data::Validate::Sanctions::Fetcher::run();
+
     is_deeply [sort keys %$data], [qw(HMT-Sanctions OFAC-Consolidated OFAC-SDN )], 'sanction source list is correct';
 
     cmp_ok($data->{'HMT-Sanctions'}{updated}, '>=', 1541376000, "Fetcher::run HMT-Sanctions sanctions.yml");

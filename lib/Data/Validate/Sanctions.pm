@@ -151,7 +151,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     }
     
     my $reason = 'Name is similar';
-    $reason = 'Name is similar - dob data available: ' . join (',', @$dob_other) if scalar @$dob_other;
+    $reason = 'Name is similar - dob info: ' . join (',', @$dob_other) if scalar @$dob_other;
     # Return a possible match if the name matches and no date of birth is present in sanctions
     return _possible_match($matched_file, $matched_name, $reason, 'N/A') if $matched_name && $dob_missing;
 

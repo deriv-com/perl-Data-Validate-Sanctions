@@ -56,7 +56,11 @@ $tmpa->spew(
                     },
                     'Zaki Izzat Zaki AHMAD' => {
                         'dob_epoch' => [],
-                        'dob_year'  => [1999]
+                        'dob_year'  => [1999],
+                        'dob_other' => ['other info'],
+                    },
+                    'Donald Trump' => {
+                        dob_other => ['circa-1951'],
                     },
                 },
             },
@@ -99,6 +103,16 @@ is_deeply $validator->get_sanctioned_info("TMPA"),
     matched_dob => 'N/A',
     name        => 'TMPA',
     reason      => 'Name is similar'
+    },
+    'Sanction info is correct';
+
+is_deeply $validator->get_sanctioned_info('Donald', 'Trump', '1999-01-05'),
+    {
+    name        => 'Donald Trump',
+    matched     => 1,
+    matched_dob => 'N/A',
+    list        => 'test1',
+    reason      => 'Name is similar - dob info: circa-1951',
     },
     'Sanction info is correct';
 
