@@ -113,7 +113,8 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     for my $file (sort keys %$data) {
 
         my @names = keys %{$data->{$file}->{names_list}};
-
+        
+        $dob_other = [];
         foreach my $sanctioned_name (sort @names) {
 
             my @sanctioned_name_tokens = $clean_names->($sanctioned_name);
@@ -150,9 +151,9 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     }
     
     my $reason = 'Name is similar';
-    $reason = 'Name is similar - unprocessed dob: ' . join (',', @$dob_other) if scalar @$dob_other;
+    $reason = 'Name is similar - dob data available: ' . join (',', @$dob_other) if scalar @$dob_other;
     # Return a possible match if the name matches and no date of birth is present in sanctions
-    return _possible_match($matched_file, $matched_name, $reason, 'N/A')) if ($matched_name && $dob_missing);
+    return _possible_match($matched_file, $matched_name, $reason, 'N/A') if $matched_name && $dob_missing;
 
     # Return if no possible match, regardless if date of birth is provided or not
     return {matched => 0};

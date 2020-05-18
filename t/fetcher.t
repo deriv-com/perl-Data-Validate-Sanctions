@@ -113,8 +113,6 @@ subtest 'EU Sanctions' => sub {
         is_deeply $data->{$source_name}->{names_list}->{$ailias_name},
             {
             dob_epoch => [-148867200, -184204800],
-            dob_year  => [],
-            dob_other => [],
             },
             'Aslias names have the same dates + multiple epochs extacted from a single entry';
     }
@@ -122,23 +120,17 @@ subtest 'EU Sanctions' => sub {
     is_deeply $data->{$source_name}->{names_list}->{'Youcef Adel'},
         {
         dob_epoch => [-127958400],
-        dob_year  => ['1958']
+        dob_year  => ['1958'],
         },
         'Cases with both epoch and year';
 
     is_deeply $data->{$source_name}->{names_list}->{'Yu-ro Han'},
-        {
-        dob_epoch => [],
-        dob_year  => [],
-            dob_other => [],
-        },
+        {},
         'Cases without epoch or year';
 
     is_deeply $data->{$source_name}->{names_list}->{'Leo Manzi'},
         {
-        dob_epoch => [],
         dob_year  => ['1954', '1953'],
-            dob_other => [],
         },
         'Case with multiple years';
 };
@@ -157,8 +149,6 @@ subtest 'HMT Sanctions' => sub {
     is_deeply $dataset->{'HOJATI Mohsen'},
         {
         'dob_epoch' => [-450057600],
-        'dob_year'  => [],
-            dob_other => [],
         },
         'Cases with a single epoch';
 
@@ -171,33 +161,25 @@ subtest 'HMT Sanctions' => sub {
 
     is_deeply $dataset->{'AL-TARAZI Mazen'},
         {
-        'dob_epoch' => [],
         'dob_year'  => ['1962'],
-            dob_other => [],
         },
         'Case with multiple years';
 
     is_deeply $dataset->{'SO Sang Kuk'},
         {
-        'dob_epoch' => [],
         'dob_year'  => ['1936', '1937', '1938', '1932', '1933', '1934', '1935'],
-            dob_other => [],
         },
         'Case with multiple years';
 
     is_deeply $dataset->{'SO Sang-kuk'},
         {
-        'dob_epoch' => [],
         'dob_year'  => ['1936', '1937', '1938', '1932', '1933', '1934', '1935'],
-            dob_other => [],
         },
         'Case with multiple years';
 
     is_deeply $dataset->{'PLOTNITSKII Igor Venediktovich'},
         {
         'dob_epoch' => [-174268800, -174182400, -174096000],
-        'dob_year'  => [],
-            dob_other => [],
         },
         'Case with multiple years';
 
@@ -207,10 +189,11 @@ subtest 'OFAC Sanctions' => sub {
     my $data = Data::Validate::Sanctions::Fetcher::run(%args);
 
     for my $source_name ('OFAC-SDN', 'OFAC-Consolidated') {
-
+        # OFAC sources have the same structure. We've created the samle sample file for both of them.
+        
         ok $data->{$source_name}, 'Sanctions are loaded from the sample file';
-        is $data->{$source_name}{updated}, 1587513600, "Snctions update date matches the sample file";
-        is scalar keys %{$data->{$source_name}{'names_list'}}, 31, "Number of names matches the content of the sample file";
+        is $data->{$source_name}{updated}, 1587513600, "Sanctions update date matches the content of sample file";
+        is scalar keys %{$data->{$source_name}{'names_list'}}, 32, "Number of names matches the content of the sample file";
 
         my $dataset = $data->{$source_name}->{names_list};
 
@@ -231,8 +214,6 @@ subtest 'OFAC Sanctions' => sub {
             is_deeply $dataset->{$name},
                 {
                 'dob_epoch' => [-617760000],
-                'dob_year'  => [],
-            dob_other => [],
                 },
                 "Alias names share the same dob information ($name)";
         }
@@ -253,9 +234,7 @@ subtest 'OFAC Sanctions' => sub {
         for my $name (@$aka_names) {
             is_deeply $dataset->{$name},
                 {
-                'dob_epoch' => [],
                 'dob_year'  => [1976, 1977, 1978, 1979],
-            dob_other => [],
                 },
                 "Alias names share the same dob information ($name)";
         }
@@ -280,13 +259,16 @@ subtest 'OFAC Sanctions' => sub {
         for my $name (@$aka_names) {
             is_deeply $dataset->{$name},
                 {
-                'dob_epoch' => [],
                 'dob_year'  => [1951, 1952, 1953, 1960, 1961, 1962],
-            dob_other => [],
                 },
                 "Alias names share the same dob information ($name)";
         }
 
+        is_deeply $dataset->{'Donald Trump'},
+            {
+            'dob_other' => ['circal-1951'],
+            },
+            'Hafiz Saeed is shared between two groups';
     }
 };
 

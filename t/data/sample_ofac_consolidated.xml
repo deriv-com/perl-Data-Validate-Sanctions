@@ -469,4 +469,28 @@
       </dateOfBirthItem>
     </dateOfBirthList>
   </sdnEntry>
+  <sdnEntry>
+    <uid>12345</uid>
+    <firstName>Donald</firstName>
+    <lastName>Trump</lastName>
+    <sdnType>Individual</sdnType>
+    <programList>
+      <program>TCO</program>
+    </programList>
+    <addressList>
+      <address>
+        <uid>12345</uid>
+        <address1>some street, some allay</address1>
+        <city>Washington</city>
+        <country>USA</country>
+      </address>
+    </addressList>
+    <dateOfBirthList>
+      <dateOfBirthItem>
+        <uid>12345</uid>
+        <dateOfBirth>circal/1951</dateOfBirth>
+        <mainEntry>true</mainEntry>
+      </dateOfBirthItem>
+    </dateOfBirthList>
+  </sdnEntry>
 </sdnList>
