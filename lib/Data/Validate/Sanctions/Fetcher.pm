@@ -139,14 +139,14 @@ sub _process_name_and_dob {
         # some names contain comma
         $name =~ s/,//g;
 
-        $dataset->{$name}->{$_} //= [] for qw(dob_epoch dob_year dob_other);
+        $dataset->{$name}->{$_} //= [] for qw(dob_epoch dob_year dob_text);
         push @{$dataset->{$name}->{dob_epoch}}, @epoch_list;
         push @{$dataset->{$name}->{dob_year}},  @year_list;
-        push @{$dataset->{$name}->{dob_other}},  @other_list;
+        push @{$dataset->{$name}->{dob_text}},  @other_list;
         $dataset->{$name}->{dob_epoch} = [uniq $dataset->{$name}->{dob_epoch}->@*];
         $dataset->{$name}->{dob_year}  = [uniq $dataset->{$name}->{dob_year}->@*];
-        $dataset->{$name}->{dob_other}  = [uniq $dataset->{$name}->{dob_other}->@*];
-        for (qw(dob_epoch dob_year dob_other)) {
+        $dataset->{$name}->{dob_text}  = [uniq $dataset->{$name}->{dob_text}->@*];
+        for (qw(dob_epoch dob_year dob_text)) {
             delete $dataset->{$name}->{$_} unless $dataset->{$name}->{$_}->@*;
         }
     }

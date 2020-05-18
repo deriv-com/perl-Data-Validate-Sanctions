@@ -107,14 +107,12 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 
     my $matched_name;
     my $matched_file;
-    my $dob_missing;
-    my $dob_other;
+    my $match_with_missing_dob;
 
     for my $file (sort keys %$data) {
 
         my @names = keys %{$data->{$file}->{names_list}};
         
-        $dob_other = [];
         foreach my $sanctioned_name (sort @names) {
 
             my @sanctioned_name_tokens = $clean_names->($sanctioned_name);
@@ -122,9 +120,6 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
             next unless _name_matches(\@client_name_tokens, \@sanctioned_name_tokens);
 
             my $checked_dob;
-
-            $matched_name = $sanctioned_name;
-            $matched_file = $file;
 
             # Some clients in sanction list can have more than one date of birth
             # Comparison is made using the epoch and year values
@@ -134,26 +129,32 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 
             my $sanctions_epoch_list = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_epoch} // [];
             my $sanctions_year_list  = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_year}  // [];
-            $dob_other = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_other} // [];
 
             # If the dob_epoch and dob_year are missing from the sanctions.yml, automatically mark
             # the client as a terrorist, regardless of further checks
             unless (@$sanctions_epoch_list or @$sanctions_year_list) {
-                $dob_missing = 1;
+                $match_with_missing_dob = $data->{$file}->{names_list}->{$sanctioned_name};
+                $matched_name = $sanctioned_name;
+                $matched_file = $file;
             }
 
             $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_epoch_list};
-            return _possible_match($matched_file, $matched_name, 'Date of birth matches', $date_of_birth) if $checked_dob;
+            return _possible_match($file, $sanctioned_name, 'Date of birth matches', $date_of_birth) if $checked_dob;
 
             $checked_dob = any { $_ eq $client_dob_year } @{$sanctions_year_list} unless $checked_dob;
-            return _possible_match($matched_file, $matched_name, 'Year of birth matches', $client_dob_year) if $checked_dob;
+            return _possible_match($file, $sanctioned_name, 'Year of birth matches', $client_dob_year) if $checked_dob;
         }
     }
     
-    my $reason = 'Name is similar';
-    $reason = 'Name is similar - dob info: ' . join (',', @$dob_other) if scalar @$dob_other;
-    # Return a possible match if the name matches and no date of birth is present in sanctions
-    return _possible_match($matched_file, $matched_name, $reason, 'N/A') if $matched_name && $dob_missing;
+    if ($match_with_missing_dob) {
+        my $reason = 'Name is similar';
+        
+        my $dob_text = $match_with_missing_dob->{dob_text} // [];
+        $reason .= ' - dob raw text: ' . join (',', @$dob_text) if scalar @$dob_text;
+        
+        # Return a possible match if the name matches and no date of birth is present in sanctions
+        return _possible_match($matched_file, $matched_name, $reason, 'N/A');
+    }
 
     # Return if no possible match, regardless if date of birth is provided or not
     return {matched => 0};

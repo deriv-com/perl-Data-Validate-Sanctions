@@ -57,10 +57,10 @@ $tmpa->spew(
                     'Zaki Izzat Zaki AHMAD' => {
                         'dob_epoch' => [],
                         'dob_year'  => [1999],
-                        'dob_other' => ['other info'],
+                        'dob_text' => ['other info'],
                     },
                     'Donald Trump' => {
-                        dob_other => ['circa-1951'],
+                        dob_text => ['circa-1951'],
                     },
                 },
             },
@@ -112,9 +112,9 @@ is_deeply $validator->get_sanctioned_info('Donald', 'Trump', '1999-01-05'),
     matched     => 1,
     matched_dob => 'N/A',
     list        => 'test1',
-    reason      => 'Name is similar - dob info: circa-1951',
+    reason      => 'Name is similar - dob raw text: circa-1951',
     },
-    'Sanction info is correct';
+    "When client's name matches a case with dob_text";
 
 Class::Unload->unload('Data::Validate::Sanctions');
 local $ENV{SANCTION_FILE} = "$tmpb";

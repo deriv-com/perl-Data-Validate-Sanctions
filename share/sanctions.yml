@@ -29458,7 +29458,7 @@ OFAC-SDN:
     '''ALI Abu':
       dob_epoch:
       - 237945600
-      dob_other:
+      dob_text:
       - circa-1976
       - circa-1973
     '''ASRA Abu':
@@ -29689,7 +29689,7 @@ OFAC-SDN:
       dob_epoch:
       - -254534400
     '''Abd-al Reza SHALAI':
-      dob_other:
+      dob_text:
       - circa-1957
     '''Abd-al-''Azim AL-BAKKUR':
       dob_epoch:
@@ -29771,7 +29771,7 @@ OFAC-SDN:
       - 172368000
       - 172281600
     '''Abdorreza SHAHLAI':
-      dob_other:
+      dob_text:
       - circa-1957
     '''Abdu Tahir AL-MATAR':
       dob_epoch:
@@ -29864,13 +29864,13 @@ OFAC-SDN:
       dob_epoch:
       - 712368000
     '''Ali Salih Husayn ''ALA''LAH':
-      dob_other:
+      dob_text:
       - circa-1970
     '''Ali Salih Husayn ''ULA''LAH':
-      dob_other:
+      dob_text:
       - circa-1970
     '''Ali Salih Husayn al-Dhahak AL-TABUKI':
-      dob_other:
+      dob_text:
       - circa-1970
     '''Ali Sulayman Mas''ud ''Abd AL-SAYYID':
       dob_year:
@@ -30158,7 +30158,7 @@ OFAC-SDN:
       - 33264000
       - 33091200
     ABOU MOUHADJI:
-      dob_other:
+      dob_text:
       - circa-1972
     ABOU SALMAN:
       dob_epoch:
@@ -30236,10 +30236,10 @@ OFAC-SDN:
       dob_epoch:
       - 365299200
     ABU AHMAD:
-      dob_other:
+      dob_text:
       - circa-1942
     ABU AHMAD ISHAB:
-      dob_other:
+      dob_text:
       - circa-1955
       - circa-1958
       - circa-1959
@@ -30327,7 +30327,7 @@ OFAC-SDN:
       dob_year:
       - '1971'
     ABU BRAYS:
-      dob_other:
+      dob_text:
       - circa-1942
     ABU CHOLDER:
       dob_epoch:
@@ -30429,7 +30429,7 @@ OFAC-SDN:
       - '1959'
       - '1957'
     ABU ISHMAEL:
-      dob_other:
+      dob_text:
       - circa-1956
       - circa-1958
       - circa-1965
@@ -30588,7 +30588,7 @@ OFAC-SDN:
       dob_epoch:
       - -231292800
     ABU SHAHAB:
-      dob_other:
+      dob_text:
       - circa-1955
       - circa-1958
       - circa-1959
@@ -30682,7 +30682,7 @@ OFAC-SDN:
       dob_epoch:
       - -596246400
     ABU-AL-KARKH' 'Yusuf:
-      dob_other:
+      dob_text:
       - circa-1957
     ABU-ANAS:
       dob_year:
@@ -30707,7 +30707,7 @@ OFAC-SDN:
       dob_epoch:
       - 237945600
       - 300153600
-      dob_other:
+      dob_text:
       - circa-1976
       - circa-1973
       dob_year:
@@ -31308,13 +31308,13 @@ OFAC-SDN:
       dob_year:
       - '1945'
     AL-WARD 'Abd:
-      dob_other:
+      dob_text:
       - circa-1963
     AL-WARD Abu:
-      dob_other:
+      dob_text:
       - circa-1963
     AL-WARUD Abu:
-      dob_other:
+      dob_text:
       - circa-1963
     AL-ZAHRANI Abu-Sarah:
       dob_epoch:
@@ -31408,10 +31408,10 @@ OFAC-SDN:
       dob_epoch:
       - -22464000
     AMINULLAH Shaykh:
-      dob_other:
+      dob_text:
       - circa-01-Jan-1961
     AMINULLAH Sheik:
-      dob_other:
+      dob_text:
       - circa-01-Jan-1961
     AMIR MUMINEN:
       dob_epoch:
@@ -31484,7 +31484,7 @@ OFAC-SDN:
       dob_year:
       - '1963'
     ARIF UMER:
-      dob_other:
+      dob_text:
       - circa-1944
     ARIS SUMARSONO:
       dob_year:
@@ -31513,7 +31513,7 @@ OFAC-SDN:
       - 1973
       - 1970
     ATOM:
-      dob_other:
+      dob_text:
       - circa-1966
     AUNG KYAW ZAW:
       dob_epoch:
@@ -31926,7 +31926,7 @@ OFAC-SDN:
       - 157161600
       - 130982400
     Abdallah RAJAB:
-      dob_other:
+      dob_text:
       - circa-1963
     Abdallah SAFI-AL-DIN:
       dob_epoch:
@@ -32046,7 +32046,7 @@ OFAC-SDN:
       - -221443200
     Abdelkarim Hussein Mohamed AL-NASSER: {}
     Abdelmajid AL-ZINDANI:
-      dob_other:
+      dob_text:
       - circa-1950
     Abdelmalek DARDAKIL:
       dob_epoch:
@@ -32127,7 +32127,7 @@ OFAC-SDN:
       dob_epoch:
       - -69724800
     Abdi GARAD:
-      dob_other:
+      dob_text:
       - circa-1973
     Abdifatah Abubakar ABDI:
       dob_epoch:
@@ -32158,7 +32158,7 @@ OFAC-SDN:
       dob_epoch:
       - -294192000
     Abdol Reza SHAHLAI:
-      dob_other:
+      dob_text:
       - circa-1957
     Abdol-Hamid MOHTASHAM:
       dob_year:
@@ -32202,7 +32202,7 @@ OFAC-SDN:
       dob_epoch:
       - 290822400
     Abdolreza SHAHLA'I:
-      dob_other:
+      dob_text:
       - circa-1957
     Abdolsamad KHORAMABADI:
       dob_epoch:
@@ -32590,10 +32590,10 @@ OFAC-SDN:
       dob_epoch:
       - -134006400
     Abdul Reza SHAHLAI:
-      dob_other:
+      dob_text:
       - circa-1957
     Abdul Reza SHALA'I:
-      dob_other:
+      dob_text:
       - circa-1957
     Abdul Rochim BA'ASYIR:
       dob_epoch:
@@ -32661,7 +32661,7 @@ OFAC-SDN:
       dob_year:
       - '1961'
     Abdul-Reza SHAHLAEE:
-      dob_other:
+      dob_text:
       - circa-1957
     Abdul-Wahab Mohammed Abdul Rahman AL-HUMAIKANI:
       dob_epoch:
@@ -32842,7 +32842,7 @@ OFAC-SDN:
       - 212976000
       - 213321600
     Abdullah RAGAB:
-      dob_other:
+      dob_text:
       - circa-1963
     Abdullah SAFIEDDINE:
       dob_epoch:
@@ -32992,7 +32992,7 @@ OFAC-SDN:
       dob_year:
       - '1971'
     Abed Mahmoud HAMMUD:
-      dob_other:
+      dob_text:
       - circa-1957
     Abedinico NCUBE:
       dob_epoch:
@@ -33029,10 +33029,10 @@ OFAC-SDN:
       dob_epoch:
       - -127958400
     Abid Hamid Mahmud AL-TIKRITI:
-      dob_other:
+      dob_text:
       - circa-1957
     Abid Hamid bid Hamid MAHMUD:
-      dob_other:
+      dob_text:
       - circa-1957
     Abid KHAN:
       dob_epoch:
@@ -33222,13 +33222,13 @@ OFAC-SDN:
       - '1956'
       - '1957'
     Abshir ABDILLAHI:
-      dob_other:
+      dob_text:
       - circa-1966
     Abshir ABDULLAHI:
-      dob_other:
+      dob_text:
       - circa-1966
     Abshir BOYAH:
-      dob_other:
+      dob_text:
       - circa-1966
     Absolom SIKOSANA: {}
     Abu 'Abd Al-Rahman Ali AL-SANHAJI:
@@ -33403,7 +33403,7 @@ OFAC-SDN:
       dob_epoch:
       - 425692800
     Abu Dhahak AL-YEMENI:
-      dob_other:
+      dob_text:
       - circa-1970
     Abu Dujana AL-MASRI:
       dob_year:
@@ -33620,13 +33620,13 @@ OFAC-SDN:
       dob_year:
       - '1977'
     Abu Mohammad Amin BISHAWRI:
-      dob_other:
+      dob_text:
       - circa-01-Jan-1961
     Abu Mohammad Aminullah PESHAWARI:
-      dob_other:
+      dob_text:
       - circa-01-Jan-1961
     Abu Mohammad Shaykh Aminullah AL-BISHAURI:
-      dob_other:
+      dob_text:
       - circa-01-Jan-1961
     Abu Mohammad al-Qadari:
       dob_year:
@@ -33728,15 +33728,15 @@ OFAC-SDN:
       dob_epoch:
       - 9417600
     Abu Mustafa AL-SHAYBANI:
-      dob_other:
+      dob_text:
       - circa-1959
       - circa-1960
     Abu Mustafa AL-SHEBANI:
-      dob_other:
+      dob_text:
       - circa-1959
       - circa-1960
     Abu Mustafa AL-SHEIBANI:
-      dob_other:
+      dob_text:
       - circa-1959
       - circa-1960
     Abu Muthana Al Yemeni:
@@ -34256,7 +34256,7 @@ OFAC-SDN:
       - -178761600
       - -178848000
     Aburashid Abdulahi ABDULI:
-      dob_other:
+      dob_text:
       - circa-1966
     Abuzar GOHARI MOGHADAM:
       dob_epoch:
@@ -34298,13 +34298,13 @@ OFAC-SDN:
       dob_epoch:
       - -8467200
     Adam YACOUB:
-      dob_other:
+      dob_text:
       - circa-1976
     Adam Yacub SHANT:
-      dob_other:
+      dob_text:
       - circa-1976
     Adam Yacub SHARIF:
-      dob_other:
+      dob_text:
       - circa-1976
     Adan AMEZCUA CONTRERAS:
       dob_epoch:
@@ -34603,11 +34603,11 @@ OFAC-SDN:
       dob_year:
       - '1947'
     Ahmad AL-KARD:
-      dob_other:
+      dob_text:
       - circa-1949
       - circa-1951
     Ahmad AL-KIRD:
-      dob_other:
+      dob_text:
       - circa-1949
       - circa-1951
     Ahmad AL-MASRI:
@@ -34625,7 +34625,7 @@ OFAC-SDN:
       - 745632000
       - 711676800
     Ahmad ALKURD:
-      dob_other:
+      dob_text:
       - circa-1949
       - circa-1951
     Ahmad ASWAD:
@@ -34695,7 +34695,7 @@ OFAC-SDN:
       dob_epoch:
       - 274320000
     Ahmad FAYRUZI:
-      dob_other:
+      dob_text:
       - circa-1955
       - circa-1958
       - circa-1959
@@ -34706,7 +34706,7 @@ OFAC-SDN:
       dob_year:
       - '1957'
     Ahmad FOROOZANDEH:
-      dob_other:
+      dob_text:
       - circa-1955
       - circa-1958
       - circa-1959
@@ -34717,7 +34717,7 @@ OFAC-SDN:
       dob_year:
       - '1957'
     Ahmad FORUZANDEH:
-      dob_other:
+      dob_text:
       - circa-1955
       - circa-1958
       - circa-1959
@@ -34728,7 +34728,7 @@ OFAC-SDN:
       dob_year:
       - '1957'
     Ahmad FRUZANDAH:
-      dob_other:
+      dob_text:
       - circa-1955
       - circa-1958
       - circa-1959
@@ -34766,7 +34766,7 @@ OFAC-SDN:
       - 511401600
       - 505440000
     Ahmad Harb AL-KURD:
-      dob_other:
+      dob_text:
       - circa-1949
       - circa-1951
     Ahmad Hasan ABU AL-KHAYR:
@@ -34936,7 +34936,7 @@ OFAC-SDN:
       dob_year:
       - '1965'
     Ahmed AL KURD:
-      dob_other:
+      dob_text:
       - circa-1949
       - circa-1951
     Ahmed AL-JUBOURI:
@@ -35028,11 +35028,11 @@ OFAC-SDN:
       dob_year:
       - '1977'
     Ahmed EL-KURD:
-      dob_other:
+      dob_text:
       - circa-1949
       - circa-1951
     Ahmed FORUZANDEH:
-      dob_other:
+      dob_text:
       - circa-1955
       - circa-1958
       - circa-1959
@@ -35058,7 +35058,7 @@ OFAC-SDN:
       dob_year:
       - '1965'
     Ahmed Hard AL-KURD:
-      dob_other:
+      dob_text:
       - circa-1949
       - circa-1951
     Ahmed Hassan Kaka AL-OBEIDI:
@@ -35354,7 +35354,7 @@ OFAC-SDN:
     Akram 'Abbas AL-KABI:
       dob_epoch:
       - 237945600
-      dob_other:
+      dob_text:
       - circa-1976
       - circa-1973
     Akram AL-QUTMAH:
@@ -35363,7 +35363,7 @@ OFAC-SDN:
     Akram Abas AL-KA'BI:
       dob_epoch:
       - 237945600
-      dob_other:
+      dob_text:
       - circa-1976
       - circa-1973
     Akram SULAYMAN:
@@ -36258,10 +36258,10 @@ OFAC-SDN:
       dob_year:
       - '1982'
     Ali Akbar AHMADIAN:
-      dob_other:
+      dob_text:
       - circa-1961
     Ali Akbar AHMADIYAN:
-      dob_other:
+      dob_text:
       - circa-1961
     Ali Akbar SALEHI:
       dob_epoch:
@@ -36634,23 +36634,23 @@ OFAC-SDN:
       - -12528000
       - 68601600
     Ali NAVAI:
-      dob_other:
+      dob_text:
       - circa-1945
       - circa-1950
     Ali NAWA'EE:
-      dob_other:
+      dob_text:
       - circa-1945
       - circa-1950
     Ali NAWA'I:
-      dob_other:
+      dob_text:
       - circa-1945
       - circa-1950
     Ali NAWAE:
-      dob_other:
+      dob_text:
       - circa-1945
       - circa-1950
     Ali NAWAI:
-      dob_other:
+      dob_text:
       - circa-1945
       - circa-1950
     Ali OZMA'I: {}
@@ -36717,10 +36717,10 @@ OFAC-SDN:
       - -141350400
       - -141264000
     Ali Saleh HUSAIN:
-      dob_other:
+      dob_text:
       - circa-1970
     Ali Saleh Husain AL-TABUKI:
-      dob_other:
+      dob_text:
       - circa-1970
     Ali Samida AS-SAFRANI:
       dob_year:
@@ -37899,7 +37899,7 @@ OFAC-SDN:
       dob_epoch:
       - 339292800
     Arif QASMANI:
-      dob_other:
+      dob_text:
       - circa-1944
     Arin CHANTARAPRAPAPORN:
       dob_epoch:
@@ -37933,7 +37933,7 @@ OFAC-SDN:
     Arkam 'Abbas AL-KABI:
       dob_epoch:
       - 237945600
-      dob_other:
+      dob_text:
       - circa-1976
       - circa-1973
     Arley USUGA TORRES:
@@ -38083,7 +38083,7 @@ OFAC-SDN:
       dob_epoch:
       - 509414400
     Asad ABDULAHI:
-      dob_other:
+      dob_text:
       - circa-1966
     Asad KHAN:
       dob_epoch:
@@ -38365,25 +38365,25 @@ OFAC-SDN:
       dob_epoch:
       - 135648000
     Awad Ahmad Ibn AWF:
-      dob_other:
+      dob_text:
       - circa-1954
     Awad Ibn AUF:
-      dob_other:
+      dob_text:
       - circa-1954
     Awad Ibn AWF:
-      dob_other:
+      dob_text:
       - circa-1954
     Awad Mohamed Ahmed Ibn OAF:
-      dob_other:
+      dob_text:
       - circa-1954
     Awad Mohamed Ahmed Ibn OUF:
-      dob_other:
+      dob_text:
       - circa-1954
     Awad Mohammed Ahmed Ebni NAUF:
-      dob_other:
+      dob_text:
       - circa-1954
     Awad Muhammad Ibn AUF:
-      dob_other:
+      dob_text:
       - circa-1954
     Aweys Hassan DAHIR:
       dob_year:
@@ -38605,7 +38605,7 @@ OFAC-SDN:
       dob_year:
       - '1953'
     BABA JI:
-      dob_other:
+      dob_text:
       - circa-1944
     BACHRUMSHAH:
       dob_epoch:
@@ -38737,7 +38737,7 @@ OFAC-SDN:
       - -93657600
       - 1036800
     BOOYAH:
-      dob_other:
+      dob_text:
       - circa-1966
     BORDBAR Javad:
       dob_epoch:
@@ -38756,7 +38756,7 @@ OFAC-SDN:
       dob_epoch:
       - -95990400
     BOYAH:
-      dob_other:
+      dob_text:
       - circa-1966
     BUKHORI:
       dob_epoch:
@@ -39230,10 +39230,10 @@ OFAC-SDN:
       dob_epoch:
       - 252460800
     Bilal Mansur AL-HIYARI:
-      dob_other:
+      dob_text:
       - circa-1969
     Bilal Mansur Mahmud AL-KHAYARI:
-      dob_other:
+      dob_text:
       - circa-1969
     Bilal Mohsem WEHBI:
       dob_epoch:
@@ -39471,7 +39471,7 @@ OFAC-SDN:
       dob_epoch:
       - 259804800
     Bright MATONGA:
-      dob_other:
+      dob_text:
       - circa-1969
     Bu Zaid DORDA:
       dob_epoch:
@@ -39778,7 +39778,7 @@ OFAC-SDN:
       dob_epoch:
       - -627782400
     COMMANDER PUTOL:
-      dob_other:
+      dob_text:
       - circa-1952
       dob_year:
       - '1955'
@@ -40531,7 +40531,7 @@ OFAC-SDN:
       dob_epoch:
       - -256003200
     Col. Abdel Hamid MAHMOUD:
-      dob_other:
+      dob_text:
       - circa-1957
     Colonel Abbud ZUMAR: {}
     Colonel Rock:
@@ -40607,7 +40607,7 @@ OFAC-SDN:
       dob_epoch:
       - -160185600
     DAHHAK Abu:
-      dob_other:
+      dob_text:
       - circa-1970
     DAJANAH Abu:
       dob_year:
@@ -40628,7 +40628,7 @@ OFAC-SDN:
       dob_epoch:
       - -382492800
     DAR'A Abu:
-      dob_other:
+      dob_text:
       - circa-1957
     DARWESH Arkan Mohammed Hussein:
       dob_year:
@@ -40672,13 +40672,13 @@ OFAC-SDN:
       dob_epoch:
       - 621907200
     DIRI Abu:
-      dob_other:
+      dob_text:
       - circa-1957
     DIRIYE Abu:
       dob_year:
       - '1972'
     DJAAFAR ABOU MOHAMED:
-      dob_other:
+      dob_text:
       - circa-1972
     DJAFFAR:
       dob_epoch:
@@ -40785,7 +40785,7 @@ OFAC-SDN:
       dob_year:
       - '1956'
     DURA Abu:
-      dob_other:
+      dob_text:
       - circa-1957
     DUSKO:
       dob_year:
@@ -41064,19 +41064,19 @@ OFAC-SDN:
       dob_epoch:
       - -275788800
     Dhu Al Himma SHALISH:
-      dob_other:
+      dob_text:
       - circa-1956
     Dhu Al-Himma AL-SHALISH:
-      dob_other:
+      dob_text:
       - circa-1956
     Dhu Himma SHALEESH:
-      dob_other:
+      dob_text:
       - circa-1956
     Dhual:
       dob_year:
       - '1953'
     Dhuil Himma SHALISH:
-      dob_other:
+      dob_text:
       - circa-1956
     Diana Altagracia ESPINOZA AGUILAR:
       dob_epoch:
@@ -41232,10 +41232,10 @@ OFAC-SDN:
       - 315446400
       - 114825600
     Djibril Abdul KAREEM:
-      dob_other:
+      dob_text:
       - circa-1961
     Djibril Abdul Kareem BAREY:
-      dob_other:
+      dob_text:
       - circa-1961
     Djojo ARSENOVIC:
       dob_epoch:
@@ -43227,7 +43227,7 @@ OFAC-SDN:
       - '1977'
       - '1975'
     Fazeel-A-Tul Shaykh Abu Mohammed AMEEN AL-PESHAWARI:
-      dob_other:
+      dob_text:
       - circa-01-Jan-1961
     Fazel RAHIM:
       dob_epoch:
@@ -43864,10 +43864,10 @@ OFAC-SDN:
       dob_epoch:
       - -152755200
     Gabril Abdul Kareem BADRI:
-      dob_other:
+      dob_text:
       - circa-1961
     Gabril Abdul Karim BARI:
-      dob_other:
+      dob_text:
       - circa-1961
     Gaffar Mohamed EL HASSAN:
       dob_epoch:
@@ -43956,10 +43956,10 @@ OFAC-SDN:
       dob_year:
       - '1953'
     General Maki AL-HAMADAT:
-      dob_other:
+      dob_text:
       - circa-1934
     General Maki Mustafa HAMUDAT:
-      dob_other:
+      dob_text:
       - circa-1934
     General NKUNDA:
       dob_epoch:
@@ -44139,7 +44139,7 @@ OFAC-SDN:
       dob_year:
       - '1944'
     Ghazi KANAAN:
-      dob_other:
+      dob_text:
       - circa-1943
     Ghazi NASR AL DIN:
       dob_epoch:
@@ -44178,7 +44178,7 @@ OFAC-SDN:
       - '1953'
       - '1954'
     Gholam Hossein MOHSENI EJEI:
-      dob_other:
+      dob_text:
       - circa-1956
     Gholam Reza ETA'ATI:
       dob_year:
@@ -44828,7 +44828,7 @@ OFAC-SDN:
       dob_year:
       - '1972'
     HAYDAR Abu:
-      dob_other:
+      dob_text:
       - circa-1957
     HAYDAR Abu Ali:
       dob_epoch:
@@ -44947,7 +44947,7 @@ OFAC-SDN:
       dob_epoch:
       - 422236800
     Hafez MAKHLOUF:
-      dob_other:
+      dob_text:
       - circa-1975
     Hafez Mohammad SAYEED:
       dob_epoch:
@@ -45005,7 +45005,7 @@ OFAC-SDN:
       dob_year:
       - '1971'
     Hafiz MAKHLUF:
-      dob_other:
+      dob_text:
       - circa-1975
     Hafiz Mohammad SAEED:
       dob_epoch:
@@ -45126,7 +45126,7 @@ OFAC-SDN:
       dob_year:
       - '1981'
     Haji Ali NAWAY:
-      dob_other:
+      dob_text:
       - circa-1945
       - circa-1950
     Haji Asad KHAN:
@@ -45288,7 +45288,7 @@ OFAC-SDN:
       dob_year:
       - '1969'
     Haji Nasir JAVED:
-      dob_other:
+      dob_text:
       - circa-1956
       - circa-1958
       - circa-1965
@@ -45511,7 +45511,7 @@ OFAC-SDN:
       - 315619200
       - 341971200
     Hameid Thajeil Wareij AL-ATTABI:
-      dob_other:
+      dob_text:
       - circa-1959
       - circa-1960
     Hamid 'Abdallah AL-'ALI:
@@ -45524,7 +45524,7 @@ OFAC-SDN:
       dob_epoch:
       - -313977600
     Hamid AL-SHAYBANI:
-      dob_other:
+      dob_text:
       - circa-1959
       - circa-1960
     Hamid ARABNEJAD:
@@ -45629,11 +45629,11 @@ OFAC-SDN:
       dob_epoch:
       - -481939200
     Hamid THAJIL:
-      dob_other:
+      dob_text:
       - circa-1959
       - circa-1960
     Hamid Thajeel AL-SHEIBANI:
-      dob_other:
+      dob_text:
       - circa-1959
       - circa-1960
     Hamid Yusif AL-HAMMADI: {}
@@ -45712,7 +45712,7 @@ OFAC-SDN:
       dob_epoch:
       - -278899200
     Hani abd-al-Latif Tilfah AL-TIKRITI:
-      dob_other:
+      dob_text:
       - circa-1962
     Hani al-Sayid Al-Sibai YUSUF:
       dob_epoch:
@@ -45992,7 +45992,7 @@ OFAC-SDN:
       dob_epoch:
       - -194486400
     Hassan AL-TURKI:
-      dob_other:
+      dob_text:
       - circa-1944
     Hassan AL-YAMI:
       dob_epoch:
@@ -46012,10 +46012,10 @@ OFAC-SDN:
       dob_year:
       - '1943'
     Hassan Abdillahi Hersi TURKI:
-      dob_other:
+      dob_text:
       - circa-1944
     Hassan Abdullah Hersi AL-TURKI:
-      dob_other:
+      dob_text:
       - circa-1944
     Hassan BIN ALI ABKAR:
       dob_epoch:
@@ -46086,7 +46086,7 @@ OFAC-SDN:
       dob_year:
       - '1963'
     Hassan TURKI:
-      dob_other:
+      dob_text:
       - circa-1944
     Hassan Tahir OAIS:
       dob_year:
@@ -46127,7 +46127,7 @@ OFAC-SDN:
       dob_epoch:
       - -260928000
     Hatem Hamdan AL-AZAWI:
-      dob_other:
+      dob_text:
       - circa-1937
     Hathaiwan VORAWATVICHAI:
       dob_epoch:
@@ -47167,7 +47167,7 @@ OFAC-SDN:
       dob_year:
       - '1971'
     Ibrahim BUISIR:
-      dob_other:
+      dob_text:
       - circa-1962
     Ibrahim Bin Sulayman AL RUBAYSH:
       dob_epoch:
@@ -47711,10 +47711,10 @@ OFAC-SDN:
       dob_epoch:
       - -425001600
     Isma'il Hafith Abid 'Ali AL-LAMI:
-      dob_other:
+      dob_text:
       - circa-1957
     Isma'il Hafiz AL LAMI:
-      dob_other:
+      dob_text:
       - circa-1957
     Isma'il TASH:
       dob_year:
@@ -47777,7 +47777,7 @@ OFAC-SDN:
       - -538704000
       - -578448000
     Ismai'il Hafuz AL-ZARGAWI:
-      dob_other:
+      dob_text:
       - circa-1957
     Ismail ABDELRAZAK:
       dob_year:
@@ -47788,7 +47788,7 @@ OFAC-SDN:
       dob_year:
       - '1961'
     Ismail AL-LAMI:
-      dob_other:
+      dob_text:
       - circa-1957
     Ismail Abdallah Sbaitan SHALABI:
       dob_epoch:
@@ -47828,7 +47828,7 @@ OFAC-SDN:
       dob_year:
       - '1962'
     Ismail Hafeth IZAJAWI:
-      dob_other:
+      dob_text:
       - circa-1957
     Ismail Halil BAYALTUN:
       dob_epoch:
@@ -48000,7 +48000,7 @@ OFAC-SDN:
       dob_year:
       - '1982'
     Izzat Ibrahim AL-DURI:
-      dob_other:
+      dob_text:
       - circa-1942
     JA LA BO:
       dob_year:
@@ -48023,7 +48023,7 @@ OFAC-SDN:
       dob_epoch:
       - -478224000
     JAFARI:
-      dob_other:
+      dob_text:
       - circa-1955
       - circa-1958
       - circa-1959
@@ -48645,7 +48645,7 @@ OFAC-SDN:
       dob_epoch:
       - 487036800
     Jawhar Majid AL-DURI:
-      dob_other:
+      dob_text:
       - circa-1942
     Jay ASLANOV:
       dob_epoch:
@@ -49926,7 +49926,7 @@ OFAC-SDN:
     KARUMI:
       dob_epoch:
       - 237945600
-      dob_other:
+      dob_text:
       - circa-1976
       - circa-1973
     KATO L.:
@@ -51297,7 +51297,7 @@ OFAC-SDN:
       dob_year:
       - '1941'
     Latif Nusayyif Jasim AL-DULAYMI:
-      dob_other:
+      dob_text:
       - circa-1941
     Laura Victoria GOMEZ APONTE:
       dob_epoch:
@@ -52012,7 +52012,7 @@ OFAC-SDN:
       - '1956'
       - '1957'
     MEMON BABA:
-      dob_other:
+      dob_text:
       - circa-1944
     MEQELE:
       dob_year:
@@ -52262,10 +52262,10 @@ OFAC-SDN:
       - 1979
       - 1980
     Macki Hamoudat MUSTAFA:
-      dob_other:
+      dob_text:
       - circa-1934
     Mackie HMODAT:
-      dob_other:
+      dob_text:
       - circa-1934
     Madi KHAN:
       dob_year:
@@ -52559,7 +52559,7 @@ OFAC-SDN:
       dob_epoch:
       - -273888000
     Maki HAMUDAT:
-      dob_other:
+      dob_text:
       - circa-1934
     Makki Kadhim ABDUL HAMEED AL ASADI:
       dob_epoch:
@@ -54193,7 +54193,7 @@ OFAC-SDN:
       dob_epoch:
       - 158630400
     Mohamed Abdi GARAAD:
-      dob_other:
+      dob_text:
       - circa-1973
     Mohamed Abdo WAKED DARWICH:
       dob_epoch:
@@ -54243,7 +54243,7 @@ OFAC-SDN:
       dob_year:
       - '1978'
     Mohamed GARAD:
-      dob_other:
+      dob_text:
       - circa-1973
     Mohamed HAMCHO:
       dob_epoch:
@@ -54319,7 +54319,7 @@ OFAC-SDN:
       dob_year:
       - '1979'
     Mohamed Ould Ahmed OULD ALI:
-      dob_other:
+      dob_text:
       - circa-1972
     Mohamed Ould MATALY:
       dob_year:
@@ -54343,16 +54343,16 @@ OFAC-SDN:
       dob_year:
       - '1979'
     Mohamed SA'ID:
-      dob_other:
+      dob_text:
       - circa-1966
     Mohamed SALEM:
       dob_year:
       - '1981'
     Mohamed Sa'id ATOM:
-      dob_other:
+      dob_text:
       - circa-1966
     Mohamed Siad ATOM:
-      dob_other:
+      dob_text:
       - circa-1966
     Mohamed al-Aameen al-Arabi KOSHLAF:
       dob_epoch:
@@ -54417,7 +54417,7 @@ OFAC-SDN:
       dob_epoch:
       - 84412800
     Mohammad Arif QASMANI:
-      dob_other:
+      dob_text:
       - circa-1944
     Mohammad BAGHERI:
       dob_year:
@@ -54465,7 +54465,7 @@ OFAC-SDN:
       dob_epoch:
       - -114220800
     Mohammad HEJAZI:
-      dob_other:
+      dob_text:
       - circa-1959
     Mohammad Hamdi Sadiq AL-AHDAL: {}
     Mohammad Hasan ABBAS:
@@ -54912,7 +54912,7 @@ OFAC-SDN:
       dob_epoch:
       - 419212800
     Mohammed Ahmed Awad Ibn AUF:
-      dob_other:
+      dob_text:
       - circa-1954
     Mohammed Al Amin Al-Arabi KASHLAF:
       dob_epoch:
@@ -55164,7 +55164,7 @@ OFAC-SDN:
       - 1961
       - 1962
     Mohamud Mohamed GARAAD:
-      dob_other:
+      dob_text:
       - circa-1973
     Mohanad M. TALIB:
       dob_epoch:
@@ -55324,7 +55324,7 @@ OFAC-SDN:
       dob_epoch:
       - -88128000
     Monica CHINAMASA:
-      dob_other:
+      dob_text:
       - circa-1950
     Monica Janeth VERDUGO GARCIA:
       dob_epoch:
@@ -55413,10 +55413,10 @@ OFAC-SDN:
       dob_epoch:
       - 103161600
     Morteza REZAI:
-      dob_other:
+      dob_text:
       - circa-1956
     Morteza REZAIE:
-      dob_other:
+      dob_text:
       - circa-1956
     Morteza TAMADDON:
       dob_year:
@@ -55518,7 +55518,7 @@ OFAC-SDN:
       dob_epoch:
       - -160185600
     Moussa HILAL:
-      dob_other:
+      dob_text:
       - circa-1960
     Moustafa ABBES:
       dob_epoch:
@@ -55643,19 +55643,19 @@ OFAC-SDN:
       dob_epoch:
       - -620784000
     Mufti Abdul RAHEEM:
-      dob_other:
+      dob_text:
       - circa-1955
       - circa-1964
     Mufti Abdul RAHIM:
-      dob_other:
+      dob_text:
       - circa-1955
       - circa-1964
     Mufti Abdur RAHIM:
-      dob_other:
+      dob_text:
       - circa-1955
       - circa-1964
     Mufti Muabdul HALIM:
-      dob_other:
+      dob_text:
       - circa-1955
       - circa-1964
     Mufti Noor WALI:
@@ -55791,7 +55791,7 @@ OFAC-SDN:
       dob_epoch:
       - 84412800
     Muhammad 'Arif QASMANI:
-      dob_other:
+      dob_text:
       - circa-1944
     Muhammad 'Arif al-Hasan AL-KHUDAYR:
       dob_epoch:
@@ -55971,7 +55971,7 @@ OFAC-SDN:
       dob_epoch:
       - 405561600
     Muhammad Arif QASMANI:
-      dob_other:
+      dob_text:
       - circa-1944
     Muhammad Ashraf MANSHA:
       dob_year:
@@ -56761,7 +56761,7 @@ OFAC-SDN:
       - 1964
       - 1965
     Mukhlis YUNOS:
-      dob_other:
+      dob_text:
       - circa-07-Jul-1966
     Mukhtar Abdullahi ALI:
       dob_epoch:
@@ -56783,7 +56783,7 @@ OFAC-SDN:
       dob_year:
       - '1969'
     Muklis YUNOS:
-      dob_other:
+      dob_text:
       - circa-07-Jul-1966
     Muktar Abdirahman ABU ZUBEYR:
       dob_epoch:
@@ -57020,7 +57020,7 @@ OFAC-SDN:
       - '1964'
       - '1966'
     Musa HILAL:
-      dob_other:
+      dob_text:
       - circa-1960
     Musa KALEEM: {}
     Musa KALIM: {}
@@ -57117,7 +57117,7 @@ OFAC-SDN:
       dob_epoch:
       - -254534400
     Mustafa AL-SHEIBANI:
-      dob_other:
+      dob_text:
       - circa-1959
       - circa-1960
     Mustafa ATIYA:
@@ -57335,7 +57335,7 @@ OFAC-SDN:
       dob_epoch:
       - 202435200
     Muzahim Sa'b Hassan AL-TIKRITI:
-      dob_other:
+      dob_text:
       - circa-1946
       dob_year:
       - '1949'
@@ -57484,7 +57484,7 @@ OFAC-SDN:
       dob_epoch:
       - 96249600
     NAIM Abu:
-      dob_other:
+      dob_text:
       - circa-1963
     NAIM Shaikh:
       dob_epoch:
@@ -57671,7 +57671,7 @@ OFAC-SDN:
       dob_epoch:
       - 98668800
     Nasar JAVED:
-      dob_other:
+      dob_text:
       - circa-1956
       - circa-1958
       - circa-1965
@@ -57682,7 +57682,7 @@ OFAC-SDN:
       dob_epoch:
       - -222307200
     Naser JAVED:
-      dob_other:
+      dob_text:
       - circa-1956
       - circa-1958
       - circa-1965
@@ -57690,7 +57690,7 @@ OFAC-SDN:
       dob_epoch:
       - -406339200
     Naser MALEKI:
-      dob_other:
+      dob_text:
       - circa-1960
     Naser Meto KELJMENDI:
       dob_epoch:
@@ -57736,12 +57736,12 @@ OFAC-SDN:
       dob_epoch:
       - -449798400
     Nasir JAVAID:
-      dob_other:
+      dob_text:
       - circa-1956
       - circa-1958
       - circa-1965
     Nasir JAVED:
-      dob_other:
+      dob_text:
       - circa-1956
       - circa-1958
       - circa-1965
@@ -57757,12 +57757,12 @@ OFAC-SDN:
       dob_year:
       - '1972'
     Nasser JAVID:
-      dob_other:
+      dob_text:
       - circa-1956
       - circa-1958
       - circa-1965
     Nasser MALEKI:
-      dob_other:
+      dob_text:
       - circa-1960
     Nasser MUTHANA:
       dob_year:
@@ -57863,7 +57863,7 @@ OFAC-SDN:
       dob_epoch:
       - 405561600
     Natasha MUCHINGURI:
-      dob_other:
+      dob_text:
       - circa-1994
     Naushad Aalam KHAN:
       dob_epoch:
@@ -58065,10 +58065,10 @@ OFAC-SDN:
       dob_epoch:
       - -413856000
     Niaz MUHAMMAD:
-      dob_other:
+      dob_text:
       - circa-01-Jan-1961
     Niaz Muhammad Muhammada GUL AL-PAKISTANI:
-      dob_other:
+      dob_text:
       - circa-01-Jan-1961
     Nicandro BARRERA:
       dob_epoch:
@@ -58115,7 +58115,7 @@ OFAC-SDN:
       dob_epoch:
       - -149558400
     Nidal AL-RABI'I:
-      dob_other:
+      dob_text:
       - circa-1965
     Nidal AL-SA'ID:
       dob_epoch:
@@ -58324,7 +58324,7 @@ OFAC-SDN:
       dob_epoch:
       - -434592000
     Nur Al-Din AL-DIBISKI:
-      dob_other:
+      dob_text:
       - circa-1963
     Nur-al-Din BAWADUQJI:
       dob_epoch:
@@ -58834,13 +58834,13 @@ OFAC-SDN:
       dob_year:
       - '1982'
     Omar Sab'awi Ibrahim Hasan AL-TIKRITI:
-      dob_other:
+      dob_text:
       - circa-1970
     Omar Sabawi Ibrahim Hasan AL-TIKRITI:
-      dob_other:
+      dob_text:
       - circa-1970
     Omar Sabawi Ibrahim Hassan AL-TIKRITI:
-      dob_other:
+      dob_text:
       - circa-1970
     Omar Shafik HAMMAMI:
       dob_epoch:
@@ -59682,7 +59682,7 @@ OFAC-SDN:
       dob_epoch:
       - 34041600
     QASMANI BABA:
-      dob_other:
+      dob_text:
       - circa-1944
     QERMAN:
       dob_epoch:
@@ -59737,7 +59737,7 @@ OFAC-SDN:
       dob_epoch:
       - 93657600
     Qari Naser JAVED:
-      dob_other:
+      dob_text:
       - circa-1956
       - circa-1958
       - circa-1965
@@ -59925,7 +59925,7 @@ OFAC-SDN:
       dob_epoch:
       - -375840000
     Qolam-Hossein MOHSENI-EJEI:
-      dob_other:
+      dob_text:
       - circa-1956
     Qusay MAHYUB:
       dob_year:
@@ -60068,17 +60068,17 @@ OFAC-SDN:
       dob_epoch:
       - -530582400
     Radulan SAHIRON:
-      dob_other:
+      dob_text:
       - circa-1952
       dob_year:
       - '1955'
     Radulan SAHIRUN:
-      dob_other:
+      dob_text:
       - circa-1952
       dob_year:
       - '1955'
     Radullan SAHIRON:
-      dob_other:
+      dob_text:
       - circa-1952
       dob_year:
       - '1955'
@@ -60166,7 +60166,7 @@ OFAC-SDN:
       dob_epoch:
       - -113011200
     Rafi abd-al-Latif Tilfah AL-TIKRITI:
-      dob_other:
+      dob_text:
       - circa-1954
     Rafik Mohamad YOUSEF:
       dob_epoch:
@@ -60202,7 +60202,7 @@ OFAC-SDN:
       - -295920000
       - -295833600
     Rahim SAFAVI:
-      dob_other:
+      dob_text:
       - circa-1952
     Rahimreza FARGHADANI:
       dob_epoch:
@@ -61108,7 +61108,7 @@ OFAC-SDN:
       dob_epoch:
       - 208915200
     Rustum GHAZALI:
-      dob_other:
+      dob_text:
       - circa-1949
     Ruth Cecilia VELASQUEZ RODRIGUEZ: {}
     Ruth Chipo MURERWA:
@@ -61179,7 +61179,7 @@ OFAC-SDN:
       dob_epoch:
       - 55900800
     SAJIRUN Radulan:
-      dob_other:
+      dob_text:
       - circa-1952
       dob_year:
       - '1955'
@@ -61313,7 +61313,7 @@ OFAC-SDN:
       dob_epoch:
       - 94694400
     SHAYKH AMEEN:
-      dob_other:
+      dob_text:
       - circa-01-Jan-1961
     SHAYKH MUKHTAR:
       dob_epoch:
@@ -61962,7 +61962,7 @@ OFAC-SDN:
       dob_year:
       - '1968'
     Saifullah Mukhlis YUNOS:
-      dob_other:
+      dob_text:
       - circa-07-Jul-1966
     Sait RUSHITI:
       dob_epoch:
@@ -62139,7 +62139,7 @@ OFAC-SDN:
       - -148867200
       - -184204800
     Salem Nor Eldin Amohamed AL-DABSKI:
-      dob_other:
+      dob_text:
       - circa-1963
     Sali KIPLI:
       dob_epoch:
@@ -62226,10 +62226,10 @@ OFAC-SDN:
       dob_year:
       - '1959'
     Salim Nur al-Din AL-DABASKI:
-      dob_other:
+      dob_text:
       - circa-1963
     Salim Nur al-Din AL-DABSKI:
-      dob_other:
+      dob_text:
       - circa-1963
     Salim OGARO:
       dob_year:
@@ -62681,7 +62681,7 @@ OFAC-SDN:
       dob_epoch:
       - -162259200
     Sayed YAHYA SAFAVI:
-      dob_other:
+      dob_text:
       - circa-1952
     Sayedullah KHAMAS:
       dob_epoch:
@@ -62836,7 +62836,7 @@ OFAC-SDN:
       - -807840000
     Selina POTE: {}
     Senad SAHINPASIC:
-      dob_other:
+      dob_text:
       - circa-1951
     Senay Beraki MEHAREN:
       dob_epoch:
@@ -63208,7 +63208,7 @@ OFAC-SDN:
       - -146102400
     Seyyed Reza GHASEMI: {}
     Seyyed YAHYA RAHIM-SAFAVI:
-      dob_other:
+      dob_text:
       - circa-1952
     Seyyid Ebrahim RAISOL-SADATI:
       dob_epoch:
@@ -63372,21 +63372,21 @@ OFAC-SDN:
       dob_epoch:
       - -227232000
     Shaykh 'Abd Al-Majid AL-ZINDANI:
-      dob_other:
+      dob_text:
       - circa-1950
     Shaykh 'Adnan AL-HAMIDAWI:
       dob_epoch:
       - 217296000
     Shaykh Abd-al-Majid AL-ZINDANI:
-      dob_other:
+      dob_text:
       - circa-1950
     Shaykh Abu Mohammed Ameen AL-PESHAWARI:
-      dob_other:
+      dob_text:
       - circa-01-Jan-1961
     Shaykh Abu-Akram AL-KA'ABI:
       dob_epoch:
       - 237945600
-      dob_other:
+      dob_text:
       - circa-1976
       - circa-1973
     Shaykh Ahmad Iman ALI:
@@ -63396,7 +63396,7 @@ OFAC-SDN:
       - '1972'
       - '1975'
     Shaykh Aminullah AL-PESHAWARI:
-      dob_other:
+      dob_text:
       - circa-01-Jan-1961
     Shaykh Hafidh Sa'id KHAN:
       dob_year:
@@ -63453,7 +63453,7 @@ OFAC-SDN:
     Sheik Akram AL-KA'ABI:
       dob_epoch:
       - 237945600
-      dob_other:
+      dob_text:
       - circa-1976
       - circa-1973
     Sheik Mohammed TUFAIL:
@@ -63546,7 +63546,7 @@ OFAC-SDN:
       dob_year:
       - '1935'
     Sheikh Hassan TURKI:
-      dob_other:
+      dob_text:
       - circa-1944
     Sheikh Ibrahim Bin Sulayman AL RUBAYSH:
       dob_epoch:
@@ -64259,7 +64259,7 @@ OFAC-SDN:
       - '1943'
       - '1944'
     Sultan Hashim Ahmad AL-TAI:
-      dob_other:
+      dob_text:
       - circa-1944
     Sultani MAKENGA:
       dob_epoch:
@@ -64268,7 +64268,7 @@ OFAC-SDN:
       dob_epoch:
       - -165715200
     Sundus ABD AL-GHAFAR:
-      dob_other:
+      dob_text:
       - circa-1967
     Sung Jun CHA:
       dob_epoch:
@@ -64651,13 +64651,13 @@ OFAC-SDN:
       dob_year:
       - '1977'
     Taha Yasin RAMADAN:
-      dob_other:
+      dob_text:
       - circa-1938
     Taha Yassin RAMADAN:
-      dob_other:
+      dob_text:
       - circa-1938
     Taha Yassin Ramadan AL-JIZRAWI:
-      dob_other:
+      dob_text:
       - circa-1938
     Tahar NASOOF:
       dob_epoch:
@@ -64720,7 +64720,7 @@ OFAC-SDN:
       dob_epoch:
       - -349833600
     Taleb NAIL:
-      dob_other:
+      dob_text:
       - circa-1972
     Talha SAEED:
       dob_epoch:
@@ -64738,7 +64738,7 @@ OFAC-SDN:
       dob_epoch:
       - 60739200
     Tanya MUCHINGURI:
-      dob_other:
+      dob_text:
       - circa-1989
     Tarad ALJARBA:
       dob_epoch:
@@ -64905,7 +64905,7 @@ OFAC-SDN:
       - 145238400
       - 335491200
     Tayeb NAIL:
-      dob_other:
+      dob_text:
       - circa-1972
     Taysir SULAYMAN:
       dob_epoch:
@@ -65010,10 +65010,10 @@ OFAC-SDN:
       - 346032000
       - 317088000
     Thu AL-HEMMEH:
-      dob_other:
+      dob_text:
       - circa-1956
     Thu Al Hima SHALEESH:
-      dob_other:
+      dob_text:
       - circa-1956
     Thy PHEAP:
       dob_epoch:
@@ -65194,7 +65194,7 @@ OFAC-SDN:
       dob_epoch:
       - -140918400
     Tsitsi Chihuri SEKERAMAYI:
-      dob_other:
+      dob_text:
       - circa-1944
     Tsitsi MUZENDA:
       dob_epoch:
@@ -65264,7 +65264,7 @@ OFAC-SDN:
       - -227318400
       - -322012800
     USTAAD SHEHEB:
-      dob_other:
+      dob_text:
       - circa-1955
       - circa-1964
     USTAD DAUD ZULKARNAEN:
@@ -65315,7 +65315,7 @@ OFAC-SDN:
       - 410832000
       - 428544000
     Umar Ahmad Ali AL-ALUSI:
-      dob_other:
+      dob_text:
       - circa-1970
     Umar CHANDUO:
       dob_year:
@@ -65357,7 +65357,7 @@ OFAC-SDN:
       dob_epoch:
       - -117072000
     Umar Sabawi Ibrahim Hasan AL-TIKRITI:
-      dob_other:
+      dob_text:
       - circa-1970
     Umar Siddique Kathio AZMARAI:
       dob_year:
@@ -65387,10 +65387,10 @@ OFAC-SDN:
       dob_year:
       - '1967'
     Umid Medhat MUBARAK:
-      dob_other:
+      dob_text:
       - circa-1940
     Umid Midhat MUBARAK:
-      dob_other:
+      dob_text:
       - circa-1940
     Umm LAYTH:
       dob_epoch:
@@ -66398,10 +66398,10 @@ OFAC-SDN:
       - 221443200
       - 193622400
     Walid Hamid Tawfiq AL-NASIRI:
-      dob_other:
+      dob_text:
       - circa-1950
     Walid Hamid Tawfiq AL-TIKRITI:
-      dob_other:
+      dob_text:
       - circa-1950
     Walid MAKLED GARCIA:
       dob_epoch:
@@ -66696,10 +66696,10 @@ OFAC-SDN:
       dob_epoch:
       - -11404800
     Xasan Cabdilaahi XIRSI:
-      dob_other:
+      dob_text:
       - circa-1944
     Xasan Cabdulle XIRSI:
-      dob_other:
+      dob_text:
       - circa-1944
     Xhavit MORINA:
       dob_epoch:
@@ -66783,7 +66783,7 @@ OFAC-SDN:
       dob_epoch:
       - -195264000
     YASIR Hajji:
-      dob_other:
+      dob_text:
       - circa-1957
     YIN CHEIN: {}
     YIN CHIN: {}
@@ -66801,13 +66801,13 @@ OFAC-SDN:
       - 334540800
       - 289267200
     YUSEF Hajj:
-      dob_other:
+      dob_text:
       - circa-1957
     YUSIF Haji:
-      dob_other:
+      dob_text:
       - circa-1957
     YUSIF Hajji:
-      dob_other:
+      dob_text:
       - circa-1957
     YUSRI:
       dob_year:
@@ -66860,7 +66860,7 @@ OFAC-SDN:
       dob_epoch:
       - -94694400
     Yahia RAHIM SAFAWI:
-      dob_other:
+      dob_text:
       - circa-1952
     Yahya 'ABD-AL-JALIL:
       dob_epoch:
@@ -66899,13 +66899,13 @@ OFAC-SDN:
       dob_epoch:
       - -277948800
     Yahya RAHIM-SAFAVI:
-      dob_other:
+      dob_text:
       - circa-1952
     Yahya Rahim AL-SIFAWI:
-      dob_other:
+      dob_text:
       - circa-1952
     Yahya Rahim SAFAVI:
-      dob_other:
+      dob_text:
       - circa-1952
     Yahya SINWAR:
       dob_year:
@@ -66991,10 +66991,10 @@ OFAC-SDN:
       dob_epoch:
       - -123552000
     Yasiin Baynax CALI:
-      dob_other:
+      dob_text:
       - circa-1966
     Yasiin Cali BAYNAX:
-      dob_other:
+      dob_text:
       - circa-1966
     Yasin AL-SURI:
       dob_year:
@@ -67003,25 +67003,25 @@ OFAC-SDN:
       dob_year:
       - '1960'
     Yasin Ali BAYNAH:
-      dob_other:
+      dob_text:
       - circa-1966
     Yasin BAYNAH:
-      dob_other:
+      dob_text:
       - circa-1966
     Yasin BEENAH:
-      dob_other:
+      dob_text:
       - circa-1966
     Yasin BEENAX:
-      dob_other:
+      dob_text:
       - circa-1966
     Yasin BENAH:
-      dob_other:
+      dob_text:
       - circa-1966
     Yasin BEYNAH:
-      dob_other:
+      dob_text:
       - circa-1966
     Yasin Baynah ALI:
-      dob_other:
+      dob_text:
       - circa-1966
     Yasin CHOUKA:
       dob_epoch:
@@ -67065,28 +67065,28 @@ OFAC-SDN:
       dob_year:
       - '1970'
     Yassin BAYNAH:
-      dob_other:
+      dob_text:
       - circa-1966
     Yassin BEENAH:
-      dob_other:
+      dob_text:
       - circa-1966
     Yassin BEENAX:
-      dob_other:
+      dob_text:
       - circa-1966
     Yassin BENAH:
-      dob_other:
+      dob_text:
       - circa-1966
     Yassin BENAX:
-      dob_other:
+      dob_text:
       - circa-1966
     Yassin BINAH:
-      dob_other:
+      dob_text:
       - circa-1966
     Yassin CHOUKA:
       dob_epoch:
       - 471571200
     Yassin Mohamed ALI:
-      dob_other:
+      dob_text:
       - circa-1966
     Yassin SYAWAL:
       dob_epoch:
@@ -67255,7 +67255,7 @@ OFAC-SDN:
     Yong Chol KIM:
       dob_epoch:
       - -248313600
-      dob_other:
+      dob_text:
       - circa-1947
       - circa-1946
     Yong Il HO:
@@ -67287,7 +67287,7 @@ OFAC-SDN:
       dob_epoch:
       - -28166400
     Yong-Chol KIM:
-      dob_other:
+      dob_text:
       - circa-1947
       - circa-1946
     Yong-Mu RI:
@@ -67345,15 +67345,15 @@ OFAC-SDN:
       dob_epoch:
       - -320371200
     Young-Cheol KIM:
-      dob_other:
+      dob_text:
       - circa-1947
       - circa-1946
     Young-Chol KIM:
-      dob_other:
+      dob_text:
       - circa-1947
       - circa-1946
     Young-Chul KIM:
-      dob_other:
+      dob_text:
       - circa-1947
       - circa-1946
     Yousif Abu Obayda YAZID:
@@ -67805,7 +67805,7 @@ OFAC-SDN:
       dob_epoch:
       - -283996800
     Zuhair Talib abd-al-Sattar AL-NAQIB:
-      dob_other:
+      dob_text:
       - circa-1948
     Zuhayr HAYDAR:
       dob_epoch:
@@ -67814,10 +67814,10 @@ OFAC-SDN:
       dob_epoch:
       - -441331200
     Zuhayr SHALISH:
-      dob_other:
+      dob_text:
       - circa-1956
     Zuhilma SHALISH:
-      dob_other:
+      dob_text:
       - circa-1956
     Zulkepli MARZUKI:
       dob_epoch:
