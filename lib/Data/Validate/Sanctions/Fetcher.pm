@@ -149,7 +149,6 @@ sub _process_name_and_dob {
         for (qw(dob_epoch dob_year dob_other)) {
             delete $dataset->{$name}->{$_} unless $dataset->{$name}->{$_}->@*;
         }
-        #use Data::Dumper; warn Dumper $dataset->{$name} if scalar $dataset->{$name}->{dob_other}->@*; 
     }
     
     return $dataset;
