@@ -59,6 +59,9 @@ $tmpa->spew(
                         'dob_year'  => [1999],
                         'dob_text' => ['other info'],
                     },
+                    'Atom' => {
+                        'dob_year'  => [1999],
+                    },
                     'Donald Trump' => {
                         dob_text => ['circa-1951'],
                     },
@@ -85,6 +88,7 @@ ok $validator->is_sanctioned(qw(tmpa)), "now sanction file is tmpa, and tmpa is 
 ok !$validator->is_sanctioned("Mohammad reere yuyuy", "wqwqw  qqqqq"), "is not in test1 list";
 ok !$validator->is_sanctioned("Zaki",                 "Ahmad"),        "is in test1 list - but with a dob year";
 ok $validator->is_sanctioned("Zaki", "Ahmad", '1999-01-05'), 'the guy is sanctioned when dob year is matching';
+ok $validator->is_sanctioned("atom", "test", '1999-01-05'), "Match correctly with one world name in sanction list";
 is_deeply $validator->get_sanctioned_info("Zaki", "Ahmad", '1999-01-05'),
     {
     name        => 'Zaki Izzat Zaki AHMAD',

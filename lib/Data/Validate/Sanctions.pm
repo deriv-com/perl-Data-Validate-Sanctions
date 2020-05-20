@@ -14,7 +14,7 @@ use File::ShareDir;
 use YAML::XS qw/DumpFile LoadFile/;
 use Scalar::Util qw(blessed);
 use Date::Utility;
-use List::Util qw(any uniq max);
+use List::Util qw(any uniq max min);
 
 our $VERSION = '0.11';
 
@@ -209,7 +209,7 @@ sub _name_matches {
         $name_matches_count++ if any { $_ eq $token } @$bigger_tokens_list;
     }
 
-    my $small_tokens_size = scalar @$small_tokens_list;
+    my $small_tokens_size = min(scalar(@$small_tokens_list),scalar(@$bigger_tokens_list));
 
     # - If more than one word matches, return it as possible match
     # - Some sanctioned individuals have only one name (ex. Hamza); this should be returned as well
