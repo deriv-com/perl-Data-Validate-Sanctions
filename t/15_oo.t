@@ -27,6 +27,8 @@ is $result->{matched}, 0, 'ABBATTAY Mohamed is safe';
 
 $result = $validator->get_sanctioned_info('Abu', 'Salem');
 is $result->{matched}, 0, 'He used to match previously; but he has date of birth now.';
+$result = $validator->get_sanctioned_info('Ali', 'Abu');
+is $result->{matched}, 1, 'Should batch because has dob_text';
 
 $result = $validator->get_sanctioned_info('Abu', 'Salem', '1948-10-10');
 is_deeply $result,

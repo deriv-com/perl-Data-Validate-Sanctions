@@ -95,7 +95,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
         my ($full_name) = @_;
 
         # Remove non-alphabets
-        my @cleaned_full_name = split " ", uc($full_name =~ s/[^[:alpha:]\s]/ /gr);
+        my @cleaned_full_name = split " ", uc($full_name =~ s/[^[:alpha:]\s]//gr);
 
         return @cleaned_full_name;
     };
@@ -107,12 +107,12 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 
     my $matched_name;
     my $matched_file;
-    my $match_with_missing_dob;
+    my @match_with_dob_text;
 
     for my $file (sort keys %$data) {
 
         my @names = keys %{$data->{$file}->{names_list}};
-        
+
         foreach my $sanctioned_name (sort @names) {
 
             my @sanctioned_name_tokens = $clean_names->($sanctioned_name);
@@ -130,12 +130,11 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
             my $sanctions_epoch_list = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_epoch} // [];
             my $sanctions_year_list  = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_year}  // [];
 
-            # If the dob_epoch and dob_year are missing from the sanctions.yml, automatically mark
-            # the client as a terrorist, regardless of further checks
-            unless (@$sanctions_epoch_list or @$sanctions_year_list) {
-                $match_with_missing_dob = $data->{$file}->{names_list}->{$sanctioned_name};
-                $matched_name = $sanctioned_name;
-                $matched_file = $file;
+            # Saving names with dob_text for later check.
+            my $has_no_epoch_or_year = @$sanctions_epoch_list || @$sanctions_year_list ? 0 : 1;
+            my $has_dob_text = @{$data->{$file}->{names_list}->{$sanctioned_name}->{dob_text} // []} ? 1 : 0;
+            if ($has_dob_text || $has_no_epoch_or_year) {
+                push @match_with_dob_text, { name => $sanctioned_name, file => $file };
             }
 
             $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_epoch_list};
@@ -145,16 +144,26 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
             return _possible_match($file, $sanctioned_name, 'Year of birth matches', $client_dob_year) if $checked_dob;
         }
     }
-    
-    # Return a possible match if the name matches and no date of birth is present in sanctions
-    if ($match_with_missing_dob) {
-        my $reason = 'Name is similar';
-        
-        my $dob_text = $match_with_missing_dob->{dob_text} // [];
-        $reason .= ' - dob raw text: ' . join (',', @$dob_text) if scalar @$dob_text;
 
-        return _possible_match($matched_file, $matched_name, $reason, 'N/A');
+    # Return a possible match if the name matches and no date of birth is present in sanctions
+    for my $match (@match_with_dob_text) {
+        # We match only in case we have full match for the name
+        # in other case we may get to many false positive
+        my ($sacntion_name, $client_name) = map { uc(s/[^[:alpha:]\s]//gr) } ($match->{name}, $client_full_name);
+
+        next unless $sacntion_name eq $client_name;
+
+        my $dob_text = $data->{ $match->{file} }{names_list}{ $match->{name} }{dob_text} // [];
+
+        my $reason = 'Name is similar';
+
+        if ( @$dob_text ) {
+            $reason .= ' - dob raw text: ' . join q{, } => @$dob_text;
+        }
+
+        return _possible_match($match->{file}, $match->{name}, $reason, 'N/A');
     }
+
 
     # Return if no possible match, regardless if date of birth is provided or not
     return {matched => 0};
