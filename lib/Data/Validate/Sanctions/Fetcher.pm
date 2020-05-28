@@ -104,7 +104,7 @@ sub _date_to_epoch {
 
     $date = "$3-$2-$1" if $date =~ m/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/;
 
-    return eval {Date::Utility->new($date)->epoch;}
+    return eval { Date::Utility->new($date)->epoch; };
 }
 
 sub _process_name_and_dob {
@@ -129,9 +129,9 @@ sub _process_name_and_dob {
             push @year_list, $dob;
         } elsif ($dob =~ m/(\d{4}).*to.*(\d{4})$/) {
             push @year_list, ($1 .. $2);
-        } else { 
+        } else {
             my $epoch = _date_to_epoch($dob);
-            (defined $epoch)? push (@epoch_list, $epoch): push(@other_list, $dob);
+            (defined $epoch) ? push(@epoch_list, $epoch) : push(@other_list, $dob);
         }
     }
 
@@ -150,7 +150,7 @@ sub _process_name_and_dob {
             delete $dataset->{$name}->{$_} unless $dataset->{$name}->{$_}->@*;
         }
     }
-    
+
     return $dataset;
 }
 

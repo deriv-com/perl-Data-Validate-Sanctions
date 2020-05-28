@@ -134,7 +134,11 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
             my $has_no_epoch_or_year = @$sanctions_epoch_list || @$sanctions_year_list ? 0 : 1;
             my $has_dob_text = @{$data->{$file}->{names_list}->{$sanctioned_name}->{dob_text} // []} ? 1 : 0;
             if ($has_dob_text || $has_no_epoch_or_year) {
-                push @match_with_dob_text, { name => $sanctioned_name, file => $file };
+                push @match_with_dob_text,
+                    {
+                    name => $sanctioned_name,
+                    file => $file
+                    };
             }
 
             $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_epoch_list};
@@ -153,17 +157,16 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 
         next unless $sacntion_name eq $client_name;
 
-        my $dob_text = $data->{ $match->{file} }{names_list}{ $match->{name} }{dob_text} // [];
+        my $dob_text = $data->{$match->{file}}{names_list}{$match->{name}}{dob_text} // [];
 
         my $reason = 'Name is similar';
 
-        if ( @$dob_text ) {
+        if (@$dob_text) {
             $reason .= ' - dob raw text: ' . join q{, } => @$dob_text;
         }
 
         return _possible_match($match->{file}, $match->{name}, $reason, 'N/A');
     }
-
 
     # Return if no possible match, regardless if date of birth is provided or not
     return {matched => 0};
@@ -218,7 +221,7 @@ sub _name_matches {
         $name_matches_count++ if any { $_ eq $token } @$bigger_tokens_list;
     }
 
-    my $small_tokens_size = min(scalar(@$small_tokens_list),scalar(@$bigger_tokens_list));
+    my $small_tokens_size = min(scalar(@$small_tokens_list), scalar(@$bigger_tokens_list));
 
     # - If more than one word matches, return it as possible match
     # - Some sanctioned individuals have only one name (ex. Hamza); this should be returned as well

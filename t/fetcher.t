@@ -124,13 +124,11 @@ subtest 'EU Sanctions' => sub {
         },
         'Cases with both epoch and year';
 
-    is_deeply $data->{$source_name}->{names_list}->{'Yu-ro Han'},
-        {},
-        'Cases without epoch or year';
+    is_deeply $data->{$source_name}->{names_list}->{'Yu-ro Han'}, {}, 'Cases without epoch or year';
 
     is_deeply $data->{$source_name}->{names_list}->{'Leo Manzi'},
         {
-        dob_year  => ['1954', '1953'],
+        dob_year => ['1954', '1953'],
         },
         'Case with multiple years';
 };
@@ -161,19 +159,19 @@ subtest 'HMT Sanctions' => sub {
 
     is_deeply $dataset->{'AL-TARAZI Mazen'},
         {
-        'dob_year'  => ['1962'],
+        'dob_year' => ['1962'],
         },
         'Case with multiple years';
 
     is_deeply $dataset->{'SO Sang Kuk'},
         {
-        'dob_year'  => ['1936', '1937', '1938', '1932', '1933', '1934', '1935'],
+        'dob_year' => ['1936', '1937', '1938', '1932', '1933', '1934', '1935'],
         },
         'Case with multiple years';
 
     is_deeply $dataset->{'SO Sang-kuk'},
         {
-        'dob_year'  => ['1936', '1937', '1938', '1932', '1933', '1934', '1935'],
+        'dob_year' => ['1936', '1937', '1938', '1932', '1933', '1934', '1935'],
         },
         'Case with multiple years';
 
@@ -190,7 +188,7 @@ subtest 'OFAC Sanctions' => sub {
 
     for my $source_name ('OFAC-SDN', 'OFAC-Consolidated') {
         # OFAC sources have the same structure. We've created the samle sample file for both of them.
-        
+
         ok $data->{$source_name}, 'Sanctions are loaded from the sample file';
         is $data->{$source_name}{updated}, 1587513600, "Sanctions update date matches the content of sample file";
         is scalar keys %{$data->{$source_name}{'names_list'}}, 32, "Number of names matches the content of the sample file";
@@ -234,7 +232,7 @@ subtest 'OFAC Sanctions' => sub {
         for my $name (@$aka_names) {
             is_deeply $dataset->{$name},
                 {
-                'dob_year'  => [1976, 1977, 1978, 1979],
+                'dob_year' => [1976, 1977, 1978, 1979],
                 },
                 "Alias names share the same dob information ($name)";
         }
@@ -259,7 +257,7 @@ subtest 'OFAC Sanctions' => sub {
         for my $name (@$aka_names) {
             is_deeply $dataset->{$name},
                 {
-                'dob_year'  => [1951, 1952, 1953, 1960, 1961, 1962],
+                'dob_year' => [1951, 1952, 1953, 1960, 1961, 1962],
                 },
                 "Alias names share the same dob information ($name)";
         }
