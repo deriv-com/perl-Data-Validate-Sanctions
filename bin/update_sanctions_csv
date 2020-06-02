@@ -74,7 +74,7 @@ Output file to write sanctioned names into.
 =head1 DESCRIPTION
 
 This program retrieves sanction lists from all sources and saves them to the B<sanction file>.
-EU sanctions cannot be trieved without a token; so the program should be executed either
+EU sanctions cannot be retrieved without a token; so the program should be executed either
 with a B<eu_token> or B<eu_url> argument.
 
 =cut
