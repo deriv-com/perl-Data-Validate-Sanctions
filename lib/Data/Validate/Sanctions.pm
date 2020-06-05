@@ -128,7 +128,14 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
             my $client_dob_year  = $client_dob_date->year;
 
             my $sanctions_epoch_list = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_epoch} // [];
+
+            $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_epoch_list};
+            return _possible_match($file, $sanctioned_name, 'Date of birth matches', $date_of_birth) if $checked_dob;
+
             my $sanctions_year_list  = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_year}  // [];
+
+            $checked_dob = any { $_ eq $client_dob_year } @{$sanctions_year_list};
+            return _possible_match($file, $sanctioned_name, 'Year of birth matches', $client_dob_year) if $checked_dob;
 
             # Saving names with dob_text for later check.
             my $has_no_epoch_or_year = (@$sanctions_epoch_list || @$sanctions_year_list) ? 0 : 1;
@@ -140,12 +147,6 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
                     file => $file
                     };
             }
-
-            $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_epoch_list};
-            return _possible_match($file, $sanctioned_name, 'Date of birth matches', $date_of_birth) if $checked_dob;
-
-            $checked_dob = any { $_ eq $client_dob_year } @{$sanctions_year_list} unless $checked_dob;
-            return _possible_match($file, $sanctioned_name, 'Year of birth matches', $client_dob_year) if $checked_dob;
         }
     }
 
