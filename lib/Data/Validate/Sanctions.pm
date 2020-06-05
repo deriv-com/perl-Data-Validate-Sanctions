@@ -105,8 +105,6 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     # Split into tokens after cleaning
     my @client_name_tokens = $clean_names->($client_full_name);
 
-    my $matched_name;
-    my $matched_file;
     my @match_with_dob_text;
 
     for my $file (sort keys %$data) {
