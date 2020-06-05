@@ -153,7 +153,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     # Return a possible match if the name matches and no date of birth is present in sanctions
     for my $match (@match_with_dob_text) {
         # We match only in case we have full match for the name
-        # in other case we may get to many false positive
+        # in other case we may get too many false positives
         my ($sacntion_name, $client_name) = map { uc(s/[^[:alpha:]\s]//gr) } ($match->{name}, $client_full_name);
 
         next unless $sacntion_name eq $client_name;
