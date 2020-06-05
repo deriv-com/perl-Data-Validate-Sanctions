@@ -131,7 +131,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
             my $sanctions_year_list  = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_year}  // [];
 
             # Saving names with dob_text for later check.
-            my $has_no_epoch_or_year = @$sanctions_epoch_list || @$sanctions_year_list ? 0 : 1;
+            my $has_no_epoch_or_year = (@$sanctions_epoch_list || @$sanctions_year_list) ? 0 : 1;
             my $has_dob_text = @{$data->{$file}->{names_list}->{$sanctioned_name}->{dob_text} // []} ? 1 : 0;
             if ($has_dob_text || $has_no_epoch_or_year) {
                 push @match_with_dob_text,
