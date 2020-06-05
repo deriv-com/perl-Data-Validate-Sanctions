@@ -154,9 +154,9 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     for my $match (@match_with_dob_text) {
         # We match only in case we have full match for the name
         # in other case we may get to many false positive
-        my ($sacntion_name, $client_name) = map { uc(s/[^[:alpha:]\s]//gr) } ($match->{name}, $client_full_name);
+        my ($sanction_name, $client_name) = map { uc(s/[^[:alpha:]\s]//gr) } ($match->{name}, $client_full_name);
 
-        next unless $sacntion_name eq $client_name;
+        next unless $sanction_name eq $client_name;
 
         my $dob_text = $data->{$match->{file}}{names_list}{$match->{name}}{dob_text} // [];
 
