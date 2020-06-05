@@ -264,7 +264,7 @@ subtest 'OFAC Sanctions' => sub {
 
         is_deeply $dataset->{'Donald Trump'},
             {
-            'dob_text' => ['circal-1951'],
+            'dob_text' => ['circa-1951'],
             },
             'Trump is shared between two groups';
     }

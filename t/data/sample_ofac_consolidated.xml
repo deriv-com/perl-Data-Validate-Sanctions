@@ -488,7 +488,7 @@
     <dateOfBirthList>
       <dateOfBirthItem>
         <uid>12345</uid>
-        <dateOfBirth>circal/1951</dateOfBirth>
+        <dateOfBirth>circa-1951</dateOfBirth>
         <mainEntry>true</mainEntry>
       </dateOfBirthItem>
     </dateOfBirthList>
