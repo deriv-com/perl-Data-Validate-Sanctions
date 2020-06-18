@@ -14,7 +14,7 @@ use File::ShareDir;
 use YAML::XS qw/DumpFile LoadFile/;
 use Scalar::Util qw(blessed);
 use Date::Utility;
-use List::Util qw(any uniq max);
+use List::Util qw(any uniq max min);
 
 our $VERSION = '0.11';
 
@@ -23,10 +23,13 @@ my $instance;
 
 # for OO
 sub new {    ## no critic (RequireArgUnpacking)
-    my $class = shift;
-    my %args  = @_;
-    my $self  = {};
+    my ($class, %args) = @_;
+
+    my $self = {};
     $self->{sanction_file} = $args{sanction_file} // _default_sanction_file();
+
+    $self->{args} = {%args};
+
     $self->{last_time} = 0;
     return bless $self, ref($class) || $class;
 }
@@ -34,8 +37,7 @@ sub new {    ## no critic (RequireArgUnpacking)
 sub update_data {
     my $self = shift;
 
-    my $new_data = Data::Validate::Sanctions::Fetcher::run();
-    $self->_load_data();
+    my $new_data = Data::Validate::Sanctions::Fetcher::run($self->{args}->%*);
 
     my $updated;
     foreach my $k (keys %$new_data) {
@@ -93,7 +95,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
         my ($full_name) = @_;
 
         # Remove non-alphabets
-        my @cleaned_full_name = split " ", uc($full_name =~ s/[^[:alpha:]\s]/ /gr);
+        my @cleaned_full_name = split " ", uc($full_name =~ s/[^[:alpha:]\s]//gr);
 
         return @cleaned_full_name;
     };
@@ -103,9 +105,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     # Split into tokens after cleaning
     my @client_name_tokens = $clean_names->($client_full_name);
 
-    my $matched_name;
-    my $matched_file;
-    my $dob_missing;
+    my @match_with_dob_text;
 
     for my $file (sort keys %$data) {
 
@@ -119,28 +119,53 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 
             my $checked_dob;
 
-            $matched_name = $sanctioned_name;
-            $matched_file = $file;
-
             # Some clients in sanction list can have more than one date of birth
-            # Comparison is made using the epoch value
-            my $client_dob_epoch   = Date::Utility->new($date_of_birth)->epoch;
-            my $sanctions_dob_list = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_epoch};
+            # Comparison is made using the epoch and year values
+            my $client_dob_date  = Date::Utility->new($date_of_birth);
+            my $client_dob_epoch = $client_dob_date->epoch;
+            my $client_dob_year  = $client_dob_date->year;
 
-            # If the dob_epoch is missing from the sanctions.yml, automatically mark
-            # the client as a terrorist, regardless of further checks
-            unless (@$sanctions_dob_list) {
-                $dob_missing = 1;
+            my $sanctions_epoch_list = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_epoch} // [];
+
+            $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_epoch_list};
+            return _possible_match($file, $sanctioned_name, 'Date of birth matches', $date_of_birth) if $checked_dob;
+
+            my $sanctions_year_list  = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_year}  // [];
+
+            $checked_dob = any { $_ eq $client_dob_year } @{$sanctions_year_list};
+            return _possible_match($file, $sanctioned_name, 'Year of birth matches', $client_dob_year) if $checked_dob;
+
+            # Saving names with dob_text for later check.
+            my $has_no_epoch_or_year = (@$sanctions_epoch_list || @$sanctions_year_list) ? 0 : 1;
+            my $has_dob_text = @{$data->{$file}->{names_list}->{$sanctioned_name}->{dob_text} // []} ? 1 : 0;
+            if ($has_dob_text || $has_no_epoch_or_year) {
+                push @match_with_dob_text,
+                    {
+                    name => $sanctioned_name,
+                    file => $file
+                    };
             }
-
-            $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_dob_list};
-
-            return _possible_match($matched_file, $matched_name, 'Date of birth matches', $date_of_birth) if $checked_dob;
         }
     }
 
     # Return a possible match if the name matches and no date of birth is present in sanctions
-    return _possible_match($matched_file, $matched_name, 'Name is similar', 'N/A') if ($matched_name && $dob_missing);
+    for my $match (@match_with_dob_text) {
+        # We match only in case we have full match for the name
+        # in other case we may get to many false positive
+        my ($sanction_name, $client_name) = map { uc(s/[^[:alpha:]\s]//gr) } ($match->{name}, $client_full_name);
+
+        next unless $sanction_name eq $client_name;
+
+        my $dob_text = $data->{$match->{file}}{names_list}{$match->{name}}{dob_text} // [];
+
+        my $reason = 'Name is similar';
+
+        if (@$dob_text) {
+            $reason .= ' - dob raw text: ' . join q{, } => @$dob_text;
+        }
+
+        return _possible_match($match->{file}, $match->{name}, $reason, 'N/A');
+    }
 
     # Return if no possible match, regardless if date of birth is provided or not
     return {matched => 0};
@@ -195,7 +220,7 @@ sub _name_matches {
         $name_matches_count++ if any { $_ eq $token } @$bigger_tokens_list;
     }
 
-    my $small_tokens_size = scalar @$small_tokens_list;
+    my $small_tokens_size = min(scalar(@$small_tokens_list), scalar(@$bigger_tokens_list));
 
     # - If more than one word matches, return it as possible match
     # - Some sanctioned individuals have only one name (ex. Hamza); this should be returned as well

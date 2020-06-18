@@ -1,7 +1,10 @@
 use strict;
+use warnings;
+
 use YAML::XS qw(Dump);
 use Path::Tiny qw(tempfile);
 use Test::Exception;
+use Test::Warnings;
 use Test::More;
 
 my ($tmpa, $tmpb);
@@ -14,7 +17,10 @@ BEGIN {
         Dump({
                 test1 => {
                     updated    => time,
-                    names_list => {'TMPA' => {'dob_epoch' => []}}}}));
+                    names_list => {
+                        'TMPA' => {
+                            'dob_epoch' => [],
+                            'dob_year'  => []}}}}));
 
     $tmpb = tempfile;
 
@@ -22,7 +28,10 @@ BEGIN {
         Dump({
                 test1 => {
                     updated    => time,
-                    names_list => {'TMPB' => {'dob_epoch' => []}}}}));
+                    names_list => {
+                        'TMPB' => {
+                            'dob_epoch' => [],
+                            'dob_year'  => []}}}}));
 
     $ENV{SANCTION_FILE} = "$tmpa";
 

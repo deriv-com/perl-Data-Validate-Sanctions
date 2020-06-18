@@ -15,9 +15,15 @@ requires 'Try::Tiny', 0;
 requires 'XML::Fast', 0;
 requires 'YAML::XS', 0;
 requires 'Date::Utility', 0;
+requires 'Getopt::Long', '2.42';
+requires 'Syntax::Keyword::Try', '0.11';
 
 on test => sub {
     requires 'Test::More', '0.96';
+    requires 'Test::Warn', '0.23';
+    requires 'Test::Warnings', '0.026';
+    requires 'Test::MockModule', '0.15';
+    requires 'Test::MockObject', '1.20161202';
     requires 'FindBin', '0';
     requires 'Path::Tiny', '0';
     requires 'Class::Unload', '0';
