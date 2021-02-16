@@ -148,6 +148,7 @@ sub _save_sanction_entry {
 
         for my $attribute (qw/dob_epoch dob_year dob_text place_of_birth residence nationality postal_code national_id passport_no/) {
             $dataset->{$name}->{$attribute} //= [];
+            $data{$attribute} = [grep { trim($_ // '') ne '' } $data{$attribute}->@*];
             push $dataset->{$name}->{$attribute}->@*, $data{$attribute}->@* if $data{$attribute};
             $dataset->{$name}->{$attribute} = [uniq $dataset->{$name}->{$attribute}->@*];
             delete $dataset->{$name}->{$attribute} unless $dataset->{$name}->{$attribute}->@*;
@@ -252,20 +253,21 @@ sub _hmt_csv {
         $parsed = $csv->parse($line);
         next unless $parsed;
 
-        @row = $csv->fields();
+        my @row = $csv->fields();
 
-        my $row = \@row;
-        ($row->[$column{'Group Type'}] eq "Individual") or next;
-        my $name = _process_name @{$row}[0 .. 5];
+        @row = map { trim($_ =~ s/\([^(]*\)$//r) } @row;
+
+        ($row[$column{'Group Type'}] eq "Individual") or next;
+        my $name = _process_name @row[0 .. 5];
 
         next if $name =~ /^\s*$/;
 
-        my $date_of_birth  = $row->[$column{'DOB'}];
-        my $place_of_birth = $row->[$column{'Country of Birth'}];
-        my $nationality    = $row->[$column{'Nationality'}];
-        my $residence      = $row->[$column{'Country'}];
-        my $postal_code    = $row->[$column{'Post/Zip Code'}];
-        my $national_id    = $row->[$column{'NI Number'}];
+        my $date_of_birth  = $row[$column{'DOB'}];
+        my $place_of_birth = $row[$column{'Country of Birth'}];
+        my $nationality    = $row[$column{'Nationality'}];
+        my $residence      = $row[$column{'Country'}];
+        my $postal_code    = $row[$column{'Post/Zip Code'}];
+        my $national_id    = $row[$column{'NI Number'}];
 
         _save_sanction_entry(
             $hmt_ref,
@@ -294,7 +296,6 @@ sub _eu_xml {
 
         for (qw/birthdate citizenship address identification/) {
             $entry->{$_} //= [];
-            warn $_ . ref $entry->{$_};
             $entry->{$_} = [$entry->{$_}] if ref $entry->{$_} eq 'HASH';
         }
 

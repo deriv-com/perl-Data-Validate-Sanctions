@@ -19,27 +19,6 @@ my %args = (
     hmt_url               => "file://t/data/sample_hmt.csv",
 );
 
-subtest 'Fetch all sources' => sub {
-    my $data;
-    warnings_like {
-        $data = Data::Validate::Sanctions::Fetcher::run();
-    }
-    [qr/EU Sanctions will fail whithout eu_token or eu_url/, qr/Url is empty for EU-Sanctions/],
-        'Correct warning when the EU sanctions token is missing';
-
-    is_deeply [sort keys %$data], [qw(HMT-Sanctions OFAC-Consolidated OFAC-SDN )], 'sanction source list is correct';
-
-    cmp_ok($data->{'HMT-Sanctions'}{updated}, '>=', 1541376000, "Fetcher::run HMT-Sanctions sanctions.yml");
-
-    cmp_ok($data->{'OFAC-SDN'}{updated}, '>=', 1541376000, "Fetcher::run OFAC-SDN sanctions.yml");
-
-    cmp_ok($data->{'OFAC-Consolidated'}{updated}, '>=', 1541376000, "Fetcher::run OFAC-Consolidated sanctions.yml");
-
-    cmp_ok(scalar keys %{$data->{'HMT-Sanctions'}{'names_list'}}, '>', 1000, "HMT-Sanctions namelist");
-
-    cmp_ok(scalar @{$data->{'HMT-Sanctions'}{'names_list'}{'ADAM Nureldine'}{dob_epoch}}, '>=', 1, "check ADAM Nureldine");
-};
-
 my $mocked_ua = Test::MockModule->new('Mojo::UserAgent');
 $mocked_ua->mock(
     get => sub {
@@ -91,7 +70,7 @@ subtest 'EU Sanctions' => sub {
             eu_token => 'ASDF'
         );
     }
-    qr(EU-Sanctions list update failed: User agent MockObject is hit by the url: https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content\?token=ASDF),
+    qr(EU-Sanctions list update failed: User agent MockObject is hit by the url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content\?token=ASDF),
         'token is added to the default url';
     is $data->{$source_name}, undef, 'Result is empty';
 
@@ -107,20 +86,24 @@ subtest 'EU Sanctions' => sub {
     $data = Data::Validate::Sanctions::Fetcher::run(%args);
     ok $data->{$source_name}, 'EU Sanctions are loaded from the sample file';
     is $data->{$source_name}{updated}, 1586908800, "EU sanctions update date matches the sample file";
-    is scalar keys %{$data->{$source_name}{names_list}}, 14, "Number of names matches the content of the sample EU sanction";
+    is scalar keys %{$data->{$source_name}{names_list}}, 15, "Number of names matches the content of the sample EU sanction";
 
     for my $ailias_name ('Fahd Bin Adballah BIN KHALID', 'Khalid Shaikh MOHAMMED', 'Khalid Adbul WADOOD', 'Ashraf Refaat Nabith HENIN', 'Salem ALI') {
         is_deeply $data->{$source_name}->{names_list}->{$ailias_name},
             {
-            dob_epoch => [-148867200, -184204800],
+            'dob_epoch'      => [-148867200, -184204800],
+            'nationality'    => ['UNKNOWN'],
+            'passport_no'    => ['488555'],
+            'place_of_birth' => ['PAKISTAN']
             },
             'Aslias names have the same dates + multiple epochs extacted from a single entry';
     }
 
     is_deeply $data->{$source_name}->{names_list}->{'Youcef Adel'},
         {
-        dob_epoch => [-127958400],
-        dob_year  => ['1958'],
+        'dob_epoch'      => [-127958400],
+        'dob_year'       => ['1958'],
+        'place_of_birth' => ['ALGERIA']
         },
         'Cases with both epoch and year';
 
@@ -128,9 +111,22 @@ subtest 'EU Sanctions' => sub {
 
     is_deeply $data->{$source_name}->{names_list}->{'Leo Manzi'},
         {
-        dob_year => ['1954', '1953'],
+        'dob_year'       => ['1954', '1953'],
+        'place_of_birth' => ['RWANDA'],
+        'residence'      => ['CONGO, Democratic Republic of (was Zaire)']
         },
         'Case with multiple years';
+
+    is_deeply $data->{$source_name}->{names_list}->{'Mohamed Ben Belkacem Aouadi'},
+        {
+        'dob_epoch'      => [155952000],
+        'national_id'    => ['04643632'],
+        'nationality'    => ['TUNISIA'],
+        'passport_no'    => ['L191609'],
+        'place_of_birth' => ['TUNISIA'],
+        'residence'      => ['TUNISIA']
+        },
+        'All fields are correctly extracted';
 };
 
 subtest 'HMT Sanctions' => sub {
@@ -140,7 +136,7 @@ subtest 'HMT Sanctions' => sub {
     $data = Data::Validate::Sanctions::Fetcher::run(%args);
     ok $data->{$source_name}, 'HMT Sanctions are loaded from the sample file';
     is $data->{$source_name}{updated}, 1587945600, "Sanctions update date matches the sample file";
-    is scalar keys %{$data->{$source_name}{'names_list'}}, 6, "Number of names matches the content of the sample file";
+    is scalar keys %{$data->{$source_name}{'names_list'}}, 7, "Number of names matches the content of the sample file";
 
     my $dataset = $data->{$source_name}->{names_list};
 
@@ -152,8 +148,9 @@ subtest 'HMT Sanctions' => sub {
 
     is_deeply $dataset->{'HUBARIEVA Kateryna Yuriyivna'},
         {
-        'dob_epoch' => [426211200],
-        'dob_year'  => ['1983', '1984']
+        'dob_epoch'      => [426211200],
+        'dob_year'       => ['1983', '1984'],
+        'place_of_birth' => ['Ukraine']
         },
         'Single epoch, multiple years';
 
@@ -169,18 +166,23 @@ subtest 'HMT Sanctions' => sub {
         },
         'Case with multiple years';
 
-    is_deeply $dataset->{'SO Sang-kuk'},
-        {
-        'dob_year' => ['1936', '1937', '1938', '1932', '1933', '1934', '1935'],
-        },
-        'Case with multiple years';
-
     is_deeply $dataset->{'PLOTNITSKII Igor Venediktovich'},
         {
-        'dob_epoch' => [-174268800, -174182400, -174096000],
+        'dob_epoch'      => [-174268800, -174182400, -174096000],
+        'place_of_birth' => ['Ukraine']
         },
         'Case with multiple years';
 
+    is_deeply $dataset->{'SAEED Hafez Mohammad'},
+        {
+        'dob_epoch'      => [-617760000],
+        'national_id'    => ['3520025509842-7'],
+        'nationality'    => ['Pakistani'],
+        'place_of_birth' => ['Pakistan'],
+        'residence'      => ['Pakistan'],
+        'postal_code'    => ['123321'],
+        },
+        'All fields extracted with (explanation) removed';
 };
 
 subtest 'OFAC Sanctions' => sub {
@@ -211,9 +213,13 @@ subtest 'OFAC Sanctions' => sub {
         for my $name (@$aka_names) {
             is_deeply $dataset->{$name},
                 {
-                'dob_epoch' => [-617760000],
+                'dob_epoch'      => [-617760000],
+                'national_id'    => ['23250460642',      '3520025509842-7'],
+                'passport_no'    => ['Booklet A5250088', 'BE5978421'],
+                'place_of_birth' => [' Pakistan'],
+                'residence'      => ['Pakistan']
                 },
-                "Alias names share the same dob information ($name)";
+                "Alias names share the same information ($name)";
         }
 
         $aka_names = [
@@ -232,17 +238,22 @@ subtest 'OFAC Sanctions' => sub {
         for my $name (@$aka_names) {
             is_deeply $dataset->{$name},
                 {
-                'dob_year' => [1976, 1977, 1978, 1979],
+                'dob_year'       => [1976, 1977, 1978, 1979],
+                'place_of_birth' => [' Pakistan']
                 },
-                "Alias names share the same dob information ($name)";
+                "Alias names share the same information ($name)";
         }
 
         is_deeply $dataset->{'Hafiz SAEED'},
             {
-            'dob_epoch' => [-617760000],
-            'dob_year'  => [1976, 1977, 1978, 1979],
+            'dob_epoch'      => [-617760000],
+            'dob_year'       => [1976,               1977, 1978, 1979],
+            'national_id'    => ['23250460642',      '3520025509842-7'],
+            'passport_no'    => ['Booklet A5250088', 'BE5978421'],
+            'place_of_birth' => [' Pakistan'],
+            'residence'      => ['Pakistan']
             },
-            'Hafiz Saeed is shared between two groups';
+            'Hafiz Saeed appears in two group of alias names and inherits values of both';
 
         $aka_names = [
             'Mohammad Reza NAQDI',
@@ -257,16 +268,19 @@ subtest 'OFAC Sanctions' => sub {
         for my $name (@$aka_names) {
             is_deeply $dataset->{$name},
                 {
-                'dob_year' => [1951, 1952, 1953, 1960, 1961, 1962],
+                'dob_year'       => [1951,    1952, 1953, 1960, 1961, 1962],
+                'place_of_birth' => [' Iraq', ' Iran'],
+                'residence'      => ['Iran']
                 },
-                "Alias names share the same dob information ($name)";
+                "Range dob year ($name)";
         }
 
         is_deeply $dataset->{'Donald Trump'},
             {
-            'dob_text' => ['circa-1951'],
+            'dob_text'  => ['circa-1951'],
+            'residence' => ['USA']
             },
-            'Trump is shared between two groups';
+            'dob_text is correctly extracted';
     }
 };
 

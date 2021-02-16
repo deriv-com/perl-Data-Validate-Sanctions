@@ -15,14 +15,14 @@ my $ofac_sdn_url;
 my $ofac_consolidated_url;
 
 GetOptions(
-    "eu_token|token|t=s"                 => \$eu_token,
-    "eu_url|eu=s"                        => \$eu_url,
-    "sanction_file|f=s"                  => \$sanction_file,
-    "hmt_url|hmt=s"                      => \$hmt_url,
-    "ofac_sdn_url|ofac=s"                => \$ofac_sdn_url,
-    "$ofac_consolidated_url|ofac_con=s"  => \$$ofac_consolidated_url,
-    
-    'help|?'                             => \$help,
+    "eu_token|token|t=s"                => \$eu_token,
+    "eu_url|eu=s"                       => \$eu_url,
+    "sanction_file|f=s"                 => \$sanction_file,
+    "hmt_url|hmt=s"                     => \$hmt_url,
+    "ofac_sdn_url|ofac=s"               => \$ofac_sdn_url,
+    "$ofac_consolidated_url|ofac_con=s" => \$$ofac_consolidated_url,
+
+    'help|?' => \$help,
 );
 $sanction_file //= Data::Validate::Sanctions::get_sanction_file();
 
@@ -31,7 +31,7 @@ unless ($eu_token or $eu_url) {
     print "ERROR: both 'eu_token' and 'eu_url' are missing. One of them is required for EU Sanctions.\n";
     pod2usage(1);
 }
-t my %args = (
+my %args = (
     sanction_file         => $sanction_file,
     eu_token              => $eu_token,
     eu_url                => $eu_url,

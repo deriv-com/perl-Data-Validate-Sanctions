@@ -14,6 +14,7 @@ use File::ShareDir;
 use YAML::XS qw/DumpFile LoadFile/;
 use Scalar::Util qw(blessed);
 use Date::Utility;
+use Data::Compare;
 use List::Util qw(any uniq max min);
 
 our $VERSION = '0.11';
@@ -41,7 +42,7 @@ sub update_data {
 
     my $updated;
     foreach my $k (keys %$new_data) {
-        if (ref($self->{_data}{$k}) ne 'HASH' || $self->{_data}{$k}{updated} < $new_data->{$k}{updated}) {
+        if ($self->{_data}{$k} ne 'HASH' || Compare($self->{_data}{$k}, $new_data->{$k})) {
             $self->{_data}{$k} = $new_data->{$k};
             $updated = 1;
         }
