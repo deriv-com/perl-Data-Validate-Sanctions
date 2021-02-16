@@ -47,10 +47,10 @@ ok(!is_sanctioned('ABCD'), "correct file content");
 $last_mtime = stat($sanction_file)->mtime;
 ok(is_sanctioned('NEVEROV', 'Sergei Ivanovich', -253411200), "correct file content");
 path($sanction_file)->spew($sanction_data);
-ok(utime($last_mtime, $last_mtime, $sanction_file), 'change mtime to pretend the file not changed');
-ok(is_sanctioned('NEVEROV',          'Sergei Ivanovich', -253411200), "the module still use old data because it think the file is not changed");
-ok(is_sanctioned('Sergei Ivanovich', 'NEVEROV',          -253411200), "Name matches regardless of order");
-ok(is_sanctioned('Sergei Ivanovich1234~!@!      ', 'NEVEROV',      -253411200), "Name matches even if non-alphabets are present");
+ok(utime($last_mtime, $last_mtime, $sanction_file),                        'change mtime to pretend the file not changed');
+ok(is_sanctioned('NEVEROV', 'Sergei Ivanovich', -253411200),               "the module still use old data because it think the file is not changed");
+ok(is_sanctioned('Sergei Ivanovich', 'NEVEROV', -253411200),               "Name matches regardless of order");
+ok(is_sanctioned('Sergei Ivanovich1234~!@!      ', 'NEVEROV', -253411200), "Name matches even if non-alphabets are present");
 ok(is_sanctioned('Sergei Ivanovich1234~!@!      ', 'NEVEROV abcd', -253411200), "Sanctioned when two words match");
 ok(is_sanctioned('TestOneWord'), "Sanctioned when sanctioned individual has only one name (coming from t/data/sample_eu.xml)");
 

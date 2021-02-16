@@ -59,27 +59,27 @@ sub config {
     }
 
     return {
-        # 'OFAC-SDN' => {
-        #     description => 'TREASURY.GOV: Specially Designated Nationals List with a.k.a included',
-        #     url         => $args{ofac_sdn_url}
-        #         // 'https://www.treasury.gov/ofac/downloads/sdn_xml.zip',    #let's be polite and use zippped version of this 7mb+ file
-        #     parser => \&_ofac_xml_zip,
-        # },
-        # 'OFAC-Consolidated' => {
-        #     description => 'TREASURY.GOV: Consolidated Sanctions List Data Files',
-        #     url         => $args{ofac_consolidated_url} // 'https://www.treasury.gov/ofac/downloads/consolidated/consolidated.xml',
-        #     parser      => \&_ofac_xml,
-        # },
+        'OFAC-SDN' => {
+            description => 'TREASURY.GOV: Specially Designated Nationals List with a.k.a included',
+            url         => $args{ofac_sdn_url}
+                // 'https://www.treasury.gov/ofac/downloads/sdn_xml.zip',    #let's be polite and use zippped version of this 7mb+ file
+            parser => \&_ofac_xml_zip,
+        },
+        'OFAC-Consolidated' => {
+            description => 'TREASURY.GOV: Consolidated Sanctions List Data Files',
+            url         => $args{ofac_consolidated_url} // 'https://www.treasury.gov/ofac/downloads/consolidated/consolidated.xml',
+            parser      => \&_ofac_xml,
+        },
         'HMT-Sanctions' => {
             description => 'GOV.UK: Financial sanctions: consolidated list of targets',
             url         => $args{hmt_url} // 'https://ofsistorage.blob.core.windows.net/publishlive/ConList.csv',
             parser      => \&_hmt_csv,
         },
-        # 'EU-Sanctions' => {
-        #     description => 'EUROPA.EU: Consolidated list of persons, groups and entities subject to EU financial sanctions',
-        #     url         => $eu_url,
-        #     parser      => \&_eu_xml,
-        # },
+        'EU-Sanctions' => {
+            description => 'EUROPA.EU: Consolidated list of persons, groups and entities subject to EU financial sanctions',
+            url         => $eu_url,
+            parser      => \&_eu_xml,
+        },
     };
 }
 
@@ -108,12 +108,13 @@ sub _date_to_epoch {
     return eval { Date::Utility->new($date)->epoch; };
 }
 
-sub _process_name_and_dob {
-    my ($name_list, $dob_list, $dataset) = @_;
+sub _save_sanction_entry {
+    my ($dataset, %data) = @_;
 
-    my (@epoch_list, @year_list, @other_list);
+    my @dob_list = $data{date_of_birth}->@*;
+    my (@dob_epoch, @dob_year, @dob_text);
 
-    for my $dob (@$dob_list) {
+    for my $dob (@dob_list) {
         $dob =~ s/^\s+|\s+$//g;
         next unless $dob;
 
@@ -127,28 +128,29 @@ sub _process_name_and_dob {
         $dob = $1 if $dob =~ m/^[A-Z][a-z]{2}-(\d{4})$/;
 
         if ($dob =~ m/^\d{4}$/) {
-            push @year_list, $dob;
+            push @dob_year, $dob;
         } elsif ($dob =~ m/(\d{4}).*to.*(\d{4})$/) {
-            push @year_list, ($1 .. $2);
+            push @dob_year, ($1 .. $2);
         } else {
             my $epoch = _date_to_epoch($dob);
-            (defined $epoch) ? push(@epoch_list, $epoch) : push(@other_list, $dob);
+            (defined $epoch) ? push(@dob_epoch, $epoch) : push(@dob_text, $dob);
         }
     }
 
-    for my $name (@$name_list) {
+    delete $data{date_of_birth};
+    $data{dob_epoch} = \@dob_epoch;
+    $data{dob_year}  = \@dob_year;
+    $data{dob_text}  = \@dob_text;
+
+    for my $name ($data{name}->@*) {
         # some names contain comma
         $name =~ s/,//g;
 
-        $dataset->{$name}->{$_} //= [] for qw(dob_epoch dob_year dob_text);
-        push @{$dataset->{$name}->{dob_epoch}}, @epoch_list;
-        push @{$dataset->{$name}->{dob_year}},  @year_list;
-        push @{$dataset->{$name}->{dob_text}},  @other_list;
-        $dataset->{$name}->{dob_epoch} = [uniq $dataset->{$name}->{dob_epoch}->@*];
-        $dataset->{$name}->{dob_year}  = [uniq $dataset->{$name}->{dob_year}->@*];
-        $dataset->{$name}->{dob_text}  = [uniq $dataset->{$name}->{dob_text}->@*];
-        for (qw(dob_epoch dob_year dob_text)) {
-            delete $dataset->{$name}->{$_} unless $dataset->{$name}->{$_}->@*;
+        for my $attribute (qw/dob_epoch dob_year dob_text place_of_birth residence nationality postal_code national_id passport_no/) {
+            $dataset->{$name}->{$attribute} //= [];
+            push $dataset->{$name}->{$attribute}->@*, $data{$attribute}->@* if $data{$attribute};
+            $dataset->{$name}->{$attribute} = [uniq $dataset->{$name}->{$attribute}->@*];
+            delete $dataset->{$name}->{$attribute} unless $dataset->{$name}->{$attribute}->@*;
         }
     }
 
@@ -165,14 +167,14 @@ sub _ofac_xml {
         ? _date_to_epoch("$3-$1-$2")
         : undef;    # publshInformation is a typo in ofac xml tags
     die 'Publication date is invalid' unless defined $publish_epoch;
-    
+
     my $parse_list_node = sub {
         my ($entry, $parent, $child, $attribute) = @_;
-        
-         my $node = $entry->{$parent}->{$child} // [];
-            $node = [$node] if (ref $node eq 'HASH');
-    
-            return map { $_->{$attribute} // () } @$node;
+
+        my $node = $entry->{$parent}->{$child} // [];
+        $node = [$node] if (ref $node eq 'HASH');
+
+        return map { $_->{$attribute} // () } @$node;
     };
 
     my $ofac_ref = {};
@@ -190,17 +192,31 @@ sub _ofac_xml {
         # foreach my $dob (map { $_->{dateOfBirth} || () } (ref($dobs) eq 'ARRAY' ? @$dobs : $dobs)) {
         #     push @dob_list, $dob;
         # }
-        my @dob_list = $parse_list_node->($entry, 'dateOfBirthList', 'dateOfBirthItem', 'dateOfBirth');
-        my @citizen = $parse_list_node->($entry, 'citizenshipList', 'citizenship', 'country');
-        my @residence = $parse_list_node->($entry, 'addressList', 'address', 'country');
-        my @postal_code = $parse_list_node->($entry, 'addressList', 'address', 'postalCode');
-        my @nationality = $parse_list_node->($entry, 'naationalityList', 'nationality', 'country');
-        my @birth_place = $parse_list_node->($entry, 'placeOfBirthList', 'placeOfBirthItem', 'placeOfBirth');
-        @birth_place = map {my @parts = split ',', $_; $parts[-1] } @birth_place;
-        
-        # Passport id and national id are also available
-        
-        _process_name_and_dob(\@names, \@dob_list, $ofac_ref);
+        my @dob_list    = $parse_list_node->($entry, 'dateOfBirthList',  'dateOfBirthItem', 'dateOfBirth');
+        my @citizen     = $parse_list_node->($entry, 'citizenshipList',  'citizenship',     'country');
+        my @residence   = $parse_list_node->($entry, 'addressList',      'address',         'country');
+        my @postal_code = $parse_list_node->($entry, 'addressList',      'address',         'postalCode');
+        my @nationality = $parse_list_node->($entry, 'naationalityList', 'nationality',     'country');
+
+        my @place_of_birth = $parse_list_node->($entry, 'placeOfBirthList', 'placeOfBirthItem', 'placeOfBirth');
+        @place_of_birth = map { my @parts = split ',', $_; $parts[-1] } @place_of_birth;
+
+        my $id_list = $entry->{idList}->{id} // [];
+        $id_list = [$id_list] if ref $id_list eq 'HASH';
+        my @passport_no = map { $_->{idType} eq 'Passport'    ? $_->{idNumber} : () } @$id_list;
+        my @national_id = map { $_->{idType} =~ 'National ID' ? $_->{idNumber} : () } @$id_list;
+
+        _save_sanction_entry(
+            $ofac_ref,
+            name           => \@names,
+            date_of_birth  => \@dob_list,
+            place_of_birth => \@place_of_birth,
+            residence      => \@residence,
+            nationality    => \@nationality,
+            postal_code    => \@postal_code,
+            national_id    => \@national_id,
+            passport_no    => \@passport_no
+        );
     }
 
     return {
@@ -217,45 +233,50 @@ sub _hmt_csv {
 
     my @lines = split("\n", $content);
 
-    my $line = trim(shift @lines);
+    my $line   = trim(shift @lines);
     my $parsed = $csv->parse($line);
-    my @info = $parsed ? $csv->fields() : ();
-    use Data::Dumper; warn Dumper \@info;
-    die 'Publish date is invalid' unless @info && _date_to_epoch($info[1]);
-    
-    $line = trim(shift @lines);
-    $parsed = $csv->parse($line);
-    my @row = $csv->fields();
-    use Data::Dumper; warn Dumper \@row;
-    my %column = map { trim($row[$_]) => $_} (0 .. $#row);;
-    
-    return;
-    foreach (@lines) {
-        s/^\s+|\s+$//g;
+    my @info   = $parsed ? $csv->fields() : ();
+    die 'Publication date was not found' unless @info && _date_to_epoch($info[1]);
 
-        $parsed = $csv->parse($_);
+    my $publish_epoch = _date_to_epoch($info[1]);
+    die 'Publication date is invalid' unless defined $publish_epoch;
+
+    $line   = trim(shift @lines);
+    $parsed = $csv->parse($line);
+    my @row    = $csv->fields();
+    my %column = map { trim($row[$_]) => $_ } (0 .. $#row);
+
+    foreach $line (@lines) {
+        $line = trim($line);
+
+        $parsed = $csv->parse($line);
         next unless $parsed;
 
         @row = $csv->fields();
-        
+
         my $row = \@row;
         ($row->[$column{'Group Type'}] eq "Individual") or next;
         my $name = _process_name @{$row}[0 .. 5];
 
         next if $name =~ /^\s*$/;
 
-        my $date_of_birth = $row->[$column{'DOB'}];
-        my $birth_place = $row->[$column{'Country of Birth'}];
-        my $nationality = $row->[$column{'Nationality'}];
-        my $residence = $row->[$column{'Country'}];
-        my $postal_code = $row->[$column{'Post/Zip Code'}]; 
-        my $national_id = $row->[$column{'NI Number'}];
+        my $date_of_birth  = $row->[$column{'DOB'}];
+        my $place_of_birth = $row->[$column{'Country of Birth'}];
+        my $nationality    = $row->[$column{'Nationality'}];
+        my $residence      = $row->[$column{'Country'}];
+        my $postal_code    = $row->[$column{'Post/Zip Code'}];
+        my $national_id    = $row->[$column{'NI Number'}];
 
-        _process_name_and_dob([$name], [$date_of_birth], $hmt_ref);
+        _save_sanction_entry(
+            $hmt_ref,
+            name           => [$name],
+            date_of_birth  => [$date_of_birth],
+            place_of_birth => [$place_of_birth],
+            residence      => [$residence],
+            nationality    => [$nationality],
+            postal_code    => [$postal_code],
+            national_id    => [$national_id]);
     }
-
-    my $publish_epoch = _date_to_epoch($info[1]);
-    die 'Publication date is invalid' unless defined $publish_epoch;
 
     return {
         updated    => $publish_epoch,
@@ -271,6 +292,12 @@ sub _eu_xml {
     foreach my $entry (@{$ref->{sanctionEntity}}) {
         next unless $entry->{subjectType}->{'-code'} eq 'person';
 
+        for (qw/birthdate citizenship address identification/) {
+            $entry->{$_} //= [];
+            warn $_ . ref $entry->{$_};
+            $entry->{$_} = [$entry->{$_}] if ref $entry->{$_} eq 'HASH';
+        }
+
         my @names;
         for (@{$entry->{nameAlias} // []}) {
             my $name = $_->{'-wholeName'};
@@ -281,22 +308,32 @@ sub _eu_xml {
         my @dob_list;
         foreach my $dob ($entry->{birthdate}->@*) {
             push @dob_list, $dob->{'-birthdate'} if $dob->{'-birthdate'};
-            push @dob_list, $dob->{'-year'} if not $dob->{'-birthdate'} and $dob->{'-year'};
+            push @dob_list, $dob->{'-year'}      if not $dob->{'-birthdate'} and $dob->{'-year'};
         }
-        
-        my @birth_place = map { $_->{'-countryDescription'} || () } $entry->{birthdate}->@*;
-        my @citizen =  map { $_->{'-countryDescription'} || () } $entry->{citizenship}->@*;
-        my @residence =  map { $_->{'-countryDescription'} || () } $entry->{address}->@*;
-        my @postal_code = map { $_->{'-zipCode'} || $_->{'-poBox'} || () } $entry->{address}->@*;
-        my @nationality =  map { $_->{'-countryDescription'} || () } $entry->{identification}->@*;
-        my @national_id = map { $_->{'-identificationTypeCode'} eq 'id'? $_->{'-number'} || () : () } $entry->{identification}->@*;
-        my @passport_no = map { $_->{'-identificationTypeCode'} eq 'passport'? $_->{'-number'} || () : () } $entry->{identification}->@*;
 
-        _process_name_and_dob(\@names, \@dob_list, $eu_ref);
+        my @place_of_birth = map { $_->{'-countryDescription'} || () } $entry->{birthdate}->@*;
+        my @citizen        = map { $_->{'-countryDescription'} || () } $entry->{citizenship}->@*;
+        my @residence      = map { $_->{'-countryDescription'} || () } $entry->{address}->@*;
+        my @postal_code    = map { $_->{'-zipCode'} || $_->{'-poBox'} || () } $entry->{address}->@*;
+        my @nationality    = map { $_->{'-countryDescription'} || () } $entry->{identification}->@*;
+        my @national_id    = map { $_->{'-identificationTypeCode'} eq 'id'       ? $_->{'-number'} || () : () } $entry->{identification}->@*;
+        my @passport_no    = map { $_->{'-identificationTypeCode'} eq 'passport' ? $_->{'-number'} || () : () } $entry->{identification}->@*;
+
+        _save_sanction_entry(
+            $eu_ref,
+            name           => \@names,
+            date_of_birth  => \@dob_list,
+            place_of_birth => \@place_of_birth,
+            residence      => \@residence,
+            nationality    => \@nationality,
+            postal_code    => \@postal_code,
+            national_id    => \@national_id,
+            passport_no    => \@passport_no
+        );
     }
 
-    my @date_parts = split('T', $ref->{'-generationDate'} // '');
-    my $publish_epoch = _date_to_epoch($date_parts[0] // '');
+    my @date_parts    = split('T', $ref->{'-generationDate'} // '');
+    my $publish_epoch = _date_to_epoch($date_parts[0]        // '');
 
     die 'Publication date is invalid' unless $publish_epoch;
 
@@ -340,8 +377,7 @@ sub run {
             my $r = $d->{parser}->($content);
 
             $h->{$id} = $r if ($r->{updated} > 1);
-        }
-        catch {
+        } catch {
             warn "$id list update failed: $@";
         }
     }

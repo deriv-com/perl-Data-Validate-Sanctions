@@ -73,7 +73,7 @@ sub get_sanction_file {
     return $instance ? $instance->{sanction_file} : $sanction_file;
 }
 
-sub is_sanctioned {        ## no critic (RequireArgUnpacking)
+sub is_sanctioned {    ## no critic (RequireArgUnpacking)
     return (get_sanctioned_info(@_))->{matched};
 }
 
@@ -84,7 +84,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 
     unless ($self) {
         $instance = __PACKAGE__->new(sanction_file => $sanction_file);
-        $self = $instance;
+        $self     = $instance;
     }
 
     my $data = $self->_load_data();
@@ -130,14 +130,14 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
             $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_epoch_list};
             return _possible_match($file, $sanctioned_name, 'Date of birth matches', $date_of_birth) if $checked_dob;
 
-            my $sanctions_year_list  = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_year}  // [];
+            my $sanctions_year_list = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_year} // [];
 
             $checked_dob = any { $_ eq $client_dob_year } @{$sanctions_year_list};
             return _possible_match($file, $sanctioned_name, 'Year of birth matches', $client_dob_year) if $checked_dob;
 
             # Saving names with dob_text for later check.
-            my $has_no_epoch_or_year = (@$sanctions_epoch_list || @$sanctions_year_list) ? 0 : 1;
-            my $has_dob_text = @{$data->{$file}->{names_list}->{$sanctioned_name}->{dob_text} // []} ? 1 : 0;
+            my $has_no_epoch_or_year = (@$sanctions_epoch_list || @$sanctions_year_list)                     ? 0 : 1;
+            my $has_dob_text         = @{$data->{$file}->{names_list}->{$sanctioned_name}->{dob_text} // []} ? 1 : 0;
             if ($has_dob_text || $has_no_epoch_or_year) {
                 push @match_with_dob_text,
                     {
@@ -175,7 +175,7 @@ sub _load_data {
     my $self          = shift;
     my $sanction_file = $self->{sanction_file};
     $self->{last_time} //= 0;
-    $self->{_data} //= {};
+    $self->{_data}     //= {};
 
     if (-e $sanction_file) {
         return $self->{_data} if stat($sanction_file)->mtime <= $self->{last_time} && $self->{_data};
