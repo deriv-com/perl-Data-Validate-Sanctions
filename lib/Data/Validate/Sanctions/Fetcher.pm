@@ -9,6 +9,7 @@ use IO::Uncompress::Unzip qw(unzip $UnzipError);
 use List::Util qw(uniq any);
 use Mojo::UserAgent;
 use Text::CSV;
+use Text::Trim qw(trim);
 use Syntax::Keyword::Try;
 use XML::Fast;
 
@@ -54,31 +55,31 @@ sub config {
     warn 'EU Sanctions will fail whithout eu_token or eu_url' unless $eu_token or $eu_url;
 
     if ($eu_token) {
-        $eu_url //= "https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_token";
+        $eu_url //= "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_token";
     }
 
     return {
-        'OFAC-SDN' => {
-            description => 'TREASURY.GOV: Specially Designated Nationals List with a.k.a included',
-            url         => $args{ofac_sdn_url}
-                // 'https://www.treasury.gov/ofac/downloads/sdn_xml.zip',    #let's be polite and use zippped version of this 7mb+ file
-            parser => \&_ofac_xml_zip,
-        },
-        'OFAC-Consolidated' => {
-            description => 'TREASURY.GOV: Consolidated Sanctions List Data Files',
-            url         => $args{ofac_consolidated_url} // 'https://www.treasury.gov/ofac/downloads/consolidated/consolidated.xml',
-            parser      => \&_ofac_xml,
-        },
+        # 'OFAC-SDN' => {
+        #     description => 'TREASURY.GOV: Specially Designated Nationals List with a.k.a included',
+        #     url         => $args{ofac_sdn_url}
+        #         // 'https://www.treasury.gov/ofac/downloads/sdn_xml.zip',    #let's be polite and use zippped version of this 7mb+ file
+        #     parser => \&_ofac_xml_zip,
+        # },
+        # 'OFAC-Consolidated' => {
+        #     description => 'TREASURY.GOV: Consolidated Sanctions List Data Files',
+        #     url         => $args{ofac_consolidated_url} // 'https://www.treasury.gov/ofac/downloads/consolidated/consolidated.xml',
+        #     parser      => \&_ofac_xml,
+        # },
         'HMT-Sanctions' => {
             description => 'GOV.UK: Financial sanctions: consolidated list of targets',
             url         => $args{hmt_url} // 'https://ofsistorage.blob.core.windows.net/publishlive/ConList.csv',
             parser      => \&_hmt_csv,
         },
-        'EU-Sanctions' => {
-            description => 'EUROPA.EU: Consolidated list of persons, groups and entities subject to EU financial sanctions',
-            url         => $eu_url,
-            parser      => \&_eu_xml,
-        },
+        # 'EU-Sanctions' => {
+        #     description => 'EUROPA.EU: Consolidated list of persons, groups and entities subject to EU financial sanctions',
+        #     url         => $eu_url,
+        #     parser      => \&_eu_xml,
+        # },
     };
 }
 
@@ -164,6 +165,15 @@ sub _ofac_xml {
         ? _date_to_epoch("$3-$1-$2")
         : undef;    # publshInformation is a typo in ofac xml tags
     die 'Publication date is invalid' unless defined $publish_epoch;
+    
+    my $parse_list_node = sub {
+        my ($entry, $parent, $child, $attribute) = @_;
+        
+         my $node = $entry->{$parent}->{$child} // [];
+            $node = [$node] if (ref $node eq 'HASH');
+    
+            return map { $_->{$attribute} // () } @$node;
+    };
 
     my $ofac_ref = {};
 
@@ -171,18 +181,25 @@ sub _ofac_xml {
         next unless $entry->{sdnType} eq 'Individual';
 
         my @names;
-
         push @names, _process_name($_->{firstName} // '', $_->{lastName} // '') for ($entry, @{$entry->{akaList}{aka} // []});
 
-        my $dobs = $entry->{dateOfBirthList}{dateOfBirthItem};
-
-        my @dob_list;
-        # In one of the xml files, some of the clients have more than one date of birth
-        # Hence, $dob can be either an array or a hashref
-        foreach my $dob (map { $_->{dateOfBirth} || () } (ref($dobs) eq 'ARRAY' ? @$dobs : $dobs)) {
-            push @dob_list, $dob;
-        }
-
+        # my @dob_list;
+        # my $dobs = $entry->{dateOfBirthList}{dateOfBirthItem};
+        # # In one of the xml files, some of the clients have more than one date of birth
+        # # Hence, $dob can be either an array or a hashref
+        # foreach my $dob (map { $_->{dateOfBirth} || () } (ref($dobs) eq 'ARRAY' ? @$dobs : $dobs)) {
+        #     push @dob_list, $dob;
+        # }
+        my @dob_list = $parse_list_node->($entry, 'dateOfBirthList', 'dateOfBirthItem', 'dateOfBirth');
+        my @citizen = $parse_list_node->($entry, 'citizenshipList', 'citizenship', 'country');
+        my @residence = $parse_list_node->($entry, 'addressList', 'address', 'country');
+        my @postal_code = $parse_list_node->($entry, 'addressList', 'address', 'postalCode');
+        my @nationality = $parse_list_node->($entry, 'naationalityList', 'nationality', 'country');
+        my @birth_place = $parse_list_node->($entry, 'placeOfBirthList', 'placeOfBirthItem', 'placeOfBirth');
+        @birth_place = map {my @parts = split ',', $_; $parts[-1] } @birth_place;
+        
+        # Passport id and national id are also available
+        
         _process_name_and_dob(\@names, \@dob_list, $ofac_ref);
     }
 
@@ -199,29 +216,40 @@ sub _hmt_csv {
     my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
 
     my @lines = split("\n", $content);
-    my @info;
-    my $i = 0;
-    foreach (@lines) {
-        $i++;
 
+    my $line = trim(shift @lines);
+    my $parsed = $csv->parse($line);
+    my @info = $parsed ? $csv->fields() : ();
+    use Data::Dumper; warn Dumper \@info;
+    die 'Publish date is invalid' unless @info && _date_to_epoch($info[1]);
+    
+    $line = trim(shift @lines);
+    $parsed = $csv->parse($line);
+    my @row = $csv->fields();
+    use Data::Dumper; warn Dumper \@row;
+    my %column = map { trim($row[$_]) => $_} (0 .. $#row);;
+    
+    return;
+    foreach (@lines) {
         s/^\s+|\s+$//g;
 
-        my $status = $csv->parse($_);
-        if (1 == $i) {
-            @info = $status ? $csv->fields() : ();
-            die 'Publish date is invalid' unless @info && _date_to_epoch($info[1]);
-        }
+        $parsed = $csv->parse($_);
+        next unless $parsed;
 
-        next unless $status;
-
-        my @row = $csv->fields();
+        @row = $csv->fields();
+        
         my $row = \@row;
-        ($row->[23] and $row->[23] eq "Individual") or next;
+        ($row->[$column{'Group Type'}] eq "Individual") or next;
         my $name = _process_name @{$row}[0 .. 5];
 
         next if $name =~ /^\s*$/;
 
-        my $date_of_birth = $row->[7];
+        my $date_of_birth = $row->[$column{'DOB'}];
+        my $birth_place = $row->[$column{'Country of Birth'}];
+        my $nationality = $row->[$column{'Nationality'}];
+        my $residence = $row->[$column{'Country'}];
+        my $postal_code = $row->[$column{'Post/Zip Code'}]; 
+        my $national_id = $row->[$column{'NI Number'}];
 
         _process_name_and_dob([$name], [$date_of_birth], $hmt_ref);
     }
@@ -255,6 +283,14 @@ sub _eu_xml {
             push @dob_list, $dob->{'-birthdate'} if $dob->{'-birthdate'};
             push @dob_list, $dob->{'-year'} if not $dob->{'-birthdate'} and $dob->{'-year'};
         }
+        
+        my @birth_place = map { $_->{'-countryDescription'} || () } $entry->{birthdate}->@*;
+        my @citizen =  map { $_->{'-countryDescription'} || () } $entry->{citizenship}->@*;
+        my @residence =  map { $_->{'-countryDescription'} || () } $entry->{address}->@*;
+        my @postal_code = map { $_->{'-zipCode'} || $_->{'-poBox'} || () } $entry->{address}->@*;
+        my @nationality =  map { $_->{'-countryDescription'} || () } $entry->{identification}->@*;
+        my @national_id = map { $_->{'-identificationTypeCode'} eq 'id'? $_->{'-number'} || () : () } $entry->{identification}->@*;
+        my @passport_no = map { $_->{'-identificationTypeCode'} eq 'passport'? $_->{'-number'} || () : () } $entry->{identification}->@*;
 
         _process_name_and_dob(\@names, \@dob_list, $eu_ref);
     }

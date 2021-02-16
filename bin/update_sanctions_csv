@@ -10,11 +10,13 @@ my $help;
 my $eu_token;
 my $eu_url;
 my $sanction_file;
+my $hmt_url;
 
 GetOptions(
     "eu_token|token|t=s" => \$eu_token,
     "eu_url|u=s"         => \$eu_url,
     "sanction_file|f=s"  => \$sanction_file,
+    "hmt_url|h=s"          => \$hmt_url,
     'help|?'             => \$help,
 );
 $sanction_file //= Data::Validate::Sanctions::get_sanction_file();
@@ -29,6 +31,8 @@ my %args = (
     sanction_file => $sanction_file,
     eu_token      => $eu_token,
     eu_url        => $eu_url,
+    hmt_url       => $hmt_url,  
+
 );
 
 Data::Validate::Sanctions->new(%args)->update_data;
