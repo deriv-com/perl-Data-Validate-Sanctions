@@ -12,6 +12,7 @@ use Text::CSV;
 use Text::Trim qw(trim);
 use Syntax::Keyword::Try;
 use XML::Fast;
+use Locale::Country;
 
 our $VERSION = '0.10';
 
@@ -142,6 +143,11 @@ sub _save_sanction_entry {
     $data{dob_year}  = \@dob_year;
     $data{dob_text}  = \@dob_text;
 
+    # convert all country names to iso codes
+    for my $field (qw/place_of_birth residence nationality/) {
+        $data{$field} = [map { my $val = trim $_; lc(code2country($val) ? $_ : country2code($val) // '') } $data{$field}->@*];
+    }
+
     for my $name ($data{name}->@*) {
         # some names contain comma
         $name =~ s/,//g;
@@ -264,10 +270,11 @@ sub _hmt_csv {
 
         my $date_of_birth  = $row[$column{'DOB'}];
         my $place_of_birth = $row[$column{'Country of Birth'}];
-        my $nationality    = $row[$column{'Nationality'}];
-        my $residence      = $row[$column{'Country'}];
-        my $postal_code    = $row[$column{'Post/Zip Code'}];
-        my $national_id    = $row[$column{'NI Number'}];
+        # nationality is saved as an adjective (Iranian, American, etc); let's ignore it.
+        my $nationality = '';
+        my $residence   = $row[$column{'Country'}];
+        my $postal_code = $row[$column{'Post/Zip Code'}];
+        my $national_id = $row[$column{'NI Number'}];
 
         _save_sanction_entry(
             $hmt_ref,
@@ -312,11 +319,11 @@ sub _eu_xml {
             push @dob_list, $dob->{'-year'}      if not $dob->{'-birthdate'} and $dob->{'-year'};
         }
 
-        my @place_of_birth = map { $_->{'-countryDescription'} || () } $entry->{birthdate}->@*;
-        my @citizen        = map { $_->{'-countryDescription'} || () } $entry->{citizenship}->@*;
-        my @residence      = map { $_->{'-countryDescription'} || () } $entry->{address}->@*;
+        my @place_of_birth = map { $_->{'-countryIso2Code'} || () } $entry->{birthdate}->@*;
+        my @citizen        = map { $_->{'-countryIso2Code'} || () } $entry->{citizenship}->@*;
+        my @residence      = map { $_->{'-countryIso2Code'} || () } $entry->{address}->@*;
         my @postal_code    = map { $_->{'-zipCode'} || $_->{'-poBox'} || () } $entry->{address}->@*;
-        my @nationality    = map { $_->{'-countryDescription'} || () } $entry->{identification}->@*;
+        my @nationality    = map { $_->{'-countryIso2Code'} || () } $entry->{identification}->@*;
         my @national_id    = map { $_->{'-identificationTypeCode'} eq 'id'       ? $_->{'-number'} || () : () } $entry->{identification}->@*;
         my @passport_no    = map { $_->{'-identificationTypeCode'} eq 'passport' ? $_->{'-number'} || () : () } $entry->{identification}->@*;
 

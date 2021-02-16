@@ -92,9 +92,8 @@ subtest 'EU Sanctions' => sub {
         is_deeply $data->{$source_name}->{names_list}->{$ailias_name},
             {
             'dob_epoch'      => [-148867200, -184204800],
-            'nationality'    => ['UNKNOWN'],
             'passport_no'    => ['488555'],
-            'place_of_birth' => ['PAKISTAN']
+            'place_of_birth' => ['pk']
             },
             'Aslias names have the same dates + multiple epochs extacted from a single entry';
     }
@@ -103,7 +102,7 @@ subtest 'EU Sanctions' => sub {
         {
         'dob_epoch'      => [-127958400],
         'dob_year'       => ['1958'],
-        'place_of_birth' => ['ALGERIA']
+        'place_of_birth' => ['dz']
         },
         'Cases with both epoch and year';
 
@@ -112,8 +111,8 @@ subtest 'EU Sanctions' => sub {
     is_deeply $data->{$source_name}->{names_list}->{'Leo Manzi'},
         {
         'dob_year'       => ['1954', '1953'],
-        'place_of_birth' => ['RWANDA'],
-        'residence'      => ['CONGO, Democratic Republic of (was Zaire)']
+        'place_of_birth' => ['rw'],
+        'residence'      => ['cd']
         },
         'Case with multiple years';
 
@@ -121,10 +120,10 @@ subtest 'EU Sanctions' => sub {
         {
         'dob_epoch'      => [155952000],
         'national_id'    => ['04643632'],
-        'nationality'    => ['TUNISIA'],
+        'nationality'    => ['tn'],
         'passport_no'    => ['L191609'],
-        'place_of_birth' => ['TUNISIA'],
-        'residence'      => ['TUNISIA']
+        'place_of_birth' => ['tn'],
+        'residence'      => ['tn']
         },
         'All fields are correctly extracted';
 };
@@ -150,7 +149,7 @@ subtest 'HMT Sanctions' => sub {
         {
         'dob_epoch'      => [426211200],
         'dob_year'       => ['1983', '1984'],
-        'place_of_birth' => ['Ukraine']
+        'place_of_birth' => ['ua']
         },
         'Single epoch, multiple years';
 
@@ -164,22 +163,21 @@ subtest 'HMT Sanctions' => sub {
         {
         'dob_year' => ['1936', '1937', '1938', '1932', '1933', '1934', '1935'],
         },
-        'Case with multiple years';
+        'Case with range dob years';
 
     is_deeply $dataset->{'PLOTNITSKII Igor Venediktovich'},
         {
         'dob_epoch'      => [-174268800, -174182400, -174096000],
-        'place_of_birth' => ['Ukraine']
+        'place_of_birth' => ['ua']
         },
-        'Case with multiple years';
+        'Case with multiple dob epoch';
 
     is_deeply $dataset->{'SAEED Hafez Mohammad'},
         {
         'dob_epoch'      => [-617760000],
         'national_id'    => ['3520025509842-7'],
-        'nationality'    => ['Pakistani'],
-        'place_of_birth' => ['Pakistan'],
-        'residence'      => ['Pakistan'],
+        'place_of_birth' => ['pk'],
+        'residence'      => ['pk'],
         'postal_code'    => ['123321'],
         },
         'All fields extracted with (explanation) removed';
@@ -216,8 +214,8 @@ subtest 'OFAC Sanctions' => sub {
                 'dob_epoch'      => [-617760000],
                 'national_id'    => ['23250460642',      '3520025509842-7'],
                 'passport_no'    => ['Booklet A5250088', 'BE5978421'],
-                'place_of_birth' => [' Pakistan'],
-                'residence'      => ['Pakistan']
+                'place_of_birth' => ['pk'],
+                'residence'      => ['pk']
                 },
                 "Alias names share the same information ($name)";
         }
@@ -239,7 +237,7 @@ subtest 'OFAC Sanctions' => sub {
             is_deeply $dataset->{$name},
                 {
                 'dob_year'       => [1976, 1977, 1978, 1979],
-                'place_of_birth' => [' Pakistan']
+                'place_of_birth' => ['pk']
                 },
                 "Alias names share the same information ($name)";
         }
@@ -250,8 +248,8 @@ subtest 'OFAC Sanctions' => sub {
             'dob_year'       => [1976,               1977, 1978, 1979],
             'national_id'    => ['23250460642',      '3520025509842-7'],
             'passport_no'    => ['Booklet A5250088', 'BE5978421'],
-            'place_of_birth' => [' Pakistan'],
-            'residence'      => ['Pakistan']
+            'place_of_birth' => ['pk'],
+            'residence'      => ['pk']
             },
             'Hafiz Saeed appears in two group of alias names and inherits values of both';
 
@@ -268,9 +266,9 @@ subtest 'OFAC Sanctions' => sub {
         for my $name (@$aka_names) {
             is_deeply $dataset->{$name},
                 {
-                'dob_year'       => [1951,    1952, 1953, 1960, 1961, 1962],
-                'place_of_birth' => [' Iraq', ' Iran'],
-                'residence'      => ['Iran']
+                'dob_year'       => [1951, 1952, 1953, 1960, 1961, 1962],
+                'place_of_birth' => ['iq', 'ir'],
+                'residence'      => ['ir']
                 },
                 "Range dob year ($name)";
         }
@@ -278,7 +276,7 @@ subtest 'OFAC Sanctions' => sub {
         is_deeply $dataset->{'Donald Trump'},
             {
             'dob_text'  => ['circa-1951'],
-            'residence' => ['USA']
+            'residence' => ['us']
             },
             'dob_text is correctly extracted';
     }
