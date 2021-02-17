@@ -106,7 +106,8 @@ sub _date_to_epoch {
 
     $date = "$3-$2-$1" if $date =~ m/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/;
 
-    return eval { Date::Utility->new($date)->epoch; };
+    my $result = eval { Date::Utility->new($date)->epoch; };
+    return $result;
 }
 
 sub _save_sanction_entry {
@@ -144,7 +145,7 @@ sub _save_sanction_entry {
     $data{dob_text}  = \@dob_text;
 
     # convert all country names to iso codes
-    for my $field (qw/place_of_birth residence nationality/) {
+    for my $field (qw/place_of_birth residence nationality citizen/) {
         $data{$field} = [map { my $val = trim $_; lc(code2country($val) ? $_ : country2code($val) // '') } $data{$field}->@*];
     }
 
@@ -152,7 +153,7 @@ sub _save_sanction_entry {
         # some names contain comma
         $name =~ s/,//g;
 
-        for my $attribute (qw/dob_epoch dob_year dob_text place_of_birth residence nationality postal_code national_id passport_no/) {
+        for my $attribute (qw/dob_epoch dob_year dob_text place_of_birth residence nationality citizen postal_code national_id passport_no/) {
             $dataset->{$name}->{$attribute} //= [];
             $data{$attribute} = [grep { trim($_ // '') ne '' } $data{$attribute}->@*];
             push $dataset->{$name}->{$attribute}->@*, $data{$attribute}->@* if $data{$attribute};
@@ -220,9 +221,10 @@ sub _ofac_xml {
             place_of_birth => \@place_of_birth,
             residence      => \@residence,
             nationality    => \@nationality,
+            citizen        => \@citizen,
             postal_code    => \@postal_code,
             national_id    => \@national_id,
-            passport_no    => \@passport_no
+            passport_no    => \@passport_no,
         );
     }
 
@@ -240,20 +242,18 @@ sub _hmt_csv {
 
     my @lines = split("\n", $content);
 
-    my $line   = trim(shift @lines);
-    my $parsed = $csv->parse($line);
+    my $parsed = $csv->parse(trim(shift @lines));
     my @info   = $parsed ? $csv->fields() : ();
     die 'Publication date was not found' unless @info && _date_to_epoch($info[1]);
 
     my $publish_epoch = _date_to_epoch($info[1]);
     die 'Publication date is invalid' unless defined $publish_epoch;
 
-    $line   = trim(shift @lines);
-    $parsed = $csv->parse($line);
+    $parsed = $csv->parse(trim(shift @lines));
     my @row    = $csv->fields();
-    my %column = map { trim($row[$_]) => $_ } (0 .. $#row);
+    my %column = map { trim($row[$_]) => $_ } (0 .. @row - 1);
 
-    foreach $line (@lines) {
+    foreach my $line (@lines) {
         $line = trim($line);
 
         $parsed = $csv->parse($line);
@@ -334,9 +334,10 @@ sub _eu_xml {
             place_of_birth => \@place_of_birth,
             residence      => \@residence,
             nationality    => \@nationality,
+            citizen        => \@citizen,
             postal_code    => \@postal_code,
             national_id    => \@national_id,
-            passport_no    => \@passport_no
+            passport_no    => \@passport_no,
         );
     }
 

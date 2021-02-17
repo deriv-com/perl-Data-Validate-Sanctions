@@ -36,7 +36,10 @@ sleep 1;
 my $script = "$Bin/../bin/update_sanctions_csv";
 my $lib    = "$Bin/../lib";
 my %args   = (
-    '-eu_url'        => "file://$Bin/../t/data/sample_eu.xml",
+    # EU sanctions need a token. Sample data should be used here to avoid failure.
+    '-eu_url' => "file://$Bin/../t/data/sample_eu.xml",
+    # the default HMT url takes too long to download. Let's use sample data here. The default url is downloaded in fetcher_sources.t.
+    '-hmt_url'       => "file://$Bin/../t/data/sample_hmt.csv",
     '-sanction_file' => $sanction_file // ''
 );
 

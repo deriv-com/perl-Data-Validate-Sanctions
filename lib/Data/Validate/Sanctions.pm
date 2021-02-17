@@ -42,7 +42,7 @@ sub update_data {
 
     my $updated;
     foreach my $k (keys %$new_data) {
-        if ($self->{_data}{$k} ne 'HASH' || Compare($self->{_data}{$k}, $new_data->{$k})) {
+        if (!$self->{_data}{$k} || $self->{_data}{$k} ne 'HASH' || Compare($self->{_data}{$k}, $new_data->{$k})) {
             $self->{_data}{$k} = $new_data->{$k};
             $updated = 1;
         }

@@ -15,12 +15,12 @@ my $ofac_sdn_url;
 my $ofac_consolidated_url;
 
 GetOptions(
-    "eu_token|token|t=s"                => \$eu_token,
-    "eu_url|eu=s"                       => \$eu_url,
-    "sanction_file|f=s"                 => \$sanction_file,
-    "hmt_url|hmt=s"                     => \$hmt_url,
-    "ofac_sdn_url|ofac=s"               => \$ofac_sdn_url,
-    "$ofac_consolidated_url|ofac_con=s" => \$$ofac_consolidated_url,
+    "eu_token|token|t=s"               => \$eu_token,
+    "eu_url|eu=s"                      => \$eu_url,
+    "sanction_file|f=s"                => \$sanction_file,
+    "hmt_url|hmt=s"                    => \$hmt_url,
+    "ofac_sdn_url|ofac=s"              => \$ofac_sdn_url,
+    "ofac_consolidated_url|ofac_con=s" => \$ofac_consolidated_url,
 
     'help|?' => \$help,
 );
@@ -36,7 +36,7 @@ my %args = (
     eu_token              => $eu_token,
     eu_url                => $eu_url,
     hmt_url               => $hmt_url,
-    ofac_sdn_url          => $$ofac_sdn_url,
+    ofac_sdn_url          => $ofac_sdn_url,
     ofac_consolidated_url => $ofac_consolidated_url,
 
 );
