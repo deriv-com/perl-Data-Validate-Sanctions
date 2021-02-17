@@ -28,7 +28,8 @@ The list is from the following sources:
 
 - https://www.treasury.gov/ofac/downloads/sdn_xml.zip
 - https://www.treasury.gov/ofac/downloads/consolidated/consolidated.xml
-- http://hmt-sanctions.s3.amazonaws.com/sanctionsconlist.csv
+- https://ofsistorage.blob.core.windows.net/publishlive/ConList.csv
+- https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_token
 
 run [update\_sanctions\_csv](https://metacpan.org/pod/update_sanctions_csv) to update the bundled csv.
 
@@ -39,8 +40,9 @@ the default file in this package will be used.
 
 Note that a positive result means `marked as prohibited` and negative result means `innocent`.
 
-1. Client information (first_name, last_name, date_of_birth) are passed into the subroutine `get_sanctioned_info`
-Example: `get_sanctioned_info($client->first_name, $client->last_name, $client->date_of_birth);`
+1. Client information (first_name, last_name, date_of_birth, additional_args) are passed into the subroutine `get_sanctioned_info`
+Example 1: `get_sanctioned_info($client->first_name, $client->last_name, $client->date_of_birth);`
+Example 2: `get_sanctioned_info($client->first_name, $client->last_name, $client->date_of_birth, {residence => 'fr'});`
 
 2. `first_name` and `last_name` are treated together as the `full_name`. The `full_name` is then cleaned by removing non-alphabets (if any)
 Example: `Ahmad Sheikh` becomes `AHMAD SHEIKH`
@@ -62,6 +64,15 @@ a.) `name matches and no date_of_birth value found in sanctions list`: This retu
 b.) `name matches and date_of_birth matches`: This returns a positive result
 c.) `name matches but date_of_birth does not match from all given values`: This returns a negative result 
 d.) `name matches but no date_of_birth value is passed`: This returns a positive result
+
+7. `additional_args` is an optional field, containing a hashref of any of the following fields:
+a.) `place_of_birth`: the country of birth; country name or preferrably country ISO code
+b.) `residence`: the country of residence; country name or preferrably country ISO code
+c.) `citizen`: the country of citizenship; country name or preferrably country ISO code
+d.) `nationality`: client's nationality; country name or preferrably country ISO code
+e.) `postal_code`: zip/postal code of client's address
+f.) `national_id`: client's nantional ID number
+g.) `passport_no`: client's passpoort number
 
 # METHODS
 

@@ -110,7 +110,47 @@ sub _date_to_epoch {
     return $result;
 }
 
-sub _save_sanction_entry {
+=head2 run
+
+Proocesses an entry retrived from sanction files and saves them into the corresponding dataset.
+An antry may have multilpe names, each of which will be taken as a separate key in the dataset.
+Date of birth is not standardized in the data sources; so if it's machine-readable it will be converetd to epoch, saved as B<dob_epoch>;
+otherwise we will try to infer year of birth (if it's a range, it will be converted to an array of years), saved  as B<dob_year> and 
+finally, unintelligable dates will be saved as raw text in B<dob_text>.
+
+It takes following list of args:
+    
+=over 4
+
+=item - dataset: A hash ref of form [ name => info ] in which the entry will be saved
+
+=item - data: a hash of entry data that may contain:
+
+=over 4
+
+=item * date_of_birth: an array of dates of birth
+
+=item * place_of_birth: an array of country names or codes
+
+=item * residence: an array of country names or codes
+
+=item * nationality: an array of country names or codes
+
+=item * citizen: an array of country names or codes
+
+=item * postal_code: an array of postal/zip codes
+
+=item * national_id: an array of national ID numbers
+
+=item * passport_no: an array of passort numbers
+
+=back
+
+=back
+
+=cut
+
+sub _process_sanction_entry {
     my ($dataset, %data) = @_;
 
     my @dob_list = $data{date_of_birth}->@*;
@@ -214,7 +254,7 @@ sub _ofac_xml {
         my @passport_no = map { $_->{idType} eq 'Passport'    ? $_->{idNumber} : () } @$id_list;
         my @national_id = map { $_->{idType} =~ 'National ID' ? $_->{idNumber} : () } @$id_list;
 
-        _save_sanction_entry(
+        _process_sanction_entry(
             $ofac_ref,
             name           => \@names,
             date_of_birth  => \@dob_list,
@@ -276,7 +316,7 @@ sub _hmt_csv {
         my $postal_code = $row[$column{'Post/Zip Code'}];
         my $national_id = $row[$column{'NI Number'}];
 
-        _save_sanction_entry(
+        _process_sanction_entry(
             $hmt_ref,
             name           => [$name],
             date_of_birth  => [$date_of_birth],
@@ -327,7 +367,7 @@ sub _eu_xml {
         my @national_id    = map { $_->{'-identificationTypeCode'} eq 'id'       ? $_->{'-number'} || () : () } $entry->{identification}->@*;
         my @passport_no    = map { $_->{'-identificationTypeCode'} eq 'passport' ? $_->{'-number'} || () : () } $entry->{identification}->@*;
 
-        _save_sanction_entry(
+        _process_sanction_entry(
             $eu_ref,
             name           => \@names,
             date_of_birth  => \@dob_list,

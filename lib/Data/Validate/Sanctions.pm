@@ -287,7 +287,11 @@ Data::Validate::Sanctions - Validate a name against sanctions lists
 
 Data::Validate::Sanctions is a simple validitor to validate a name against sanctions lists.
 
-The list is from L<https://www.treasury.gov/ofac/downloads/sdn.csv>, L<https://www.treasury.gov/ofac/downloads/consolidated/cons_prim.csv>
+The list is from: 
+- L<https://www.treasury.gov/ofac/downloads/sdn.csv>, 
+- L<https://www.treasury.gov/ofac/downloads/consolidated/cons_prim.csv>
+- L<https://ofsistorage.blob.core.windows.net/publishlive/ConList.csv>
+- L<https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_token>
 
 run F<update_sanctions_csv> to update the bundled csv.
 
@@ -313,12 +317,12 @@ It will remove all non-alpha chars and compare with the list we have.
 =head2 get_sanctioned_info
 
     my $result =get_sanctioned_info($last_name, $first_name, $date_of_birth);
-    print 'match: ', $result->{name}, ' on list ', $result->{list} if $result->{matched};
+    print 'match: ', $result->{matched_args}->{name}, ' on list ', $result->{list} if $result->{matched};
 
 return hashref with keys:
-    matched      1 or 0, depends if name has matched
-    list       name of list matched (present only if matched)
-    name        name of sanctioned person matched (present only if matched)
+    B<matched>      1 or 0, depends if name has matched
+    B<list>         name of list matched (present only if matched)
+    B<matched_args> The list of arguments matched (name, date of birth, residence, etc.)
 
 It will remove all non-alpha chars and compare with the list we have.
 
