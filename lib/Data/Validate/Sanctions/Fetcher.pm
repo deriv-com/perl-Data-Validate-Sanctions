@@ -112,7 +112,7 @@ sub _date_to_epoch {
 
 =head2 run
 
-Proocesses an entry retrived from sanction files and saves them into the corresponding dataset.
+Proocesses an entry retrived from sanction files and saves it into the specified dataset.
 An antry may have multilpe names, each of which will be taken as a separate key in the dataset.
 Date of birth is not standardized in the data sources; so if it's machine-readable it will be converetd to epoch, saved as B<dob_epoch>;
 otherwise we will try to infer year of birth (if it's a range, it will be converted to an array of years), saved  as B<dob_year> and 
