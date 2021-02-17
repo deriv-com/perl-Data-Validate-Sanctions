@@ -112,11 +112,8 @@ sub _date_to_epoch {
 
 =head2 run
 
-Proocesses an entry retrived from sanction files and saves it into the specified dataset.
-An antry may have multilpe names, each of which will be taken as a separate key in the dataset.
-Date of birth is not standardized in the data sources; so if it's machine-readable it will be converetd to epoch, saved as B<dob_epoch>;
-otherwise we will try to infer year of birth (if it's a range, it will be converted to an array of years), saved  as B<dob_year> and 
-finally, unintelligable dates will be saved as raw text in B<dob_text>.
+Proocesses an entry retrived from sanction resouces and saves it into the specified key-value dataset.
+An entry may have multilpe names (aliases), each of which will be taken as a key in the dataset with the same values/info.
 
 It takes following list of args:
     
@@ -129,6 +126,11 @@ It takes following list of args:
 =over 4
 
 =item * date_of_birth: an array of dates of birth
+
+Dates of birth are not of standardized format in some data sources; so they are processed in three steps:
+1- as a first step it will be tried to converetd them into epoch, saved as B<dob_epoch>;
+2- otherwise to extract year (or an array of years) of birth, saved as B<dob_year>; and 
+3- finally, to saved as raw text in B<dob_text>.
 
 =item * place_of_birth: an array of country names or codes
 

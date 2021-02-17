@@ -76,6 +76,15 @@ sub get_sanction_file {
     return $instance ? $instance->{sanction_file} : $sanction_file;
 }
 
+=head2 get_sanctioned_info
+
+Checks if the input profile info matches a sanctioned entity.
+The arguments are the same as those of B<get_sanctioned_info>.
+
+It returns 1 if a match is found, otherwise 0.
+
+=cut
+
 sub is_sanctioned {    ## no critic (RequireArgUnpacking)
     return (get_sanctioned_info(@_))->{matched};
 }
@@ -96,10 +105,72 @@ sub _match_optional_args {
     return $matched_args;
 }
 
+=head2 get_sanctioned_info
+
+Tries to find a match a sanction entry matching the input profile args.
+It takes arguments in two forms. In the new API, it takes a hashref containing the following named arguments:
+    
+=over 4
+
+=item * first_name: first name
+
+=item * last_name: last name
+
+=item * date_of_birth: (optional) date of birth as a string or epoch
+
+=item * place_of_birth: (optional) place of birth as a country name or code
+
+=item * residence: (optional) name or code of the country of residence
+
+=item * nationality: (optional) name or code of the country of nationality
+
+=item * citizen: (optional) name or code of the country of citizenship
+
+=item * postal_code: (optional) postal/zip code
+
+=item * national_id: (optional) national ID number
+
+=item * passport_no: (oiptonal) passort number
+
+=back
+
+For backward compatibility it also supports the old API, taking the following args:
+
+=over 4
+
+=item * first_name: first name
+
+=item * last_name: last name
+
+=item * date_of_birth: (optional) date of birth as a string or epoch
+
+=back
+
+It returns a hash-ref containg the following data:
+
+=over 4
+
+=item - matched:      1 if a match was found; 0 otherwise
+        list:         the source for the matched entry,
+        matched_args: a name-value hash-ref of the similar arguments,
+        comment:      additional comments if necessary,
+
+=back
+
+=cut
+
 sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
 
-    my ($first_name, $last_name, $date_of_birth, $args) = @_;
+    # It's the old interface
+    my ($first_name, $last_name, $date_of_birth) = @_;
+    my $args = {};
+
+    # in the new interface we accept fields in a hashref
+    if (ref $_[0] eq 'HASH') {
+        ($args) = @_;
+        ($first_name, $last_name, $date_of_birth) = $args->@{qw/first_name last_name date_of_birth/};
+    }
 
     # convert country names to iso codes
     for my $field (qw/place_of_birth residence nationality citizen/) {

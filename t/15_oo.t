@@ -71,7 +71,7 @@ $tmpa->spew(
                     'Donald Trump' => {
                         dob_text => ['circa-1951'],
                     },
-                    'Optional Args' => {
+                    'Bandit Outlaw' => {
                         place_of_birth => ['ir'],
                         residence      => ['fr', 'us'],
                         nationality    => ['de', 'gb'],
@@ -136,16 +136,18 @@ is_deeply $validator->get_sanctioned_info('Donald', 'Trump', '1999-01-05'),
     },
     "When client's name matches a case with dob_text";
 
-is_deeply $validator->get_sanctioned_info('Optional', 'Args', '1999-01-05'),
+is_deeply $validator->get_sanctioned_info('Bandit', 'Outlaw', '1999-01-05'),
     {
     'comment'      => undef,
     'list'         => 'test1',
     'matched'      => 1,
-    'matched_args' => {'name' => 'Optional Args'}
+    'matched_args' => {'name' => 'Bandit Outlaw'}
     },
     "If optional ares are empty, only name is matched";
 
 my $args = {
+    first_name     => 'Bandit',
+    last_name      => 'Outlaw',
     place_of_birth => 'Iran',
     residence      => 'France',
     nationality    => 'Germany',
@@ -155,13 +157,13 @@ my $args = {
     passport_no    => 'asdffdsa',
 };
 
-is_deeply $validator->get_sanctioned_info('Optional', 'Args', '1999-01-05', $args),
+is_deeply $validator->get_sanctioned_info($args),
     {
     'comment'      => undef,
     'list'         => 'test1',
     'matched'      => 1,
     'matched_args' => {
-        name           => 'Optional Args',
+        name           => 'Bandit Outlaw',
         place_of_birth => 'ir',
         residence      => 'fr',
         nationality    => 'de',
@@ -174,15 +176,14 @@ is_deeply $validator->get_sanctioned_info('Optional', 'Args', '1999-01-05', $arg
     "All matched fields are returned";
 
 for my $field (qw/place_of_birth residence nationality citizen postal_code national_id passport_no/) {
-    is_deeply $validator->get_sanctioned_info('Optional', 'Args', '1999-01-05', {%$args, $field => 'Israel'}),
+    is_deeply $validator->get_sanctioned_info({%$args, $field => 'Israel'}),
         {'matched' => 0}, "A single wrong field will result in mismatch - $field";
 
     my $expected_result = {
-        'comment'      => undef,
         'list'         => 'test1',
         'matched'      => 1,
         'matched_args' => {
-            name           => 'Optional Args',
+            name           => 'Bandit Outlaw',
             place_of_birth => 'ir',
             residence      => 'fr',
             nationality    => 'de',
@@ -190,11 +191,12 @@ for my $field (qw/place_of_birth residence nationality citizen postal_code natio
             postal_code    => '123321',
             national_id    => '321123',
             passport_no    => 'asdffdsa',
-        }};
+        },
+        comment => undef,
+    };
+
     delete $expected_result->{matched_args}->{$field};
-    is_deeply $validator->get_sanctioned_info('Optional', 'Args', '1999-01-05', {%$args, $field => undef}),
-        $expected_result,
-        "Missing optional args are ignored - $field";
+    is_deeply $validator->get_sanctioned_info({%$args, $field => undef}), $expected_result, "Missing optional args are ignored - $field";
 }
 
 Class::Unload->unload('Data::Validate::Sanctions');
