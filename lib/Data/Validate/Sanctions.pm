@@ -17,6 +17,7 @@ use Date::Utility;
 use Data::Compare;
 use List::Util qw(any uniq max min);
 use Locale::Country;
+use Text::Trim qw(trim);
 
 our $VERSION = '0.11';
 
@@ -185,10 +186,9 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 
         my $dob_text = $data->{$match->{file}}{names_list}{$match->{name}}{dob_text} // [];
 
-        my $comment = 'Name is similar';
-
+        my $comment;
         if (@$dob_text) {
-            $comment .= ' - dob raw text: ' . join q{, } => @$dob_text;
+            $comment = 'dob raw text: ' . join q{, } => @$dob_text;
         }
 
         return _possible_match($match->{file}, $match->{matched_args}, $comment);
