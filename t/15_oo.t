@@ -12,11 +12,13 @@ ok $validator->is_sanctioned('NEVEROV', 'Sergei Ivanovich', -253411200), "Sergei
 my $result = $validator->get_sanctioned_info('abu', 'usama', -306028800);
 is_deeply $result,
     {
-    list        => 'EU-Sanctions',
-    matched     => 1,
-    matched_dob => -306028800,
-    name        => 'Abu Usama',
-    reason      => 'Date of birth matches'
+    'comment'      => undef,
+    'list'         => 'EU-Sanctions',
+    'matched'      => 1,
+    'matched_args' => {
+        'dob_epoch' => -306028800,
+        'name'      => 'Abu Usama'
+    }
     },
     'Validation details are correct';
 
@@ -33,11 +35,13 @@ is $result->{matched}, 1, 'Should batch because has dob_text';
 $result = $validator->get_sanctioned_info('Abu', 'Salem', '1948-10-10');
 is_deeply $result,
     {
-    list        => 'OFAC-Consolidated',
-    matched     => 1,
-    matched_dob => '1948',
-    name        => 'Ibrahim ABU SALEM',
-    reason      => 'Year of birth matches'
+    'comment'      => undef,
+    'list'         => 'OFAC-Consolidated',
+    'matched'      => 1,
+    'matched_args' => {
+        'dob_year' => 1948,
+        'name'     => 'Ibrahim ABU SALEM'
+    }
     },
     'Validation details are correct';
 
@@ -91,34 +95,35 @@ ok !$validator->is_sanctioned("Mohammad reere yuyuy", "wqwqw  qqqqq"), "is not i
 ok !$validator->is_sanctioned("Zaki", "Ahmad"),                        "is in test1 list - but with a dob year";
 ok $validator->is_sanctioned("Zaki", "Ahmad", '1999-01-05'), 'the guy is sanctioned when dob year is matching';
 ok $validator->is_sanctioned("atom", "test", '1999-01-05'),  "Match correctly with one world name in sanction list";
+
 is_deeply $validator->get_sanctioned_info("Zaki", "Ahmad", '1999-01-05'),
     {
-    name        => 'Zaki Izzat Zaki AHMAD',
-    matched     => 1,
-    list        => 'test1',
-    reason      => 'Year of birth matches',
-    matched_dob => '1999',
+    'comment'      => undef,
+    'list'         => 'test1',
+    'matched'      => 1,
+    'matched_args' => {
+        'dob_year' => 1999,
+        'name'     => 'Zaki Izzat Zaki AHMAD'
+    }
     },
     'Sanction info is correct';
 ok $validator->is_sanctioned("Ahmad", "Ahmad", '1999-10-10'), "is in test1 list";
 
 is_deeply $validator->get_sanctioned_info("TMPA"),
     {
-    list        => 'test1',
-    matched     => 1,
-    matched_dob => 'N/A',
-    name        => 'TMPA',
-    reason      => 'Name is similar'
+    'comment'      => 'Name is similar',
+    'list'         => 'test1',
+    'matched'      => 1,
+    'matched_args' => {'name' => 'TMPA'}
     },
     'Sanction info is correct';
 
 is_deeply $validator->get_sanctioned_info('Donald', 'Trump', '1999-01-05'),
     {
-    name        => 'Donald Trump',
-    matched     => 1,
-    matched_dob => 'N/A',
-    list        => 'test1',
-    reason      => 'Name is similar - dob raw text: circa-1951',
+    'comment'      => 'Name is similar - dob raw text: circa-1951',
+    'list'         => 'test1',
+    'matched'      => 1,
+    'matched_args' => {'name' => 'Donald Trump'}
     },
     "When client's name matches a case with dob_text";
 

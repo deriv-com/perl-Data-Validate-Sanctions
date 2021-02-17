@@ -16,6 +16,7 @@ use Scalar::Util qw(blessed);
 use Date::Utility;
 use Data::Compare;
 use List::Util qw(any uniq max min);
+use Locale::Country;
 
 our $VERSION = '0.11';
 
@@ -78,10 +79,35 @@ sub is_sanctioned {    ## no critic (RequireArgUnpacking)
     return (get_sanctioned_info(@_))->{matched};
 }
 
+sub _match_optional_args {
+    my ($self, $entry, $args) = @_;
+
+    my @optional_fields = qw/place_of_birth residence nationality citizen postal_code national_id passport_no/;
+
+    my $matched_args = {};
+    for my $field (@optional_fields) {
+        next unless ($args->{$field} && $entry->{$field} && $entry->{$field}->@*);
+
+        return undef unless any { $args->{$field} eq $_ } $entry->{$field}->@*;
+        $matched_args->{$field} = $args->{$field};
+    }
+
+    return $matched_args;
+}
+
 sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
 
-    my ($first_name, $last_name, $date_of_birth) = @_;
+    my ($first_name, $last_name, $date_of_birth, $args) = @_;
+
+    # convert country names to iso codes
+    for my $field (qw/place_of_birth residence nationality citizen/) {
+        my $value = $args->{$field};
+        next unless $value;
+
+        $value = trim($value);
+        $args->{$field} = lc(code2country($value) ? $value : country2code($value));
+    }
 
     unless ($self) {
         $instance = __PACKAGE__->new(sanction_file => $sanction_file);
@@ -113,37 +139,37 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
         my @names = keys %{$data->{$file}->{names_list}};
 
         foreach my $sanctioned_name (sort @names) {
+            my $entry = $data->{$file}->{names_list}->{$sanctioned_name};
 
             my @sanctioned_name_tokens = $clean_names->($sanctioned_name);
-
             next unless _name_matches(\@client_name_tokens, \@sanctioned_name_tokens);
 
-            my $checked_dob;
+            my $matched_args = $self->_match_optional_args($entry, $args);
+            next unless $matched_args;
+            $matched_args->{name} = $sanctioned_name;
 
             # Some clients in sanction list can have more than one date of birth
             # Comparison is made using the epoch and year values
-            my $client_dob_date  = Date::Utility->new($date_of_birth);
-            my $client_dob_epoch = $client_dob_date->epoch;
-            my $client_dob_year  = $client_dob_date->year;
+            my $client_dob_date = Date::Utility->new($date_of_birth);
+            $args->{dob_epoch} = $client_dob_date->epoch;
+            $args->{dob_year}  = $client_dob_date->year;
 
-            my $sanctions_epoch_list = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_epoch} // [];
+            for my $dob_field (qw/dob_epoch dob_year/) {
+                $entry->{$dob_field} //= [];
+                my $checked_dob = any { $_ eq $args->{$dob_field} } $entry->{$dob_field}->@*;
 
-            $checked_dob = any { $_ eq $client_dob_epoch } @{$sanctions_epoch_list};
-            return _possible_match($file, $sanctioned_name, 'Date of birth matches', $date_of_birth) if $checked_dob;
-
-            my $sanctions_year_list = $data->{$file}->{names_list}->{$sanctioned_name}->{dob_year} // [];
-
-            $checked_dob = any { $_ eq $client_dob_year } @{$sanctions_year_list};
-            return _possible_match($file, $sanctioned_name, 'Year of birth matches', $client_dob_year) if $checked_dob;
+                return _possible_match($file, {%$matched_args, $dob_field => $args->{$dob_field}}) if $checked_dob;
+            }
 
             # Saving names with dob_text for later check.
-            my $has_no_epoch_or_year = (@$sanctions_epoch_list || @$sanctions_year_list)                     ? 0 : 1;
-            my $has_dob_text         = @{$data->{$file}->{names_list}->{$sanctioned_name}->{dob_text} // []} ? 1 : 0;
+            my $has_no_epoch_or_year = ($entry->{dob_epoch}->@* || $entry->{dob_year}->@*) ? 0 : 1;
+            my $has_dob_text         = @{$entry->{dob_text} // []}                         ? 1 : 0;
             if ($has_dob_text || $has_no_epoch_or_year) {
                 push @match_with_dob_text,
                     {
-                    name => $sanctioned_name,
-                    file => $file
+                    name         => $sanctioned_name,
+                    file         => $file,
+                    matched_args => $matched_args,
                     };
             }
         }
@@ -159,13 +185,13 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 
         my $dob_text = $data->{$match->{file}}{names_list}{$match->{name}}{dob_text} // [];
 
-        my $reason = 'Name is similar';
+        my $comment = 'Name is similar';
 
         if (@$dob_text) {
-            $reason .= ' - dob raw text: ' . join q{, } => @$dob_text;
+            $comment .= ' - dob raw text: ' . join q{, } => @$dob_text;
         }
 
-        return _possible_match($match->{file}, $match->{name}, $reason, 'N/A');
+        return _possible_match($match->{file}, $match->{matched_args}, $comment);
     }
 
     # Return if no possible match, regardless if date of birth is provided or not
@@ -204,12 +230,14 @@ sub _default_sanction_file {
 }
 
 sub _possible_match {
+    my ($list, $matched_args, $comment) = @_;
+
     return +{
-        matched     => 1,
-        list        => $_[0],
-        name        => $_[1],
-        reason      => $_[2],
-        matched_dob => $_[3]};
+        matched      => 1,
+        list         => $list,
+        matched_args => $matched_args,
+        comment      => $comment,
+    };
 }
 
 sub _name_matches {
