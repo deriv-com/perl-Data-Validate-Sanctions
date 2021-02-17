@@ -102,7 +102,8 @@ subtest 'EU Sanctions' => sub {
         {
         'dob_epoch'      => [-127958400],
         'dob_year'       => ['1958'],
-        'place_of_birth' => ['dz']
+        'place_of_birth' => ['dz'],
+        'citizen'        => ['dz'],
         },
         'Cases with both epoch and year';
 
@@ -112,7 +113,8 @@ subtest 'EU Sanctions' => sub {
         {
         'dob_year'       => ['1954', '1953'],
         'place_of_birth' => ['rw'],
-        'residence'      => ['cd']
+        'residence'      => ['cd'],
+        'citizen'        => ['rw'],
         },
         'Case with multiple years';
 
@@ -123,7 +125,8 @@ subtest 'EU Sanctions' => sub {
         'nationality'    => ['tn'],
         'passport_no'    => ['L191609'],
         'place_of_birth' => ['tn'],
-        'residence'      => ['tn']
+        'residence'      => ['tn'],
+        'citizen'        => ['tn'],
         },
         'All fields are correctly extracted';
 };

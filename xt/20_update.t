@@ -38,7 +38,7 @@ my $lib    = "$Bin/../lib";
 my %args   = (
     # EU sanctions need a token. Sample data should be used here to avoid failure.
     '-eu_url' => "file://$Bin/../t/data/sample_eu.xml",
-    # the default HMT url takes too long to download. Let's use sample data here. The default url is downloaded in fetcher_sources.t.
+    # the default HMT url takes too long to download. Let's use sample data to speed it up.
     '-hmt_url'       => "file://$Bin/../t/data/sample_hmt.csv",
     '-sanction_file' => $sanction_file // ''
 );
