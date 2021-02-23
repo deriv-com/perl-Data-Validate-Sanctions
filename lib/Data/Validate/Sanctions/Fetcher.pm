@@ -112,7 +112,7 @@ sub _date_to_epoch {
 
 =head2 run
 
-Proocesses an entry retrived from sanction resouces and saves it into the specified key-value dataset.
+Processes an entry retrieved from sanction resources and saves it into the specified key-value dataset.
 An entry may have multilpe names (aliases), each of which will be taken as a key in the dataset with the same values/info.
 
 It takes following list of args:
