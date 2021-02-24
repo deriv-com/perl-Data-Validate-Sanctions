@@ -95,9 +95,9 @@ sub _process_name {
 }
 
 sub _ofac_xml_zip {
-    my $content = shift;
+    my $raw_data = shift;
     my $output;
-    unzip \$content => \$output or die "unzip failed: $UnzipError\n";
+    unzip \$raw_data => \$output or die "unzip failed: $UnzipError\n";
     return _ofac_xml($output);
 }
 
@@ -206,7 +206,7 @@ sub _process_sanction_entry {
     }
 
     # remove commas and filter empty names
-    $data{names} = [map {(trim($_) =~ s/,//gr) || ()} $data{names}->@*];
+    $data{names} = [map { (trim($_) =~ s/,//gr) || () } $data{names}->@*];
 
     push $dataset->@*, \%data;
 
@@ -214,9 +214,9 @@ sub _process_sanction_entry {
 }
 
 sub _ofac_xml {
-    my $content = shift;
+    my $raw_data = shift;
 
-    my $ref = xml2hash($content, array => ['aka'])->{sdnList};
+    my $ref = xml2hash($raw_data, array => ['aka'])->{sdnList};
 
     my $publish_epoch =
         $ref->{publshInformation}{Publish_Date} =~ m/(\d{1,2})\/(\d{1,2})\/(\d{4})/
@@ -233,7 +233,7 @@ sub _ofac_xml {
         return map { $_->{$attribute} // () } @$node;
     };
 
-    my $ofac_ref = {};
+    my $dataset = [];
 
     foreach my $entry (@{$ref->{sdnEntry}}) {
         next unless $entry->{sdnType} eq 'Individual';
@@ -263,8 +263,8 @@ sub _ofac_xml {
         my @national_id = map { $_->{idType} =~ 'National ID' ? $_->{idNumber} : () } @$id_list;
 
         _process_sanction_entry(
-            $ofac_ref,
-            names       => \@names,
+            $dataset,
+            names          => \@names,
             date_of_birth  => \@dob_list,
             place_of_birth => \@place_of_birth,
             residence      => \@residence,
@@ -278,17 +278,17 @@ sub _ofac_xml {
 
     return {
         updated => $publish_epoch,
-        content => $ofac_ref,
+        content => $dataset,
     };
 }
 
 sub _hmt_csv {
-    my $content = shift;
-    my $hmt_ref = {};
+    my $raw_data = shift;
+    my $dataset  = [];
 
     my $csv = Text::CSV->new({binary => 1}) or die "Cannot use CSV: " . Text::CSV->error_diag();
 
-    my @lines = split("\n", $content);
+    my @lines = split("\n", $raw_data);
 
     my $parsed = $csv->parse(trim(shift @lines));
     my @info   = $parsed ? $csv->fields() : ();
@@ -325,8 +325,8 @@ sub _hmt_csv {
         my $national_id = $row[$column{'NI Number'}];
 
         _process_sanction_entry(
-            $hmt_ref,
-            names           => [$name],
+            $dataset,
+            names          => [$name],
             date_of_birth  => [$date_of_birth],
             place_of_birth => [$place_of_birth],
             residence      => [$residence],
@@ -337,14 +337,14 @@ sub _hmt_csv {
 
     return {
         updated => $publish_epoch,
-        content => $hmt_ref,
+        content => $dataset,
     };
 }
 
 sub _eu_xml {
-    my $content = shift;
-    my $ref     = xml2hash($content, array => ['nameAlias', 'birthdate'])->{export};
-    my $eu_ref  = {};
+    my $raw_data = shift;
+    my $ref      = xml2hash($raw_data, array => ['nameAlias', 'birthdate'])->{export};
+    my $dataset  = [];
 
     foreach my $entry (@{$ref->{sanctionEntity}}) {
         next unless $entry->{subjectType}->{'-code'} eq 'person';
@@ -376,8 +376,8 @@ sub _eu_xml {
         my @passport_no    = map { $_->{'-identificationTypeCode'} eq 'passport' ? $_->{'-number'} || () : () } $entry->{identification}->@*;
 
         _process_sanction_entry(
-            $eu_ref,
-            names           => \@names,
+            $dataset,
+            names          => \@names,
             date_of_birth  => \@dob_list,
             place_of_birth => \@place_of_birth,
             residence      => \@residence,
@@ -396,7 +396,7 @@ sub _eu_xml {
 
     return {
         updated => $publish_epoch,
-        content => $eu_ref,
+        content => $dataset,
     };
 }
 
@@ -409,37 +409,41 @@ Fetches latest version of lists, and returns combined hash of successfully downl
 sub run {
     my %args = @_;
 
-    my $h  = {};
-    my $ua = Mojo::UserAgent->new;
+    my $result = {};
+    my $ua     = Mojo::UserAgent->new;
     $ua->connect_timeout(15);
 
     my $config = config(%args);
 
     foreach my $id (sort keys %$config) {
-        my $d = $config->{$id};
+        my $source = $config->{$id};
         try {
-            die "Url is empty for $id" unless $d->{url};
+            die "Url is empty for $id" unless $source->{url};
 
-            my $content;
+            my $raw_data;
 
-            if ($d->{url} =~ m/^file:\/\/(.*)$/) {
+            if ($source->{url} =~ m/^file:\/\/(.*)$/) {
                 open my $fh, '<', "$1" or die "Can't open $id file $1 $!";
-                $content = do { local $/; <$fh> };
+                $raw_data = do { local $/; <$fh> };
                 close $fh;
             } else {
-                die "File not downloaded for $d->{id}" if $ua->get($d->{url})->result->is_error;
-                $content = $ua->get($d->{url})->result->body;
+                die "File not downloaded for $id" if $ua->get($source->{url})->result->is_error;
+                $raw_data = $ua->get($source->{url})->result->body;
             }
 
-            my $r = $d->{parser}->($content);
+            my $data = $source->{parser}->($raw_data);
 
-            $h->{$id} = $r if ($r->{updated} > 1);
+            if ($data->{updated} > 1) {
+                $result->{$id} = $data;
+                my $count = $data->{content}->@*;
+                print "The source $id updated with $count entries\n";
+            }
         } catch {
             warn "$id list update failed: $@";
         }
     }
 
-    return $h;
+    return $result;
 }
 
 1;

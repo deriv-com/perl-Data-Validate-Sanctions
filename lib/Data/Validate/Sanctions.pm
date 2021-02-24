@@ -44,13 +44,16 @@ sub update_data {
 
     my $updated;
     foreach my $k (keys %$new_data) {
-        if (!$self->{_data}{$k} || $self->{_data}{$k} ne 'ARRAY' || !Compare($self->{_data}{$k}, $new_data->{$k})) {
+        if (!$self->{_data}{$k} || !Compare($self->{_data}{$k}, $new_data->{$k})) {
             $self->{_data}{$k} = $new_data->{$k};
             $updated = 1;
         }
     }
+    if ($updated) {
+        $self->_save_data();
+        $self->_index_data();
+    }
 
-    $self->_save_data if $updated;
     return;
 }
 
@@ -276,8 +279,20 @@ sub _load_data {
         $self->{last_time} = stat($sanction_file)->mtime;
         $self->{_data}     = LoadFile($sanction_file);
     }
+    $self->_index_data();
 
-    # create index
+    return $self->{_data};
+}
+
+=head2 _index_data
+
+Indexes data by name. Each name may have multiple matching entries.
+
+=cut
+
+sub _index_data {
+    my $self = shift;
+
     $self->{_index} = {};
     for my $source (keys $self->{_data}->%*) {
         for my $entry ($self->{_data}->{$source}->{content}->@*) {
@@ -289,8 +304,6 @@ sub _load_data {
             }
         }
     }
-
-    return $self->{_data};
 }
 
 sub _save_data {
