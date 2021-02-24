@@ -110,7 +110,19 @@ sub _date_to_epoch {
     return $result;
 }
 
-=head2 run
+=head2 get_country_code
+
+If the arg is a country code, it's returned in lower case; otherwise the arg is converted to country code.
+
+=cut
+
+sub get_country_code {
+    my $value = trim shift;
+
+    return lc(code2country($value) ? $value : country2code($value) // '');
+}
+
+=head2 _process_sanction_entry
 
 Processes an entry retrieved from sanction resources and saves it into the specified key-value dataset.
 An entry may have multilpe names (aliases), each of which will be taken as a key in the dataset with the same values/info.
@@ -124,6 +136,8 @@ It takes following list of args:
 =item - data: a hash of entry data that may contain:
 
 =over 4
+
+=item * name: an array of names/aliases
 
 =item * date_of_birth: an array of dates of birth
 
@@ -188,21 +202,13 @@ sub _process_sanction_entry {
 
     # convert all country names to iso codes
     for my $field (qw/place_of_birth residence nationality citizen/) {
-        $data{$field} = [map { my $val = trim $_; lc(code2country($val) ? $_ : country2code($val) // '') } $data{$field}->@*];
+        $data{$field} = [map { get_country_code($_) // () } $data{$field}->@*];
     }
 
-    for my $name ($data{name}->@*) {
-        # some names contain comma
-        $name =~ s/,//g;
+    # remove commas and filter empty names
+    $data{names} = [map {(trim($_) =~ s/,//gr) || ()} $data{names}->@*];
 
-        for my $attribute (qw/dob_epoch dob_year dob_text place_of_birth residence nationality citizen postal_code national_id passport_no/) {
-            $dataset->{$name}->{$attribute} //= [];
-            $data{$attribute} = [grep { trim($_ // '') ne '' } $data{$attribute}->@*];
-            push $dataset->{$name}->{$attribute}->@*, $data{$attribute}->@* if $data{$attribute};
-            $dataset->{$name}->{$attribute} = [uniq $dataset->{$name}->{$attribute}->@*];
-            delete $dataset->{$name}->{$attribute} unless $dataset->{$name}->{$attribute}->@*;
-        }
-    }
+    push $dataset->@*, \%data;
 
     return $dataset;
 }
@@ -258,7 +264,7 @@ sub _ofac_xml {
 
         _process_sanction_entry(
             $ofac_ref,
-            name           => \@names,
+            names       => \@names,
             date_of_birth  => \@dob_list,
             place_of_birth => \@place_of_birth,
             residence      => \@residence,
@@ -271,8 +277,8 @@ sub _ofac_xml {
     }
 
     return {
-        updated    => $publish_epoch,
-        names_list => $ofac_ref,
+        updated => $publish_epoch,
+        content => $ofac_ref,
     };
 }
 
@@ -320,7 +326,7 @@ sub _hmt_csv {
 
         _process_sanction_entry(
             $hmt_ref,
-            name           => [$name],
+            names           => [$name],
             date_of_birth  => [$date_of_birth],
             place_of_birth => [$place_of_birth],
             residence      => [$residence],
@@ -330,8 +336,8 @@ sub _hmt_csv {
     }
 
     return {
-        updated    => $publish_epoch,
-        names_list => $hmt_ref,
+        updated => $publish_epoch,
+        content => $hmt_ref,
     };
 }
 
@@ -371,7 +377,7 @@ sub _eu_xml {
 
         _process_sanction_entry(
             $eu_ref,
-            name           => \@names,
+            names           => \@names,
             date_of_birth  => \@dob_list,
             place_of_birth => \@place_of_birth,
             residence      => \@residence,
@@ -389,8 +395,8 @@ sub _eu_xml {
     die 'Publication date is invalid' unless $publish_epoch;
 
     return {
-        updated    => $publish_epoch,
-        names_list => $eu_ref,
+        updated => $publish_epoch,
+        content => $eu_ref,
     };
 }
 

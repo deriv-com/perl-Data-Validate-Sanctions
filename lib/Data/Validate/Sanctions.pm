@@ -177,10 +177,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
         my $value = $args->{$field};
         next unless $value;
 
-        $value = trim($value);
-        # code2country call is called to check if $value is a valid iso code;
-        # otherwise a country2code converts the country name to iso code
-        $args->{$field} = lc(code2country($value) ? $value : country2code($value));
+        $args->{$field} = Data::Validate::Sanctions::Fetcher::get_country_code($value);
     }
 
     unless ($self) {
@@ -188,7 +185,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
         $self     = $instance;
     }
 
-    my $data = $self->_load_data();
+    $self->_load_data();
 
     # Sub to remove non-alphabets from the name
     my $clean_names = sub {
@@ -208,13 +205,10 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 
     my @match_with_dob_text;
 
-    for my $file (sort keys %$data) {
+    my @names = keys $self->{_index}->%*;
 
-        my @names = keys %{$data->{$file}->{names_list}};
-
-        foreach my $sanctioned_name (sort @names) {
-            my $entry = $data->{$file}->{names_list}->{$sanctioned_name};
-
+    foreach my $sanctioned_name (sort @names) {
+        for my $entry ($self->{_index}->{$sanctioned_name}->@*) {
             my @sanctioned_name_tokens = $clean_names->($sanctioned_name);
             next unless _name_matches(\@client_name_tokens, \@sanctioned_name_tokens);
 
@@ -232,7 +226,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
                 $entry->{$dob_field} //= [];
                 my $checked_dob = any { $_ eq $args->{$dob_field} } $entry->{$dob_field}->@*;
 
-                return _possible_match($file, {%$matched_args, $dob_field => $args->{$dob_field}}) if $checked_dob;
+                return _possible_match($entry->{source}, {%$matched_args, $dob_field => $args->{$dob_field}}) if $checked_dob;
             }
 
             # Saving names with dob_text for later check.
@@ -242,7 +236,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
                 push @match_with_dob_text,
                     {
                     name         => $sanctioned_name,
-                    file         => $file,
+                    entry        => $entry,
                     matched_args => $matched_args,
                     };
             }
@@ -257,14 +251,14 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 
         next unless $sanction_name eq $client_name;
 
-        my $dob_text = $data->{$match->{file}}{names_list}{$match->{name}}{dob_text} // [];
+        my $dob_text = $match->{entry}->{dob_text} // [];
 
         my $comment;
         if (@$dob_text) {
             $comment = 'dob raw text: ' . join q{, } => @$dob_text;
         }
 
-        return _possible_match($match->{file}, $match->{matched_args}, $comment);
+        return _possible_match($match->{entry}->{source}, $match->{matched_args}, $comment);
     }
 
     # Return if no possible match, regardless if date of birth is provided or not
@@ -282,6 +276,20 @@ sub _load_data {
         $self->{last_time} = stat($sanction_file)->mtime;
         $self->{_data}     = LoadFile($sanction_file);
     }
+
+    # create index
+    $self->{_index} = {};
+    for my $source (keys $self->{_data}->%*) {
+        for my $entry ($self->{_data}->{$source}->{content}->@*) {
+            $entry->{source} = $source;
+            for my $name ($entry->{names}) {
+                my $entry_list = $self->{_index}->{name} // [];
+                push @$entry_list, $entry;
+                $self->{_index}->{name} = $entry_list;
+            }
+        }
+    }
+
     return $self->{_data};
 }
 
