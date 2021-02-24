@@ -178,6 +178,8 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
         next unless $value;
 
         $value = trim($value);
+        # code2country call is called to check if $value is a valid iso code;
+        # otherwise a country2code converts the country name to iso code
         $args->{$field} = lc(code2country($value) ? $value : country2code($value));
     }
 
