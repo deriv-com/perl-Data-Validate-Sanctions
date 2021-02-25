@@ -54,7 +54,7 @@ sub config {
     warn 'EU Sanctions will fail whithout eu_token or eu_url' unless $eu_token or $eu_url;
 
     if ($eu_token) {
-        $eu_url //= "https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_token";
+        $eu_url //= "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_token";
     }
 
     return {
