@@ -209,12 +209,11 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     my @match_with_dob_text;
 
     my @names = keys $self->{_index}->%*;
-
     foreach my $sanctioned_name (sort @names) {
-        for my $entry ($self->{_index}->{$sanctioned_name}->@*) {
-            my @sanctioned_name_tokens = $clean_names->($sanctioned_name);
-            next unless _name_matches(\@client_name_tokens, \@sanctioned_name_tokens);
+        my @sanctioned_name_tokens = $clean_names->($sanctioned_name);
+        next unless _name_matches(\@client_name_tokens, \@sanctioned_name_tokens);
 
+        for my $entry ($self->{_index}->{$sanctioned_name}->@*) {
             my $matched_args = $self->_match_optional_args($entry, $args);
             next unless $matched_args;
             $matched_args->{name} = $sanctioned_name;
@@ -297,10 +296,11 @@ sub _index_data {
     for my $source (keys $self->{_data}->%*) {
         for my $entry ($self->{_data}->{$source}->{content}->@*) {
             $entry->{source} = $source;
-            for my $name ($entry->{names}) {
-                my $entry_list = $self->{_index}->{name} // [];
+            for my $name ($entry->{names}->@*) {
+                $name = ucfirst($name);
+                my $entry_list = $self->{_index}->{$name} // [];
                 push @$entry_list, $entry;
-                $self->{_index}->{name} = $entry_list;
+                $self->{_index}->{$name} = $entry_list;
             }
         }
     }

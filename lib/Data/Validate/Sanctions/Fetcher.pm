@@ -173,7 +173,7 @@ sub _process_sanction_entry {
     my (@dob_epoch, @dob_year, @dob_text);
 
     for my $dob (@dob_list) {
-        $dob =~ s/^\s+|\s+$//g;
+        $dob = trim($dob);
         next unless $dob;
 
         $dob =~ s/[ \/]/-/g;
@@ -194,7 +194,6 @@ sub _process_sanction_entry {
             (defined $epoch) ? push(@dob_epoch, $epoch) : push(@dob_text, $dob);
         }
     }
-
     delete $data{date_of_birth};
     $data{dob_epoch} = \@dob_epoch;
     $data{dob_year}  = \@dob_year;
@@ -202,14 +201,26 @@ sub _process_sanction_entry {
 
     # convert all country names to iso codes
     for my $field (qw/place_of_birth residence nationality citizen/) {
-        $data{$field} = [map { get_country_code($_) // () } $data{$field}->@*];
+        $data{$field} = [map { get_country_code($_) } $data{$field}->@*];
+        $data{$field} = [grep { $_ } $data{$field}->@*];
     }
 
-    # remove commas and filter empty names
-    $data{names} = [map { (trim($_) =~ s/,//gr) || () } $data{names}->@*];
+    # remove commas
+    $data{names} = [map { trim($_) =~ s/,//gr } $data{names}->@*];
+
+    # make values unique
+    %data = map { $_ => [uniq $data{$_}->@*] } keys %data;
+    # remove empty values
+    for (keys %data) {
+        # dob = 0 is acceptable
+        next if $_ eq 'dob_epoch';
+
+        $data{$_} = [grep { $_ } $data{$_}->@*];
+    }
+    # remove fields with empty list
+    %data = %data{grep { $data{$_}->@* } keys %data};
 
     push $dataset->@*, \%data;
-
     return $dataset;
 }
 

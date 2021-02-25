@@ -13,11 +13,11 @@ my $result = $validator->get_sanctioned_info('abu', 'usama', -306028800);
 is_deeply $result,
     {
     'comment'      => undef,
-    'list'         => 'EU-Sanctions',
+    'list'         => 'HMT-Sanctions',
     'matched'      => 1,
     'matched_args' => {
         'dob_epoch' => -306028800,
-        'name'      => 'Abu Usama'
+        'name'      => 'ABU USAMA'
     }
     },
     'Validation details are correct';
@@ -50,28 +50,33 @@ my $tmpa = tempfile;
 $tmpa->spew(
     Dump({
             test1 => {
-                updated    => time,
-                names_list => {
-                    'TMPA' => {
-                        'dob_epoch' => [],
-                        'dob_year'  => []
+                updated => time,
+                content => [{
+                        names     => ['TMPA'],
+                        dob_epoch => [],
+                        dob_year  => []
                     },
-                    'MOHAMMAD EWAZ Mohammad Wali' => {
-                        'dob_epoch' => [],
-                        'dob_year'  => []
+                    {
+                        names     => ['MOHAMMAD EWAZ Mohammad Wali'],
+                        dob_epoch => [],
+                        dob_year  => []
                     },
-                    'Zaki Izzat Zaki AHMAD' => {
-                        'dob_epoch' => [],
-                        'dob_year'  => [1999],
-                        'dob_text'  => ['other info'],
+                    {
+                        names     => ['Zaki Izzat Zaki AHMAD'],
+                        dob_epoch => [],
+                        dob_year  => [1999],
+                        dob_text  => ['other info'],
                     },
-                    'Atom' => {
-                        'dob_year' => [1999],
+                    {
+                        names    => ['Atom'],
+                        dob_year => [1999],
                     },
-                    'Donald Trump' => {
+                    {
+                        names    => ['Donald Trump'],
                         dob_text => ['circa-1951'],
                     },
-                    'Bandit Outlaw' => {
+                    {
+                        names          => ['Bandit Outlaw'],
                         place_of_birth => ['ir'],
                         residence      => ['fr', 'us'],
                         nationality    => ['de', 'gb'],
@@ -79,23 +84,22 @@ $tmpa->spew(
                         postal_code    => ['123321'],
                         national_id    => ['321123'],
                         passport_no    => ['asdffdsa'],
-                    }
-                },
+                    }]
             },
         }));
 
 my $tmpb = tempfile;
 
 $tmpb->spew(
-    Dump({
-            test2 => {
-                updated    => time,
-                names_list => {
-                    'TMPB' => {
-                        'dob_epoch' => [],
-                        'dob_year'  => []}}
-            },
-        }));
+    Dump {
+        test2 => {
+            updated => time,
+            content => [{
+                    names     => ['TMPB'],
+                    dob_epoch => [],
+                    dob_year  => []}]
+        },
+    });
 
 $validator = Data::Validate::Sanctions->new(sanction_file => "$tmpa");
 ok !$validator->is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov not is_sanctioned";
