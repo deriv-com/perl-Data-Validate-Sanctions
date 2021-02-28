@@ -197,18 +197,16 @@ subtest 'OFAC Sanctions' => sub {
 
         my $dataset = $data->{$source_name}->{names_list};
 
-        is_deeply find_entry_by_name($data->{$source_name}, 'HAFIZ SAHIB'),
+        is_deeply find_entry_by_name($data->{$source_name}, 'Hafiz Muhammad SAEED'),
             {
             'names' => [
                 'Muhammad SAEED',
                 'Hafiz Muhammad SAEED',
                 'Hafiz SAEED',
-                'HAFIZ SAHIB',
                 'Hafiz Mohammad SAEED',
                 'Hafez Mohammad SAYEED',
                 'Hafiz Mohammad SAYID',
                 'Hafiz Mohammad SYEED',
-                'TATA JI',
                 'Hafiz Mohammad SAYED',
                 'Muhammad SAEED HAFIZ'
             ],

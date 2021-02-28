@@ -27,10 +27,8 @@ ok !$validator->is_sanctioned(qw(chris down)), "Chris is a good guy";
 $result = $validator->get_sanctioned_info('ABBATTAY', 'Mohamed', 174614567);
 is $result->{matched}, 0, 'ABBATTAY Mohamed is safe';
 
-$result = $validator->get_sanctioned_info('Abu', 'Salem');
-is $result->{matched}, 0, 'He used to match previously; but he has date of birth now.';
 $result = $validator->get_sanctioned_info('Ali', 'Abu');
-is $result->{matched}, 1, 'Should batch because has dob_text';
+is $result->{matched}, 1, 'Should match because has dob_text';
 
 $result = $validator->get_sanctioned_info('Abu', 'Salem', '1948-10-10');
 is_deeply $result,
@@ -105,7 +103,7 @@ $validator = Data::Validate::Sanctions->new(sanction_file => "$tmpa");
 ok !$validator->is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov not is_sanctioned";
 ok $validator->is_sanctioned(qw(tmpa)), "now sanction file is tmpa, and tmpa is in test1 list";
 ok !$validator->is_sanctioned("Mohammad reere yuyuy", "wqwqw  qqqqq"), "is not in test1 list";
-ok !$validator->is_sanctioned("Zaki", "Ahmad"),                        "is in test1 list - but with a dob year";
+ok $validator->is_sanctioned("Zaki", "Ahmad"), "is in test1 list - searched without dob";
 ok $validator->is_sanctioned("Zaki", "Ahmad", '1999-01-05'), 'the guy is sanctioned when dob year is matching';
 ok $validator->is_sanctioned("atom", "test", '1999-01-05'),  "Match correctly with one world name in sanction list";
 

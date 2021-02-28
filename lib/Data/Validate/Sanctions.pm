@@ -220,13 +220,13 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
         my @sanctioned_name_tokens = $clean_names->($sanctioned_name);
         next unless _name_matches(\@client_name_tokens, \@sanctioned_name_tokens);
 
-        for my $entry ($index->{$sanctioned_name}->@*) {
-            my $matched_args = $self->_match_entry_fields($entry, $args);
+        for my $entry ($index{$sanctioned_name}->@*) {
+            my $matched_args = $self->_match_other_fields($entry, $args);
             next unless $matched_args;
             $matched_args->{name} = $sanctioned_name;
-            
+
             # dob is matched only if it's included in lookup args
-            return _possible_match($entry->{source}, \%$matched_args) unless $date_of_birth;
+            return _possible_match($entry->{source}, \%$matched_args) unless defined $date_of_birth;
 
             # 1- Some entries in sanction list can have more than one date of birth
             # 2- first epoch is compared, then year

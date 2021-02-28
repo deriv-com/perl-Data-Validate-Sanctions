@@ -220,7 +220,8 @@ sub _process_sanction_entry {
     # remove fields with empty list
     %data = %data{grep { $data{$_}->@* } keys %data};
 
-    push $dataset->@*, \%data;
+    push $dataset->@*, \%data if $data{names};
+
     return $dataset;
 }
 
@@ -250,7 +251,10 @@ sub _ofac_xml {
         next unless $entry->{sdnType} eq 'Individual';
 
         my @names;
-        push @names, _process_name($_->{firstName} // '', $_->{lastName} // '') for ($entry, @{$entry->{akaList}{aka} // []});
+        for ($entry, @{$entry->{akaList}{aka} // []}) {
+            my $category = $_->{category} // 'strong';
+            push @names, _process_name($_->{firstName} // '', $_->{lastName} // '') if $category eq 'strong';
+        }
 
         # my @dob_list;
         # my $dobs = $entry->{dateOfBirthList}{dateOfBirthItem};
