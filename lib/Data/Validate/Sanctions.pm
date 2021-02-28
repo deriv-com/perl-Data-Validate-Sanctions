@@ -92,7 +92,15 @@ sub is_sanctioned {    ## no critic (RequireArgUnpacking)
     return (get_sanctioned_info(@_))->{matched};
 }
 
-sub _match_optional_args {
+=head2 _match_other_fields
+
+Matches fields possibly available in addition to name and date of birth.
+
+Returns a a hash-ref reporting the matched fields if it succeeeds; otherwise returns false (undef).
+
+=cut
+
+sub _match_other_fields {
     my ($self, $entry, $args) = @_;
 
     my @optional_fields = qw/place_of_birth residence nationality citizen postal_code national_id passport_no/;
@@ -164,6 +172,10 @@ It returns a hash-ref containg the following data:
 
 sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
+    unless ($self) {
+        $instance = __PACKAGE__->new(sanction_file => $sanction_file);
+        $self     = $instance;
+    }
 
     # It's the old interface
     my ($first_name, $last_name, $date_of_birth) = @_;
@@ -181,11 +193,6 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
         next unless $value;
 
         $args->{$field} = Data::Validate::Sanctions::Fetcher::get_country_code($value);
-    }
-
-    unless ($self) {
-        $instance = __PACKAGE__->new(sanction_file => $sanction_file);
-        $self     = $instance;
     }
 
     $self->_load_data();
@@ -208,18 +215,21 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 
     my @match_with_dob_text;
 
-    my @names = keys $self->{_index}->%*;
-    foreach my $sanctioned_name (sort @names) {
+    my %index = $self->{_index}->%*;
+    foreach my $sanctioned_name (sort keys %index) {
         my @sanctioned_name_tokens = $clean_names->($sanctioned_name);
         next unless _name_matches(\@client_name_tokens, \@sanctioned_name_tokens);
 
-        for my $entry ($self->{_index}->{$sanctioned_name}->@*) {
-            my $matched_args = $self->_match_optional_args($entry, $args);
+        for my $entry ($index->{$sanctioned_name}->@*) {
+            my $matched_args = $self->_match_entry_fields($entry, $args);
             next unless $matched_args;
             $matched_args->{name} = $sanctioned_name;
+            
+            # dob is matched only if it's included in lookup args
+            return _possible_match($entry->{source}, \%$matched_args) unless $date_of_birth;
 
-            # Some clients in sanction list can have more than one date of birth
-            # Comparison is made using the epoch and year values
+            # 1- Some entries in sanction list can have more than one date of birth
+            # 2- first epoch is compared, then year
             my $client_dob_date = Date::Utility->new($date_of_birth);
             $args->{dob_epoch} = $client_dob_date->epoch;
             $args->{dob_year}  = $client_dob_date->year;
