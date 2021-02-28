@@ -79,7 +79,7 @@ sub get_sanction_file {
     return $instance ? $instance->{sanction_file} : $sanction_file;
 }
 
-=head2 get_sanctioned_info
+=head2 is_sanctioned
 
 Checks if the input profile info matches a sanctioned entity.
 The arguments are the same as those of B<get_sanctioned_info>.
