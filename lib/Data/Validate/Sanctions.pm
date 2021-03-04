@@ -304,7 +304,9 @@ sub _index_data {
 
     $self->{_index} = {};
     for my $source (keys $self->{_data}->%*) {
-        for my $entry ($self->{_data}->{$source}->{content}->@*) {
+        my @content = $self->{_data}->{$source}->{content}->@*;
+        warn "Content is emppty for the sanction source $source. The sanctions file should be updated." unless @content;
+        for my $entry (@content) {
             $entry->{source} = $source;
             for my $name ($entry->{names}->@*) {
                 $name = ucfirst($name);
