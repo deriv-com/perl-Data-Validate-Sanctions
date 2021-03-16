@@ -304,7 +304,7 @@ sub _index_data {
 
     $self->{_index} = {};
     for my $source (keys $self->{_data}->%*) {
-        my @content = $self->{_data}->{$source}->{content}->@*;
+        my @content = ($self->{_data}->{$source}->{content} // [])->@*;
         warn "Content is empty for the sanction source $source. The sanctions file should be updated." unless @content;
         for my $entry (@content) {
             $entry->{source} = $source;
