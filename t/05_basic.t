@@ -8,7 +8,6 @@ use Path::Tiny qw(tempfile);
 use Test::Exception;
 use Test::Warnings;
 use Test::More;
-use Test::Deep;
 
 $ENV{SANCTION_FILE} = "../share/sanctions.yml";
 
