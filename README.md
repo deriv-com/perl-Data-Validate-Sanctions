@@ -28,7 +28,8 @@ The list is from the following sources:
 
 - https://www.treasury.gov/ofac/downloads/sdn_xml.zip
 - https://www.treasury.gov/ofac/downloads/consolidated/consolidated.xml
-- http://hmt-sanctions.s3.amazonaws.com/sanctionsconlist.csv
+- https://ofsistorage.blob.core.windows.net/publishlive/ConList.csv
+- https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_token
 
 run [update\_sanctions\_csv](https://metacpan.org/pod/update_sanctions_csv) to update the bundled csv.
 
@@ -39,7 +40,11 @@ the default file in this package will be used.
 
 Note that a positive result means `marked as prohibited` and negative result means `innocent`.
 
-1. Client information (first_name, last_name, date_of_birth) are passed into the subroutine `get_sanctioned_info`
+1. Client information can be passed in two ways:
+a.) a hash-ref containing any of these fields: `first_name` (required), `last_name` (required), `date_of_birth`, `place_of_birth`, `residence`, `citizen`, `nationality`, `postal_code`, `national_id`, `passport_no`.
+Example: `get_sanctioned_info({first_name => 'Alex', last_name => 'Xela', date_of_birth => '..', residence => 'fr', citizen => 'Iran');`
+
+b.) three scalar arguments (to keep compliant with the old API):
 Example: `get_sanctioned_info($client->first_name, $client->last_name, $client->date_of_birth);`
 
 2. `first_name` and `last_name` are treated together as the `full_name`. The `full_name` is then cleaned by removing non-alphabets (if any)
@@ -66,7 +71,7 @@ d.) `name matches but no date_of_birth value is passed`: This returns a positive
 # METHODS
 
 ## is\_sanctioned
-
+    is_sanctioned({first_name => '...', last_name => '...', date_of_birth => '...'});
     is_sanctioned($last_name, $first_name);
     is_sanctioned($first_name, $last_name);
     is_sanctioned("$last_name $first_name");

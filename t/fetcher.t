@@ -11,6 +11,7 @@ use Test::Warnings;
 use Test::MockModule;
 use Test::Warn;
 use Test::MockObject;
+use List::Util qw (any);
 
 my %args = (
     eu_url                => "file://t/data/sample_eu.xml",
@@ -18,27 +19,6 @@ my %args = (
     ofac_consolidated_url => "file://t/data/sample_ofac_consolidated.xml",
     hmt_url               => "file://t/data/sample_hmt.csv",
 );
-
-subtest 'Fetch all sources' => sub {
-    my $data;
-    warnings_like {
-        $data = Data::Validate::Sanctions::Fetcher::run();
-    }
-    [qr/EU Sanctions will fail whithout eu_token or eu_url/, qr/Url is empty for EU-Sanctions/],
-        'Correct warning when the EU sanctions token is missing';
-
-    is_deeply [sort keys %$data], [qw(HMT-Sanctions OFAC-Consolidated OFAC-SDN )], 'sanction source list is correct';
-
-    cmp_ok($data->{'HMT-Sanctions'}{updated}, '>=', 1541376000, "Fetcher::run HMT-Sanctions sanctions.yml");
-
-    cmp_ok($data->{'OFAC-SDN'}{updated}, '>=', 1541376000, "Fetcher::run OFAC-SDN sanctions.yml");
-
-    cmp_ok($data->{'OFAC-Consolidated'}{updated}, '>=', 1541376000, "Fetcher::run OFAC-Consolidated sanctions.yml");
-
-    cmp_ok(scalar keys %{$data->{'HMT-Sanctions'}{'names_list'}}, '>', 1000, "HMT-Sanctions namelist");
-
-    cmp_ok(scalar @{$data->{'HMT-Sanctions'}{'names_list'}{'ADAM Nureldine'}{dob_epoch}}, '>=', 1, "check ADAM Nureldine");
-};
 
 my $mocked_ua = Test::MockModule->new('Mojo::UserAgent');
 $mocked_ua->mock(
@@ -91,7 +71,7 @@ subtest 'EU Sanctions' => sub {
             eu_token => 'ASDF'
         );
     }
-    qr(EU-Sanctions list update failed: User agent MockObject is hit by the url: https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content\?token=ASDF),
+    qr(EU-Sanctions list update failed: User agent MockObject is hit by the url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content\?token=ASDF),
         'token is added to the default url';
     is $data->{$source_name}, undef, 'Result is empty';
 
@@ -107,30 +87,52 @@ subtest 'EU Sanctions' => sub {
     $data = Data::Validate::Sanctions::Fetcher::run(%args);
     ok $data->{$source_name}, 'EU Sanctions are loaded from the sample file';
     is $data->{$source_name}{updated}, 1586908800, "EU sanctions update date matches the sample file";
-    is scalar keys %{$data->{$source_name}{names_list}}, 14, "Number of names matches the content of the sample EU sanction";
 
-    for my $ailias_name ('Fahd Bin Adballah BIN KHALID', 'Khalid Shaikh MOHAMMED', 'Khalid Adbul WADOOD', 'Ashraf Refaat Nabith HENIN', 'Salem ALI') {
-        is_deeply $data->{$source_name}->{names_list}->{$ailias_name},
-            {
-            dob_epoch => [-148867200, -184204800],
-            },
-            'Aslias names have the same dates + multiple epochs extacted from a single entry';
-    }
+    is scalar $data->{$source_name}{content}->@*, 7, "Number of names matches the content of the sample EU sanction";
 
-    is_deeply $data->{$source_name}->{names_list}->{'Youcef Adel'},
+    is_deeply find_entry_by_name($data->{$source_name}, 'Salem ALI'),
         {
-        dob_epoch => [-127958400],
-        dob_year  => ['1958'],
+        'dob_epoch' => [-148867200, -184204800],
+        'names'     => ['Fahd Bin Adballah BIN KHALID', 'Khalid Shaikh MOHAMMED', 'Salem ALI', 'Khalid Adbul WADOOD', 'Ashraf Refaat Nabith HENIN'],
+        'passport_no'    => ['488555'],
+        'place_of_birth' => ['pk'],
+        },
+        'multiple names and epochs extacted from a single entry';
+
+    is_deeply find_entry_by_name($data->{$source_name}, 'Abid Hammadou'),
+        {
+        'citizen'        => ['dz'],
+        'dob_epoch'      => [-127958400],
+        'dob_year'       => ['1958'],
+        'names'          => ['Abid Hammadou', 'Abdelhamid Abou Zeid', 'Youcef Adel', 'Amor Mohamed Ghedeir', 'Abou Abdellah'],
+        'place_of_birth' => ['dz'],
         },
         'Cases with both epoch and year';
 
-    is_deeply $data->{$source_name}->{names_list}->{'Yu-ro Han'}, {}, 'Cases without epoch or year';
+    is_deeply find_entry_by_name($data->{$source_name}, 'Yu-ro Han'), {'names' => ['Yu-ro Han']}, 'Cases with name only';
 
-    is_deeply $data->{$source_name}->{names_list}->{'Leo Manzi'},
+    is_deeply find_entry_by_name($data->{$source_name}, 'Leo Manzi'),
         {
-        dob_year => ['1954', '1953'],
+        'citizen'        => ['rw'],
+        'dob_year'       => ['1954', '1953'],
+        'names'          => ['Leo Manzi'],
+        'place_of_birth' => ['rw'],
+        'residence'      => ['cd']
         },
         'Case with multiple years';
+
+    is_deeply find_entry_by_name($data->{$source_name}, 'Mohamed Ben Belkacem Aouadi'),
+        {
+        'citizen'        => ['tn'],
+        'dob_epoch'      => [155952000],
+        'names'          => ['Mohamed Ben Belkacem Aouadi'],
+        'national_id'    => ['04643632'],
+        'nationality'    => ['tn'],
+        'passport_no'    => ['L191609'],
+        'place_of_birth' => ['tn'],
+        'residence'      => ['tn']
+        },
+        'All fields are correctly extracted';
 };
 
 subtest 'HMT Sanctions' => sub {
@@ -140,47 +142,47 @@ subtest 'HMT Sanctions' => sub {
     $data = Data::Validate::Sanctions::Fetcher::run(%args);
     ok $data->{$source_name}, 'HMT Sanctions are loaded from the sample file';
     is $data->{$source_name}{updated}, 1587945600, "Sanctions update date matches the sample file";
-    is scalar keys %{$data->{$source_name}{'names_list'}}, 6, "Number of names matches the content of the sample file";
+    is scalar $data->{$source_name}{content}->@*, 23, "Number of names matches the content of the sample file";
 
-    my $dataset = $data->{$source_name}->{names_list};
-
-    is_deeply $dataset->{'HOJATI Mohsen'},
+    is_deeply find_entry_by_name($data->{$source_name}, 'HOJATI Mohsen'),
         {
+        'names'     => ['HOJATI Mohsen'],
         'dob_epoch' => [-450057600],
         },
         'Cases with a single epoch';
 
-    is_deeply $dataset->{'HUBARIEVA Kateryna Yuriyivna'},
-        {
-        'dob_epoch' => [426211200],
-        'dob_year'  => ['1983', '1984']
+    is_deeply find_entry_by_name($data->{$source_name}, 'HUBARIEVA Kateryna Yuriyivna'),
+        [{
+            'dob_epoch'      => [426211200],
+            'names'          => ['HUBARIEVA Kateryna Yuriyivna'],
+            'place_of_birth' => ['ua']
         },
-        'Single epoch, multiple years';
-
-    is_deeply $dataset->{'AL-TARAZI Mazen'},
         {
-        'dob_year' => ['1962'],
+            'dob_year'       => ['1983'],
+            'names'          => ['HUBARIEVA Kateryna Yuriyivna'],
+            'place_of_birth' => ['ua']
         },
-        'Case with multiple years';
-
-    is_deeply $dataset->{'SO Sang Kuk'},
         {
-        'dob_year' => ['1936', '1937', '1938', '1932', '1933', '1934', '1935'],
-        },
-        'Case with multiple years';
+            'dob_year'       => ['1984'],
+            'names'          => ['HUBARIEVA Kateryna Yuriyivna'],
+            'place_of_birth' => ['ua']}
+        ],
+        'Multiple entries with the same name: one with dob epoch, others with dob years';
 
-    is_deeply $dataset->{'SO Sang-kuk'},
+    is find_entry_by_name($data->{$source_name}, 'SO Sang Kuk')->@*, 7, 'Multiple entries with the same name  SO Sang Kuk';
+
+    is find_entry_by_name($data->{$source_name}, 'PLOTNITSKII Igor Venediktovich')->@*, 3, 'Multiple entries with the same name PLOTNITSKII';
+
+    is_deeply find_entry_by_name($data->{$source_name}, 'SAEED Hafez Mohammad'),
         {
-        'dob_year' => ['1936', '1937', '1938', '1932', '1933', '1934', '1935'],
+        'names'          => ['SAEED Hafez Mohammad'],
+        'dob_epoch'      => [-617760000],
+        'national_id'    => ['3520025509842-7'],
+        'place_of_birth' => ['pk'],
+        'residence'      => ['pk'],
+        'postal_code'    => ['123321'],
         },
-        'Case with multiple years';
-
-    is_deeply $dataset->{'PLOTNITSKII Igor Venediktovich'},
-        {
-        'dob_epoch' => [-174268800, -174182400, -174096000],
-        },
-        'Case with multiple years';
-
+        'All fields extracted with (explanation) removed';
 };
 
 subtest 'OFAC Sanctions' => sub {
@@ -191,83 +193,72 @@ subtest 'OFAC Sanctions' => sub {
 
         ok $data->{$source_name}, 'Sanctions are loaded from the sample file';
         is $data->{$source_name}{updated}, 1587513600, "Sanctions update date matches the content of sample file";
-        is scalar keys %{$data->{$source_name}{'names_list'}}, 32, "Number of names matches the content of the sample file";
+        is scalar $data->{$source_name}{content}->@*, 6, "Number of names matches the content of the sample file";
 
         my $dataset = $data->{$source_name}->{names_list};
 
-        my $aka_names = [
-            'HAFIZ SAHIB',
-            'Hafez Mohammad SAYEED',
-            'Hafiz Muhammad SAEED',
-            'Muhammad SAEED HAFIZ',
-            'Muhammad SAEED',
-            'Hafiz Mohammad SAYED',
-            'Hafiz Mohammad SAYID',
-            'Hafiz Mohammad SAEED',
-            'Hafiz Mohammad SYEED',
-            'TATA JI',
-        ];
-
-        for my $name (@$aka_names) {
-            is_deeply $dataset->{$name},
-                {
-                'dob_epoch' => [-617760000],
-                },
-                "Alias names share the same dob information ($name)";
-        }
-
-        $aka_names = [
-            'Hafiz Saeed KHAN',
-            'Hafiz Said KHAN',
-            'Shaykh Hafidh Sa\'id KHAN',
-            'Hafiz Sa\'id KHAN',
-            'Hafiz Said Muhammad KHAN',
-            'Hafiz SA\'ID',
-            'Wali Hafiz Sayid KHAN',
-            'Said Khan HAFIZ',
-            'Hafez Sayed KHAN',
-            'Sayed AHMAD',
-        ];
-
-        for my $name (@$aka_names) {
-            is_deeply $dataset->{$name},
-                {
-                'dob_year' => [1976, 1977, 1978, 1979],
-                },
-                "Alias names share the same dob information ($name)";
-        }
-
-        is_deeply $dataset->{'Hafiz SAEED'},
+        is_deeply find_entry_by_name($data->{$source_name}, 'Hafiz Muhammad SAEED'),
             {
-            'dob_epoch' => [-617760000],
-            'dob_year'  => [1976, 1977, 1978, 1979],
+            'names' => [
+                'Muhammad SAEED',
+                'Hafiz Muhammad SAEED',
+                'Hafiz SAEED',
+                'Hafiz Mohammad SAEED',
+                'Hafez Mohammad SAYEED',
+                'Hafiz Mohammad SAYID',
+                'Hafiz Mohammad SYEED',
+                'Hafiz Mohammad SAYED',
+                'Muhammad SAEED HAFIZ'
+            ],
+            'dob_epoch'      => [-617760000],
+            'national_id'    => ['23250460642',      '3520025509842-7'],
+            'passport_no'    => ['Booklet A5250088', 'BE5978421'],
+            'place_of_birth' => ['pk'],
+            'residence'      => ['pk']
             },
-            'Hafiz Saeed is shared between two groups';
+            "Alias names as saved in a single entry";
 
-        $aka_names = [
-            'Mohammad Reza NAQDI',
-            'Gholam-reza NAQDI',
-            'Mohammad Reza SHAMS',
-            'Mohammedreza NAGHDI',
-            'Mohammad Reza NAGHDI',
-            'Mohammad-Reza NAQDI',
-            'Muhammad NAQDI',
-            'Gholamreza NAQDI',
-        ];
-        for my $name (@$aka_names) {
-            is_deeply $dataset->{$name},
-                {
-                'dob_year' => [1951, 1952, 1953, 1960, 1961, 1962],
-                },
-                "Alias names share the same dob information ($name)";
-        }
-
-        is_deeply $dataset->{'Donald Trump'},
+        is_deeply find_entry_by_name($data->{$source_name}, 'Mohammad Reza NAQDI'),
             {
-            'dob_text' => ['circa-1951'],
+            'names' => [
+                'Mohammad Reza NAQDI',
+                'Mohammad Reza NAGHDI',
+                'Mohammad Reza SHAMS',
+                'Muhammad NAQDI',
+                'Mohammad-Reza NAQDI',
+                'Mohammedreza NAGHDI',
+                'Gholamreza NAQDI',
+                'Gholam-reza NAQDI',
+            ],
+            'dob_year'       => [1951, 1952, 1953, 1960, 1961, 1962],
+            'place_of_birth' => ['iq', 'ir'],
+            'residence'      => ['ir']
             },
-            'Trump is shared between two groups';
+            "Range dob year + multiple places of birth";
+
+        is_deeply find_entry_by_name($data->{$source_name}, 'Donald Trump'),
+            {
+            'names'     => ['Donald Trump'],
+            'dob_text'  => ['circa-1951'],
+            'residence' => ['us']
+            },
+            'dob_text is correctly extracted';
     }
 };
+
+sub find_entry_by_name {
+    my ($data, $name) = @_;
+
+    my @result;
+    for my $entry ($data->{content}->@*) {
+        push(@result, $entry) if any { $_ eq $name } $entry->{names}->@*;
+    }
+
+    return undef unless @result;
+
+    return $result[0] if 1 == scalar @result;
+
+    return \@result;
+}
 
 done_testing;

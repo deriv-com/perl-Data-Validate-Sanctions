@@ -14,24 +14,31 @@ BEGIN {
     $tmpa = tempfile;
 
     $tmpa->spew(
-        Dump({
-                test1 => {
-                    updated    => time,
-                    names_list => {
-                        'TMPA' => {
-                            'dob_epoch' => [],
-                            'dob_year'  => []}}}}));
+        Dump {
+            test1 => {
+                updated => time,
+                content => [{
+                        names     => ['TMPA'],
+                        dob_epoch => [],
+                        dob_year  => []}
+                ],
+            },
+        });
 
     $tmpb = tempfile;
 
     $tmpb->spew(
-        Dump({
-                test1 => {
-                    updated    => time,
-                    names_list => {
-                        'TMPB' => {
-                            'dob_epoch' => [],
-                            'dob_year'  => []}}}}));
+        Dump {
+            test1 => {
+                updated => time,
+                content => [{
+                        names     => ['TMPB'],
+                        dob_epoch => [],
+                        dob_year  => [],
+                    }
+                ],
+            },
+        });
 
     $ENV{SANCTION_FILE} = "$tmpa";
 

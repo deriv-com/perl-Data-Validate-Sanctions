@@ -10,12 +10,19 @@ my $help;
 my $eu_token;
 my $eu_url;
 my $sanction_file;
+my $hmt_url;
+my $ofac_sdn_url;
+my $ofac_consolidated_url;
 
 GetOptions(
-    "eu_token|token|t=s" => \$eu_token,
-    "eu_url|u=s"         => \$eu_url,
-    "sanction_file|f=s"  => \$sanction_file,
-    'help|?'             => \$help,
+    "eu_token|token|t=s"               => \$eu_token,
+    "eu_url|eu=s"                      => \$eu_url,
+    "sanction_file|f=s"                => \$sanction_file,
+    "hmt_url|hmt=s"                    => \$hmt_url,
+    "ofac_sdn_url|ofac=s"              => \$ofac_sdn_url,
+    "ofac_consolidated_url|ofac_con=s" => \$ofac_consolidated_url,
+
+    'help|?' => \$help,
 );
 $sanction_file //= Data::Validate::Sanctions::get_sanction_file();
 
@@ -24,11 +31,14 @@ unless ($eu_token or $eu_url) {
     print "ERROR: both 'eu_token' and 'eu_url' are missing. One of them is required for EU Sanctions.\n";
     pod2usage(1);
 }
-
 my %args = (
-    sanction_file => $sanction_file,
-    eu_token      => $eu_token,
-    eu_url        => $eu_url,
+    sanction_file         => $sanction_file,
+    eu_token              => $eu_token,
+    eu_url                => $eu_url,
+    hmt_url               => $hmt_url,
+    ofac_sdn_url          => $ofac_sdn_url,
+    ofac_consolidated_url => $ofac_consolidated_url,
+
 );
 
 Data::Validate::Sanctions->new(%args)->update_data;
@@ -44,10 +54,13 @@ update_sanctions_csv
 update_sanctions_csv [options]
 
  Options:
-   -help|?           brief help message
-   -eu_token|token|t EU Sanctions token
-   -eu_url|u full    EU Sanctions full url (token included)
-   -sanction_file|f  Output file to write sanctions
+   -help|?                         brief help message
+   -sanction_file|f                Output file to write sanctions
+   -eu_token|token|t               EU Sanctions token
+   -eu_url|eu                      EU Sanctions full url,token included ((or file path prefixed by 'file://')
+   -hmt_url|hmt                    HMT Sanctions url (or file path prefixed by 'file://')
+   -ofac_sdn_url|ofac              OFAC Sanctions url (or file path prefixed by 'file://')
+   -ofac_consolidated_url|ofac_con OFAC-Consolidated Sanctions url (or file path prefixed by 'file://')
 
 =head1 OPTIONS
 
@@ -57,17 +70,29 @@ update_sanctions_csv [options]
 
 Print a brief help message and exits.
 
+=item B<-sanction_file> or B<-f>: optional
+
+Output file to write sanctioned names into.
+
 =item B<-eu_token>, B<-token> or B<-t>: required if B<eu_url> is empty
 
 The token required for accessing EU sanctions (usually added as an arg to URL).
 
-=item B<-eu_url> or B<-u>: required if B<eu_token> is empty
+=item B<-eu_url> or B<-eu>: required if B<eu_token> is empty
 
 EU Sanctions full url, token included.
 
-=item B<-sanction_file> or B<-f>: optional
+=item B<-hmt_url> or B<-hmt>: optional
 
-Output file to write sanctioned names into.
+HMT Sanctions url. It can be a file url, useful for test purposes.
+
+=item B<-ofac_sdn_url> or B<-ofac>: optional
+
+OFAC Sanctions url. It can be a file url, useful for test purposes.
+
+=item B<-ofac_consolidated_url> or B<-ofac_con>: optional
+
+OFAC-Consolidated Sanctions url. It can be a file url, useful for test purposes.
 
 =back
 
@@ -75,6 +100,6 @@ Output file to write sanctioned names into.
 
 This program retrieves sanction lists from all sources and saves them to the B<sanction file>.
 EU sanctions cannot be retrieved without a token; so the program should be executed either
-with a B<eu_token> or B<eu_url> argument.
+with a B<eu_token> or B<eu_url> argument. Other URLs are optional.
 
 =cut
