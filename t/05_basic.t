@@ -47,4 +47,15 @@ ok Data::Validate::Sanctions::is_sanctioned(qw(Luke Lucky), Date::Utility->new('
 ok !Data::Validate::Sanctions::is_sanctioned(qw(Luke Lucky), Date::Utility->new('1990-01-10')->epoch),
     "Luke is not sanctioned with mismatching year of birth";
 
+$tempfile->spew(
+    Dump({
+            test1 => {},
+        }));
+lives_ok { Data::Validate::Sanctions::set_sanction_file("$tempfile"); };
+is(Data::Validate::Sanctions::get_sanction_file(), "$tempfile", "get sanction file ok");
+like Test::Warnings::warning { ok !Data::Validate::Sanctions::is_sanctioned(qw(Luke Lucky)) },
+    qr/Content is empty for the sanction source test1. The sanctions file should be updated./,
+    'Correct warnings for empty souorce content';
+ok !Data::Validate::Sanctions::is_sanctioned(qw(Luke Lucky)), "No warnings for the subsequent checks";
+
 done_testing;
