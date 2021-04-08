@@ -451,7 +451,7 @@ sub run {
             if ($data->{updated} > 1) {
                 $result->{$id} = $data;
                 my $count = $data->{content}->@*;
-                print "Source $id: $count entries fetched \n"  if $args{verbose};
+                print "Source $id: $count entries fetched \n" if $args{verbose};
             }
         } catch {
             warn "$id list update failed: $@";

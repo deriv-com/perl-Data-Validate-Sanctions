@@ -46,17 +46,16 @@ sub update_data {
 
     my $updated;
     foreach my $k (keys %$new_data) {
-        $self->{_data}->{$k} //= {};
+        $self->{_data}->{$k}            //= {};
         $self->{_data}->{$k}->{updated} //= 0;
         $self->{_data}->{$k}->{content} //= [];
-        if ($self->{_data}{$k}->{updated} != $new_data->{$k}->{updated} ||
-            scalar $self->{_data}{$k}->{content}->@* != scalar $new_data->{$k}->{content}->@*) 
+        if ($self->{_data}{$k}->{updated} != $new_data->{$k}->{updated}
+            || scalar $self->{_data}{$k}->{content}->@* != scalar $new_data->{$k}->{content}->@*)
         {
             $self->{_data}->{$k} = $new_data->{$k};
             $updated = 1;
             print "Source $k is updated with new data \n" if $args{verbose};
-        }
-        else {
+        } else {
             print "Source $k is not changed \n" if $args{verbose};
         }
     }
