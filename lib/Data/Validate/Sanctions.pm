@@ -38,17 +38,28 @@ sub new {    ## no critic (RequireArgUnpacking)
 }
 
 sub update_data {
-    my $self = shift;
+    my ($self, %args) = @_;
 
-    my $new_data = Data::Validate::Sanctions::Fetcher::run($self->{args}->%*);
+    $self->_load_data();
+
+    my $new_data = Data::Validate::Sanctions::Fetcher::run($self->{args}->%*, %args);
 
     my $updated;
     foreach my $k (keys %$new_data) {
-        if (!$self->{_data}{$k} || !Compare($self->{_data}{$k}, $new_data->{$k})) {
-            $self->{_data}{$k} = $new_data->{$k};
+        $self->{_data}->{$k}            //= {};
+        $self->{_data}->{$k}->{updated} //= 0;
+        $self->{_data}->{$k}->{content} //= [];
+        if ($self->{_data}{$k}->{updated} != $new_data->{$k}->{updated}
+            || scalar $self->{_data}{$k}->{content}->@* != scalar $new_data->{$k}->{content}->@*)
+        {
+            $self->{_data}->{$k} = $new_data->{$k};
             $updated = 1;
+            print "Source $k is updated with new data \n" if $args{verbose};
+        } else {
+            print "Source $k is not changed \n" if $args{verbose};
         }
     }
+
     if ($updated) {
         $self->_save_data();
         $self->_index_data();
