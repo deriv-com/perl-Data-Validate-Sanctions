@@ -430,8 +430,6 @@ sub run {
     my $retries = $args{retries} // 3;
 
     foreach my $id (sort keys %$config) {
-        my $retry_counter = 0;
-
         my $source = $config->{$id};
         try {
             die "Url is empty for $id" unless $source->{url};
@@ -444,7 +442,7 @@ sub run {
                 $raw_data = _entries_from_remote_src({
                     id      => $id,
                     source  => $source->{url},
-                    retries => 3
+                    retries => $retries
                 });
             }
 
