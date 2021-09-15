@@ -425,16 +425,13 @@ sub run {
     my %args = @_;
 
     my $result = {};
-    my $ua     = Mojo::UserAgent->new;
-    $ua->connect_timeout(15);
-    $ua->inactivity_timeout(60);
 
-    my $config = config(%args);
+    my $config  = config(%args);
     my $retries = $args{retries} // 3;
 
     foreach my $id (sort keys %$config) {
         my $retry_counter = 0;
-        
+
         my $source = $config->{$id};
         try {
             die "Url is empty for $id" unless $source->{url};
@@ -442,11 +439,11 @@ sub run {
             my $raw_data;
 
             if ($source->{url} =~ m/^file:\/\/(.*)$/) {
-                $raw_data = _entries_from_file();
+                $raw_data = _entries_from_file($id);
             } else {
                 $raw_data = _entries_from_remote_src({
-                    id => $id,
-                    source => $source->{url},
+                    id      => $id,
+                    source  => $source->{url},
                     retries => 3
                 });
             }
@@ -473,8 +470,10 @@ Get the sanction entries from a file locally
 =cut
 
 sub _entries_from_file {
+    my ($id) = @_;
+
     my $entries;
-    
+
     open my $fh, '<', "$1" or die "Can't open $id file $1 $!";
     $entries = do { local $/; <$fh> };
     close $fh;
@@ -497,8 +496,12 @@ sub _entries_from_remote_src {
     my $entries;
     my $error_log = 'Unknown Error';
 
+    my $ua = Mojo::UserAgent->new;
+    $ua->connect_timeout(15);
+    $ua->inactivity_timeout(60);
+
     my $retry_counter = 0;
-    while($retry_counter < $retries){
+    while ($retry_counter < $retries) {
         $retry_counter++;
 
         try {
@@ -513,7 +516,7 @@ sub _entries_from_remote_src {
         }
     }
 
-    return $entries or die "An error occurred while fetching data from '$src_url' due to $error_log";
+    return $entries // die "An error occurred while fetching data from '$src_url' due to $error_log";
 }
 
 1;
