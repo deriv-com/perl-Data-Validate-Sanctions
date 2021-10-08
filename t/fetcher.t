@@ -21,10 +21,12 @@ my %args = (
 );
 
 my $mocked_ua = Test::MockModule->new('Mojo::UserAgent');
+my $calls     = 0;
 $mocked_ua->mock(
     get => sub {
         my ($self, $url) = @_;
 
+        $calls++;
         die "User agent MockObject is hit by the url: $url";
     });
 
@@ -41,12 +43,14 @@ subtest 'source url arguments' => sub {
         $data = Data::Validate::Sanctions::Fetcher::run(%test_args);
     }
     [
-        qr(EU-Sanctions list update failed: User agent MockObject is hit by the url: eu.binary.com),
-        qr(HMT-Sanctions list update failed: User agent MockObject is hit by the url: hmt.binary.com ),
-        qr(OFAC-Consolidated list update failed: User agent MockObject is hit by the url: ofac_con.binary.com),
-        qr(OFAC-SDN list update failed: User agent MockObject is hit by the url: ofac_snd.binary.com),
+        qr/\bEU-Sanctions\b.*\bUser agent MockObject is hit by the url: eu.binary.com\b/,
+        qr/\bHMT-Sanctions\b.*\bUser agent MockObject is hit by the url: hmt.binary.com\b/,
+        qr/\bOFAC-Consolidated\b.*\bUser agent MockObject is hit by the url: ofac_con.binary.com\b/,
+        qr/\bOFAC-SDN\b.*\bUser agent MockObject is hit by the url: ofac_snd.binary.com\b/,
     ],
         'Source urls are updated by params';
+
+    is $calls, 3 * 4, 'the fetcher tried thrice per source and failed finally.';
 
     is_deeply $data, {}, 'There is no result with invalid urls';
 
@@ -71,7 +75,7 @@ subtest 'EU Sanctions' => sub {
             eu_token => 'ASDF'
         );
     }
-    qr(EU-Sanctions list update failed: User agent MockObject is hit by the url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content\?token=ASDF),
+    qr(\bEU-Sanctions\b.*\bUser agent MockObject is hit by the url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content\?token=ASDF\b),
         'token is added to the default url';
     is $data->{$source_name}, undef, 'Result is empty';
 
@@ -82,7 +86,7 @@ subtest 'EU Sanctions' => sub {
             eu_token => 'ASDF'
         );
     }
-    qr(EU-Sanctions list update failed: User agent MockObject is hit by the url: http://dummy.binary.com at), 'token is not added to eu_url value';
+    qr(\bEU-Sanctions\b.*\bUser agent MockObject is hit by the url: http://dummy.binary.com at\b), 'token is not added to eu_url value';
 
     $data = Data::Validate::Sanctions::Fetcher::run(%args);
     ok $data->{$source_name}, 'EU Sanctions are loaded from the sample file';
