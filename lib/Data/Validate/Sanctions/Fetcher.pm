@@ -51,29 +51,29 @@ sub config {
     my %args = @_;
 
     my $eu_token = $args{eu_token} // $ENV{EU_SANCTIONS_TOKEN};
-    my $eu_url   = $args{eu_url}   // $ENV{EU_SANCTIONS_URL};
+    my $eu_url   = $args{eu_url}   || $ENV{EU_SANCTIONS_URL};
 
     warn 'EU Sanctions will fail whithout eu_token or eu_url' unless $eu_token or $eu_url;
 
     if ($eu_token) {
-        $eu_url //= "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_token";
+        $eu_url ||= "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_token";
     }
 
     return {
         'OFAC-SDN' => {
             description => 'TREASURY.GOV: Specially Designated Nationals List with a.k.a included',
             url         => $args{ofac_sdn_url}
-                // 'https://www.treasury.gov/ofac/downloads/sdn_xml.zip',    #let's be polite and use zippped version of this 7mb+ file
+                || 'https://www.treasury.gov/ofac/downloads/sdn_xml.zip',    #let's be polite and use zippped version of this 7mb+ file
             parser => \&_ofac_xml_zip,
         },
         'OFAC-Consolidated' => {
             description => 'TREASURY.GOV: Consolidated Sanctions List Data Files',
-            url         => $args{ofac_consolidated_url} // 'https://www.treasury.gov/ofac/downloads/consolidated/consolidated.xml',
+            url         => $args{ofac_consolidated_url} || 'https://www.treasury.gov/ofac/downloads/consolidated/consolidated.xml',
             parser      => \&_ofac_xml,
         },
         'HMT-Sanctions' => {
             description => 'GOV.UK: Financial sanctions: consolidated list of targets',
-            url         => $args{hmt_url} // 'https://ofsistorage.blob.core.windows.net/publishlive/ConList.csv',
+            url         => $args{hmt_url} || 'https://ofsistorage.blob.core.windows.net/publishlive/ConList.csv',
             parser      => \&_hmt_csv,
         },
         'EU-Sanctions' => {
@@ -339,15 +339,22 @@ sub _hmt_csv {
         my $postal_code = $row[$column{'Post/Zip Code'}];
         my $national_id = $row[$column{'NI Number'}];
 
+        # Fields to be added in the  new file format (https://redmine.deriv.cloud/issues/51922)
+        # We can read these fields normally after the data is released in the new format
+        my $passport_no = $row[$column{'Passport Number'}] if defined $column{'Passport Number'};
+        my $non_latin_alias = $row[$column{'Non-Latin Script Alias'}] if defined $column{'Non-Latin Script Alias'};
+
         _process_sanction_entry(
             $dataset,
-            names          => [$name],
+            names          => [$name, $non_latin_alias? $non_latin_alias: ()],
             date_of_birth  => [$date_of_birth],
             place_of_birth => [$place_of_birth],
             residence      => [$residence],
             nationality    => [$nationality],
             postal_code    => [$postal_code],
-            national_id    => [$national_id]);
+            national_id    => [$national_id],
+            $passport_no? (passport_no => $passport_no): (),
+            );
     }
 
     return {
