@@ -51,7 +51,7 @@ sub config {
     my %args = @_;
 
     my $eu_token = $args{eu_token} // $ENV{EU_SANCTIONS_TOKEN};
-    my $eu_url   = $args{eu_url}   || $ENV{EU_SANCTIONS_URL};
+    my $eu_url   = $args{eu_url} || $ENV{EU_SANCTIONS_URL};
 
     warn 'EU Sanctions will fail whithout eu_token or eu_url' unless $eu_token or $eu_url;
 
@@ -341,20 +341,20 @@ sub _hmt_csv {
 
         # Fields to be added in the  new file format (https://redmine.deriv.cloud/issues/51922)
         # We can read these fields normally after the data is released in the new format
-        my $passport_no = $row[$column{'Passport Number'}] if defined $column{'Passport Number'};
+        my $passport_no     = $row[$column{'Passport Number'}]        if defined $column{'Passport Number'};
         my $non_latin_alias = $row[$column{'Non-Latin Script Alias'}] if defined $column{'Non-Latin Script Alias'};
 
         _process_sanction_entry(
             $dataset,
-            names          => [$name, $non_latin_alias? $non_latin_alias: ()],
+            names          => [$name, $non_latin_alias ? $non_latin_alias : ()],
             date_of_birth  => [$date_of_birth],
             place_of_birth => [$place_of_birth],
             residence      => [$residence],
             nationality    => [$nationality],
             postal_code    => [$postal_code],
             national_id    => [$national_id],
-            $passport_no? (passport_no => $passport_no): (),
-            );
+            $passport_no ? (passport_no => $passport_no) : (),
+        );
     }
 
     return {
