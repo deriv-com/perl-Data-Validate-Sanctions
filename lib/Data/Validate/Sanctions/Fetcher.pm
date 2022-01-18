@@ -342,7 +342,7 @@ sub _hmt_csv {
         # Fields to be added in the  new file format (https://redmine.deriv.cloud/issues/51922)
         # We can read these fields normally after the data is released in the new format
         my $passport_no     = $row[$column{'Passport Number'}]        if defined $column{'Passport Number'};
-        my $non_latin_alias = $row[$column{'Non-Latin Script Alias'}] if defined $column{'Non-Latin Script Alias'};
+        my $non_latin_alias = $row[$column{'Name Non-Latin Script'}] if defined $column{'Name Non-Latin Script'};
 
         _process_sanction_entry(
             $dataset,
