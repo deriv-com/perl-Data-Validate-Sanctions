@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use utf8;
 
 use Class::Unload;
 use Data::Validate::Sanctions;
@@ -150,7 +151,7 @@ subtest 'HMT Sanctions' => sub {
 
     is_deeply find_entry_by_name($data->{$source_name}, 'HOJATI Mohsen'),
         {
-        'names'     => ['HOJATI Mohsen'],
+        'names'     => ['HOJATI Mohsen', 'محسن حجتی'],
         'dob_epoch' => [-450057600],
         },
         'Cases with a single epoch';
@@ -179,7 +180,7 @@ subtest 'HMT Sanctions' => sub {
 
     is_deeply find_entry_by_name($data->{$source_name}, 'SAEED Hafez Mohammad'),
         {
-        'names'          => ['SAEED Hafez Mohammad'],
+        'names'          => ['SAEED Hafez Mohammad', 'سعید حافظ محمد'],
         'dob_epoch'      => [-617760000],
         'national_id'    => ['3520025509842-7'],
         'place_of_birth' => ['pk'],
