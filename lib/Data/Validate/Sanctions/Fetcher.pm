@@ -337,7 +337,7 @@ sub _hmt_csv {
         my $nationality = '';
         my $residence   = $row[$column{'Country'}];
         my $postal_code = $row[$column{'Post/Zip Code'}];
-        my $national_id = $row[$column{'NI Number'}];
+        my $national_id = $row[$column{'National Identification Number'}];
 
         # Fields to be added in the  new file format (https://redmine.deriv.cloud/issues/51922)
         # We can read these fields normally after the data is released in the new format
@@ -353,7 +353,7 @@ sub _hmt_csv {
             nationality    => [$nationality],
             postal_code    => [$postal_code],
             national_id    => [$national_id],
-            $passport_no ? (passport_no => $passport_no) : (),
+            $passport_no ? (passport_no => [$passport_no]) : (),
         );
     }
 
