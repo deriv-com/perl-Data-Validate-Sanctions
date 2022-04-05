@@ -11,7 +11,6 @@ requires 'Mojo::UserAgent', 0;
 requires 'Path::Tiny', 0;
 requires 'Scalar::Util', 0;
 requires 'Text::CSV', 0;
-requires 'Try::Tiny', 0;
 requires 'XML::Fast', 0;
 requires 'YAML::XS', 0;
 requires 'Date::Utility', 0;
