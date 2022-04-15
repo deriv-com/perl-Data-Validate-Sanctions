@@ -22,7 +22,7 @@ jobs:
       - run:
           name: Install dist deps
           command: |
-            dzil listdeps --author --missing --cpanm-versions | xargs cpanm
+            dzil listdeps --author --missing --cpanm-versions | xargs cpanm -n
       - run:
           name: Run Tests
           command: |
