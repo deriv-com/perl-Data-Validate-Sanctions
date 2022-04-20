@@ -128,7 +128,7 @@ Processes an entry retrieved from sanction resources and saves it into the speci
 An entry may have multilpe names (aliases), each of which will be taken as a key in the dataset with the same values/info.
 
 It takes following list of args:
-    
+
 =over 4
 
 =item - dataset: A hash ref of form [ name => info ] in which the entry will be saved

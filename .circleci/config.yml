@@ -26,7 +26,6 @@ jobs:
       - run:
           name: Run Tests
           command: |
-            perl -mExtUtils::MakeMaker -e 'print $ExtUtils::MakeMaker::VERSION, "\n";';
             dzil smoke --release --author && dzil cover -test && dzil xtest
 
 workflows:

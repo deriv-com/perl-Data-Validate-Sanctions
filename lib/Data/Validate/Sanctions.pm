@@ -131,7 +131,7 @@ sub _match_other_fields {
 
 Tries to find a match a sanction entry matching the input profile args.
 It takes arguments in two forms. In the new API, it takes a hashref containing the following named arguments:
-    
+
 =over 4
 
 =item * first_name: first name
@@ -327,6 +327,7 @@ sub _index_data {
             }
         }
     }
+    return;
 }
 
 sub _save_data {
