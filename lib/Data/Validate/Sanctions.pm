@@ -405,7 +405,7 @@ Data::Validate::Sanctions - Validate a name against sanctions lists
 
 Data::Validate::Sanctions is a simple validitor to validate a name against sanctions lists.
 
-The list is from: 
+The list is from:
 - L<https://www.treasury.gov/ofac/downloads/sdn.csv>, 
 - L<https://www.treasury.gov/ofac/downloads/consolidated/cons_prim.csv>
 - L<https://ofsistorage.blob.core.windows.net/publishlive/ConList.csv>
