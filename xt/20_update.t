@@ -14,8 +14,10 @@ my $sanction_data;
 BEGIN {
     $sanction_data = Dump({
             test1 => {
-                updated    => time,
-                names_list => {'ABCD' => {'dob_epoch' => []}}}});
+                updated => time,
+                content => [{
+                        names => ['ABCD'],
+                    }]}});
 
     (my $fh, $sanction_file) = tempfile();
     print $fh $sanction_data;
@@ -23,7 +25,6 @@ BEGIN {
     $ENV{SANCTION_FILE} = $sanction_file;
 }
 use Data::Validate::Sanctions qw/is_sanctioned get_sanction_file/;
-
 is(get_sanction_file(), $sanction_file, "sanction file is correct");
 
 ok(is_sanctioned('ABCD'),  "correct file content");
