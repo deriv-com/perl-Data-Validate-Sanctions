@@ -17,7 +17,7 @@ requires 'Date::Utility', 0;
 requires 'Data::Compare', 0;
 requires 'Getopt::Long', '2.42';
 requires 'Syntax::Keyword::Try', '0.18';
-requires 'Locale::Country', '3.70';
+requires 'Locale::Country', '3.66';
 requires 'Text::Trim', 0;
 
 on test => sub {
