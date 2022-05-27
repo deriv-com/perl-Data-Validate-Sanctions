@@ -128,7 +128,7 @@ Processes an entry retrieved from sanction resources and saves it into the speci
 An entry may have multilpe names (aliases), each of which will be taken as a key in the dataset with the same values/info.
 
 It takes following list of args:
-    
+
 =over 4
 
 =item - dataset: A hash ref of form [ name => info ] in which the entry will be saved
@@ -143,7 +143,7 @@ It takes following list of args:
 
 Dates of birth are not of standardized format in some data sources; so they are processed in three steps:
 1- as a first step it will be tried to converetd them into epoch, saved as B<dob_epoch>;
-2- otherwise to extract year (or an array of years) of birth, saved as B<dob_year>; and 
+2- otherwise to extract year (or an array of years) of birth, saved as B<dob_year>; and
 3- finally, to saved as raw text in B<dob_text>.
 
 =item * place_of_birth: an array of country names or codes
@@ -341,8 +341,9 @@ sub _hmt_csv {
 
         # Fields to be added in the  new file format (https://redmine.deriv.cloud/issues/51922)
         # We can read these fields normally after the data is released in the new format
-        my $passport_no     = $row[$column{'Passport Number'}]        if defined $column{'Passport Number'};
-        my $non_latin_alias = $row[$column{'Name Non-Latin Script'}] if defined $column{'Name Non-Latin Script'};
+        my ($passport_no, $non_latin_alias);
+        $passport_no     = $row[$column{'Passport Number'}]        if defined $column{'Passport Number'};
+        $non_latin_alias = $row[$column{'Name Non-Latin Script'}] if defined $column{'Name Non-Latin Script'};
 
         _process_sanction_entry(
             $dataset,

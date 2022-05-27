@@ -131,7 +131,7 @@ sub _match_other_fields {
 
 Tries to find a match a sanction entry matching the input profile args.
 It takes arguments in two forms. In the new API, it takes a hashref containing the following named arguments:
-    
+
 =over 4
 
 =item * first_name: first name
@@ -327,6 +327,7 @@ sub _index_data {
             }
         }
     }
+    return;
 }
 
 sub _save_data {
@@ -404,8 +405,8 @@ Data::Validate::Sanctions - Validate a name against sanctions lists
 
 Data::Validate::Sanctions is a simple validitor to validate a name against sanctions lists.
 
-The list is from: 
-- L<https://www.treasury.gov/ofac/downloads/sdn.csv>, 
+The list is from:
+- L<https://www.treasury.gov/ofac/downloads/sdn.csv>,
 - L<https://www.treasury.gov/ofac/downloads/consolidated/cons_prim.csv>
 - L<https://ofsistorage.blob.core.windows.net/publishlive/ConList.csv>
 - L<https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_token>

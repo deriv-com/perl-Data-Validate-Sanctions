@@ -11,14 +11,13 @@ requires 'Mojo::UserAgent', 0;
 requires 'Path::Tiny', 0;
 requires 'Scalar::Util', 0;
 requires 'Text::CSV', 0;
-requires 'Try::Tiny', 0;
 requires 'XML::Fast', 0;
 requires 'YAML::XS', 0;
 requires 'Date::Utility', 0;
 requires 'Data::Compare', 0;
 requires 'Getopt::Long', '2.42';
 requires 'Syntax::Keyword::Try', '0.18';
-requires 'Locale::Country', 0;
+requires 'Locale::Country', '3.66';
 requires 'Text::Trim', 0;
 
 on test => sub {

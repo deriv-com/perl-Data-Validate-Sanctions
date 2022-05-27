@@ -1,53 +1,44 @@
 jobs:
-  build:
+  test:
+    parameters:
+      perl-version:
+        description: The Perl version we want to test with
+        type: string
+        default: "5.34"
     docker:
-    - auth:
-        password: $DOCKERHUB_PASSWORD
-        username: circle4regentmarkets
-      image: regentmarkets/debian-ci:stable
-      user: nobody
+      - image: perldocker/perl-tester:<< parameters.perl-version >>
     steps:
-    - add_ssh_keys:
-        fingerprints:
-        - 26:72:b1:08:0f:c1:3b:2b:2d:ea:61:7d:d6:11:63:fb
-    - checkout
-    - run:
-        command: sudo apt-get update && sudo apt-get install -y cpanminus make gcc
-        name: Install Perl packages
-    - run:
-        command: cpanm --quiet --notest Dist::Zilla Dist::Zilla::App::Command::cover
-          App::cpm Devel::Cover::Report::Codecov https://cpan.metacpan.org/authors/id/S/SR/SRI/Mojolicious-7.29.tar.gz
-          https://cpan.metacpan.org/authors/id/B/BI/BINGOS/ExtUtils-MakeMaker-7.30.tar.gz
-        name: Install dzil
-    - run:
-        command: |
-          source /etc/profile.d/perl5.sh
-          cpm install -w 2 --mirror=http://cpan.cpantesters.org/ -g $(dzil authordeps --missing)
-        name: Install dzil author deps
-    - run:
-        command: |
-          source /etc/profile.d/perl5.sh
-          cpm install -w 2 --mirror=http://cpan.cpantesters.org/ -g $(dzil listdeps --author --missing)
-        name: Install distribution deps
-    - run:
-        command: |
-          source /etc/profile.d/perl5.sh
-          dzil smoke --release --author && dzil cover -test && dzil xtest
-        name: Run test
-    working_directory: /home/git/regentmarkets/perl-Data-Validate-Sanctions
-version: 2
+      - checkout
+      - run:
+          command:
+            cpm install -g --no-test Dist::Zilla Dist::Zilla::App::Command::cover ExtUtils::MakeMaker
+          name: Install Dzil
+      - run:
+          name: Install dzil author dependencies
+          command: |
+            cpm install -g \
+            -w 2 \
+            --mirror=http://cpan.cpantesters.org/ $(dzil authordeps --missing)
+      - run:
+          name: Install dist deps
+          command: |
+            dzil listdeps --author --missing --cpanm-versions | xargs cpanm -n
+      - run:
+          name: Run Tests
+          command: |
+            dzil smoke --release --author && dzil cover -test && dzil xtest
+
 workflows:
   build-workflow:
     jobs: &1
-    - build:
-        context: perl
-  daily:
-    jobs: *1
-    triggers:
-    - schedule:
-        cron: 2 20 * * *
-        filters:
-          branches:
-            only:
-            - master
-  version: 2
+    - test:
+        matrix:
+          parameters:
+            perl-version:
+              - "5.24"
+              - "5.26"
+              - "5.28"
+              - "5.30"
+              - "5.32"
+              - "5.34"
+version: 2.1
