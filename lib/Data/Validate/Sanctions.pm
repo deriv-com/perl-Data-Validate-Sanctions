@@ -220,7 +220,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
         push(@sanctioned_names,  keys %{$self->{_token_sanctioned_names}->{$token}});
     }
 
-    foreach my $sanctioned_name (@sanctioned_names) {
+    foreach my $sanctioned_name (sort @sanctioned_names) {
         my $sanctioned_name_tokens =$self->{_sanctioned_name_tokens}->{$sanctioned_name};
         next unless _name_matches(\@client_name_tokens, $sanctioned_name_tokens);
 
