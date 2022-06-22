@@ -215,12 +215,16 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 
     my @match_with_dob_text;
 
-    my @sanctioned_names = ();
+    # only pick the sanctioned names which have common token with the client tokens
+    # and deduplicate the list
+    my $filtered_sanctioned_names = {};
     foreach my $token (@client_name_tokens) {
-        push(@sanctioned_names,  keys %{$self->{_token_sanctioned_names}->{$token}});
+        foreach my $name ( keys %{$self->{_token_sanctioned_names}->{$token}}) {
+            $filtered_sanctioned_names->{$name} = 1;
+        }
     }
 
-    foreach my $sanctioned_name (sort @sanctioned_names) {
+    foreach my $sanctioned_name (sort keys %{$filtered_sanctioned_names}) {
         my $sanctioned_name_tokens =$self->{_sanctioned_name_tokens}->{$sanctioned_name};
         next unless _name_matches(\@client_name_tokens, $sanctioned_name_tokens);
 
