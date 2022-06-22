@@ -296,8 +296,7 @@ sub _load_data {
     }
     $self->_index_data();
 
-    my %index = $self->{_index}->%*;
-    foreach my $sanctioned_name (keys %index) {
+    foreach my $sanctioned_name (keys $self->{_index}->%*) {
         my @tokens = _clean_names($sanctioned_name);
         $self->{_sanctioned_name_tokens}->{$sanctioned_name} = \@tokens;
         foreach my $token (@tokens){
