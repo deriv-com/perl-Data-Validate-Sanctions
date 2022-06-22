@@ -208,30 +208,23 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 
     $self->_load_data();
 
-    # Sub to remove non-alphabets from the name
-    my $clean_names = sub {
-
-        my ($full_name) = @_;
-
-        # Remove non-alphabets
-        my @cleaned_full_name = split " ", uc($full_name =~ s/[^[:alpha:]\s]//gr);
-
-        return @cleaned_full_name;
-    };
-
     my $client_full_name = join(' ', $first_name, $last_name || ());
 
     # Split into tokens after cleaning
-    my @client_name_tokens = $clean_names->($client_full_name);
+    my @client_name_tokens = _clean_names($client_full_name);
 
     my @match_with_dob_text;
 
-    my %index = $self->{_index}->%*;
-    foreach my $sanctioned_name (sort keys %index) {
-        my @sanctioned_name_tokens = $clean_names->($sanctioned_name);
-        next unless _name_matches(\@client_name_tokens, \@sanctioned_name_tokens);
+    my @sanctioned_names = ();
+    foreach my $token (@client_name_tokens) {
+        push(@sanctioned_names,  keys %{$self->{_token_sanctioned_names}->{$token}});
+    }
 
-        for my $entry ($index{$sanctioned_name}->@*) {
+    foreach my $sanctioned_name (@sanctioned_names) {
+        my $sanctioned_name_tokens =$self->{_sanctioned_name_tokens}->{$sanctioned_name};
+        next unless _name_matches(\@client_name_tokens, $sanctioned_name_tokens);
+
+        for my $entry ($self->{_index}->{$sanctioned_name}->@*) {
             my $matched_args = $self->_match_other_fields($entry, $args);
             next unless $matched_args;
             $matched_args->{name} = $sanctioned_name;
@@ -289,10 +282,12 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 }
 
 sub _load_data {
-    my $self          = shift;
-    my $sanction_file = $self->{sanction_file};
-    $self->{last_time} //= 0;
-    $self->{_data}     //= {};
+    my $self                              = shift;
+    my $sanction_file                     = $self->{sanction_file};
+    $self->{last_time}                    //= 0;
+    $self->{_data}                        //= {};
+    $self->{_sanctioned_name_tokens}      //= {};
+    $self->{_token_sanctioned_names}      //= {};
 
     if (-e $sanction_file) {
         return $self->{_data} if stat($sanction_file)->mtime <= $self->{last_time} && $self->{_data};
@@ -300,6 +295,15 @@ sub _load_data {
         $self->{_data}     = LoadFile($sanction_file);
     }
     $self->_index_data();
+
+    my %index = $self->{_index}->%*;
+    foreach my $sanctioned_name (keys %index) {
+        my @tokens = _clean_names($sanctioned_name);
+        $self->{_sanctioned_name_tokens}->{$sanctioned_name} = \@tokens;
+        foreach my $token (@tokens){
+            $self->{_token_sanctioned_names}->{$token}->{$sanctioned_name}=1;
+        }
+    }
 
     return $self->{_data};
 }
@@ -356,6 +360,15 @@ sub _possible_match {
         matched_args => $matched_args,
         comment      => $comment,
     };
+}
+
+sub _clean_names {
+    my ($full_name) = @_;
+
+    # Remove non-alphabets
+    my @cleaned_full_name = split " ", uc($full_name =~ s/[^[:alpha:]\s]//gr);
+
+    return @cleaned_full_name;
 }
 
 sub _name_matches {
