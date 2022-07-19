@@ -224,8 +224,8 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
         }
     }
 
-    foreach my $sanctioned_name (sort keys %{$filtered_sanctioned_names}) {
-        my $sanctioned_name_tokens =$self->{_sanctioned_name_tokens}->{$sanctioned_name};
+    foreach my $sanctioned_name (keys %{$filtered_sanctioned_names}) {
+        my $sanctioned_name_tokens = $self->{_sanctioned_name_tokens}->{$sanctioned_name};
         next unless _name_matches(\@client_name_tokens, $sanctioned_name_tokens);
 
         for my $entry ($self->{_index}->{$sanctioned_name}->@*) {
