@@ -10,17 +10,9 @@ my $validator = Data::Validate::Sanctions->new;
 
 ok $validator->is_sanctioned('NEVEROV', 'Sergei Ivanovich', -253411200), "Sergei Ivanov is_sanctioned for sure";
 my $result = $validator->get_sanctioned_info('abu', 'usama', -306028800);
-is_deeply $result,
-    {
-    'comment'      => undef,
-    'list'         => 'HMT-Sanctions',
-    'matched'      => 1,
-    'matched_args' => {
-        'dob_epoch' => -306028800,
-        'name'      => 'ABU USAMA'
-    }
-    },
-    'Validation details are correct';
+is $result->{matched}, 1;
+is $result->{matched_args}->{dob_epoch}, -306028800;
+ok $result->{matched_args}->{name} =~ m/\babu\b/i and $result->{matched_args}->{name} =~ m/\busama\b/i;
 
 ok !$validator->is_sanctioned(qw(chris down)), "Chris is a good guy";
 
@@ -31,17 +23,9 @@ $result = $validator->get_sanctioned_info('Ali', 'Abu');
 is $result->{matched}, 1, 'Should match because has dob_text';
 
 $result = $validator->get_sanctioned_info('Abu', 'Salem', '1948-10-10');
-is_deeply $result,
-    {
-    'comment'      => undef,
-    'list'         => 'OFAC-Consolidated',
-    'matched'      => 1,
-    'matched_args' => {
-        'dob_year' => 1948,
-        'name'     => 'Ibrahim ABU SALEM'
-    }
-    },
-    'Validation details are correct';
+is $result->{matched}, 1;
+is $result->{matched_args}->{dob_year}, 1948;
+ok $result->{matched_args}->{name} =~ m/\babu\b/i and $result->{matched_args}->{name} =~ m/\bsalem\b/i;
 
 my $tmpa = tempfile;
 
