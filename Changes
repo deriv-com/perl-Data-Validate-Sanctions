@@ -1,6 +1,9 @@
 Revision history for Data-Validate-Sanctions
 
 {{$NEXT}}
+
+0.14      2022-08-05 03:02:40+00:00 UTC
+        Formatted files
 0.13      2022-07-26 13:55:00 CST
         Improving the search for larger sanction lists
 

@@ -37,7 +37,7 @@ my %WriteMakefileArgs = (
     "Getopt::Long" => "2.42",
     "IO::Uncompress::Unzip" => 0,
     "List::Util" => 0,
-    "Locale::Country" => 0,
+    "Locale::Country" => "3.66",
     "Mojo::UserAgent" => 0,
     "Path::Tiny" => 0,
     "Scalar::Util" => 0,
@@ -62,7 +62,7 @@ my %WriteMakefileArgs = (
     "Test::Warn" => "0.23",
     "Test::Warnings" => "0.026"
   },
-  "VERSION" => "0.13",
+  "VERSION" => "0.14",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -85,7 +85,7 @@ my %FallbackPrereqs = (
   "IO::Uncompress::Unzip" => 0,
   "IPC::Open3" => 0,
   "List::Util" => 0,
-  "Locale::Country" => 0,
+  "Locale::Country" => "3.66",
   "Mojo::UserAgent" => 0,
   "Path::Tiny" => 0,
   "Scalar::Util" => 0,

@@ -19,7 +19,7 @@ use List::Util qw(any uniq max min);
 use Locale::Country;
 use Text::Trim qw(trim);
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 my $sanction_file = _default_sanction_file();
 my $instance;
@@ -219,7 +219,7 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     # and deduplicate the list
     my $filtered_sanctioned_names = {};
     foreach my $token (@client_name_tokens) {
-        foreach my $name ( keys %{$self->{_token_sanctioned_names}->{$token}}) {
+        foreach my $name (keys %{$self->{_token_sanctioned_names}->{$token}}) {
             $filtered_sanctioned_names->{$name} = 1;
         }
     }
@@ -286,12 +286,12 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 }
 
 sub _load_data {
-    my $self                              = shift;
-    my $sanction_file                     = $self->{sanction_file};
-    $self->{last_time}                    //= 0;
-    $self->{_data}                        //= {};
-    $self->{_sanctioned_name_tokens}      //= {};
-    $self->{_token_sanctioned_names}      //= {};
+    my $self          = shift;
+    my $sanction_file = $self->{sanction_file};
+    $self->{last_time}               //= 0;
+    $self->{_data}                   //= {};
+    $self->{_sanctioned_name_tokens} //= {};
+    $self->{_token_sanctioned_names} //= {};
 
     if (-e $sanction_file) {
         return $self->{_data} if stat($sanction_file)->mtime <= $self->{last_time} && $self->{_data};
@@ -303,8 +303,8 @@ sub _load_data {
     foreach my $sanctioned_name (keys $self->{_index}->%*) {
         my @tokens = _clean_names($sanctioned_name);
         $self->{_sanctioned_name_tokens}->{$sanctioned_name} = \@tokens;
-        foreach my $token (@tokens){
-            $self->{_token_sanctioned_names}->{$token}->{$sanctioned_name}=1;
+        foreach my $token (@tokens) {
+            $self->{_token_sanctioned_names}->{$token}->{$sanctioned_name} = 1;
         }
     }
 
