@@ -14,7 +14,7 @@ use Syntax::Keyword::Try;
 use XML::Fast;
 use Locale::Country;
 
-our $VERSION = '0.10';
+# VERSION
 
 =head2 config
 

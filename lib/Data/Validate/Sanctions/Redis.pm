@@ -14,7 +14,7 @@ use Scalar::Util qw(blessed);
 use List::Util qw(max);
 use JSON::MaybeUTF8 qw(encode_json_utf8 decode_json_utf8);
 
-our $VERSION = '0.13';
+# VERSION
 
 my $instance;
 
