@@ -462,7 +462,7 @@ sub run {
                 print "Source $id: $count entries fetched \n" if $args{verbose};
             }
         } catch {
-            warn "$id list update failed because: $@";
+            $result->{id}->{error} = $@;
         }
     }
 

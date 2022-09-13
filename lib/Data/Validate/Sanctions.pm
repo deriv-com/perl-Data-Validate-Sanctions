@@ -49,7 +49,11 @@ sub update_data {
         $self->{_data}->{$k}            //= {};
         $self->{_data}->{$k}->{updated} //= 0;
         $self->{_data}->{$k}->{content} //= [];
-        if ($self->{_data}{$k}->{updated} != $new_data->{$k}->{updated}
+
+        if ($new_data->{$k}->{error}) {
+            warn "$ik list update failed because: $new_data->{$k}->{error}";
+        }
+        elsif ($self->{_data}{$k}->{updated} != $new_data->{$k}->{updated}
             || scalar $self->{_data}{$k}->{content}->@* != scalar $new_data->{$k}->{content}->@*)
         {
             $self->{_data}->{$k} = $new_data->{$k};
@@ -323,7 +327,7 @@ sub _index_data {
     $self->{_index} = {};
     for my $source (keys $self->{_data}->%*) {
         my @content = ($self->{_data}->{$source}->{content} // [])->@*;
-        warn "Content is empty for the sanction source $source. The sanctions file should be updated." unless @content;
+        
         for my $entry (@content) {
             $entry->{source} = $source;
             for my $name ($entry->{names}->@*) {
