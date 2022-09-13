@@ -19,7 +19,7 @@ use List::Util qw(any uniq max min);
 use Locale::Country;
 use Text::Trim qw(trim);
 
-# VERSION
+our $VERSION = '0.14';
 
 my $sanction_file = _default_sanction_file();
 my $instance;
