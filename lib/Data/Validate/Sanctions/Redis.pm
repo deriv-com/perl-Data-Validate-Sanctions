@@ -184,9 +184,11 @@ If argument is provided - return timestamp of when that list was updated.
 
 =head2 new
 
-Create the object, and set sanction_file
+Create the object, and set the redis reader and writer objects:
 
     my $validator = Data::Validate::Sanctions::Redis->new(redis_read => $redis_read, redis_write => $redis_write);
+
+The validator is a singleton object; so it will always return the same object if it's called for multiple times in a process.
 
 =head2 _name_matches
 
