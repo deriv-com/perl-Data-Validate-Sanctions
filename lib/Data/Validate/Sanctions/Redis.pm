@@ -15,11 +15,14 @@ use Locale::Country;
 use Text::Trim qw(trim);
 use JSON::MaybeUTF8 qw(encode_json_utf8 decode_json_utf8);
 
-our $VERSION = '0.1';
+our $VERSION = '0.13';
 
-# for OO
-sub new {    ## no critic (RequireArgUnpacking)
+my $instance;
+
+sub new {
     my ($class, %args) = @_;
+
+    return $instance if $instance;
 
     my $self = {};
     $self->{redis_read} = $args{redis_read} or die 'Redis read connection is missing';
@@ -54,10 +57,9 @@ sub get_sanction_file {
 }
 
 sub get_sanctioned_info {
-    my $self = shift;
-    unless ($self) {
-        die 'This method should be called on an object';
-    }
+    my $self = blessed($_[0]) ? shift : $instance;
+
+    die "This function can only be called on an object" unless $self;
 
     return Data::Validate::Sanctions::get_sanctioned_info($self, @_);
 }
@@ -97,11 +99,14 @@ sub _load_data {
 sub _save_data {
     my $self = shift;
 
+    my $now = time;
     for my $source ($self->{sources}->@*) {
         $self->{redis_write}->hmset(
             "SANCTIONS::$source", 
             'updated', $self->{_data}->{$source}->{updated}, 
             'content', encode_json_utf8($self->{_data}->{$source}->{content}),
+            'fetched', $now,
+            'error',   $self->{_data}->{$source}->{error}
         );
     }
 
@@ -119,38 +124,26 @@ __END__
 
 =head1 NAME
 
-Data::Validate::Sanctions - Validate a name against sanctions lists
+Data::Validate::Sanctions::Redis - An extention of L<Data::Validate::Sanctions> that stores sanction data in redis rather than a local file.
 
 =head1 SYNOPSIS
+    # it only works with OO calls
+    use Data::Validate::Sanctions::Redis;
 
-    # as exported function
-    use Data::Validate::Sanctions qw/is_sanctioned get_sanction_file set_sanction_file/;
-    set_sanction_file('/var/storage/sanction.csv');
-
-    my ($first_name, $last_name) = ("First", "Last Name");
-    print 'BAD' if is_sanctioned($first_name, $last_name);
-
-    # as OO
-    use Data::Validate::Sanctions;
-
-    #You can also set sanction_file in the new method.
-    my $validator = Data::Validate::Sanctions->new(sanction_file => '/var/storage/sanction.csv');
+    my $validator = Data::Validate::Sanctions->new(redis_read => $redis_read, redis_write => $redis_write);
     print 'BAD' if $validator->is_sanctioned("$last_name $first_name");
+
+    # In order to update the sanction dataset:
+    my $validator = Data::Validate::Sanctions->new(redis_read => $redis_read, redis_write => $redis_write);
+
+    # eu_token or eu_url is required
+    $validator->update_data(eu_token => $token);
+
 
 =head1 DESCRIPTION
 
-Data::Validate::Sanctions is a simple validitor to validate a name against sanctions lists.
-
-The list is from:
-- L<https://www.treasury.gov/ofac/downloads/sdn.csv>,
-- L<https://www.treasury.gov/ofac/downloads/consolidated/cons_prim.csv>
-- L<https://ofsistorage.blob.core.windows.net/publishlive/ConList.csv>
-- L<https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_token>
-
-run F<update_sanctions_csv> to update the bundled csv.
-
-The path of list can be set by function L</set_sanction_file> or by method L</new>. If not set, then environment variable $ENV{SANCTION_FILE} will be checked, at last
-the default file in this package will be used.
+Data::Validate::Sanctions::Redis is a simple validitor to validate a name against sanctions lists.
+For more details about the sanction sources please refer to L<Data::Validate::Sanctions>.
 
 =head1 METHODS
 
@@ -170,7 +163,7 @@ It will remove all non-alpha chars and compare with the list we have.
 
 =head2 get_sanctioned_info
 
-    my $result =get_sanctioned_info($last_name, $first_name, $date_of_birth);
+    my $result = $validator->get_sanctioned_info($last_name, $first_name, $date_of_birth);
     print 'match: ', $result->{matched_args}->{name}, ' on list ', $result->{list} if $result->{matched};
 
 return hashref with keys:
@@ -193,15 +186,7 @@ If argument is provided - return timestamp of when that list was updated.
 
 Create the object, and set sanction_file
 
-    my $validator = Data::Validate::Sanctions->new(sanction_file => '/var/storage/sanction.csv');
-
-=head2 get_sanction_file
-
-get sanction_file which is used by L</is_sanctioned> (procedure-oriented)
-
-=head2 set_sanction_file
-
-set sanction_file which is used by L</is_sanctioned> (procedure-oriented)
+    my $validator = Data::Validate::Sanctions::Redis->new(redis_read => $redis_read, redis_write => $redis_write);
 
 =head2 _name_matches
 
@@ -213,7 +198,7 @@ Binary.com E<lt>fayland@binary.comE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2014- Binary.com
+Copyright 2022- Binary.com
 
 =head1 LICENSE
 
@@ -222,6 +207,8 @@ it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-L<Data::OFAC>
+L<Data::Validate::Sanctions>
+
+L<Data::Validate::Sanctions::Fetcher>
 
 =cut
