@@ -51,7 +51,7 @@ sub update_data {
         $self->{_data}->{$k}->{content} //= [];
 
         if ($new_data->{$k}->{error}) {
-            warn "$ik list update failed because: $new_data->{$k}->{error}";
+            warn "$k list update failed because: $new_data->{$k}->{error}";
         }
         elsif ($self->{_data}{$k}->{updated} != $new_data->{$k}->{updated}
             || scalar $self->{_data}{$k}->{content}->@* != scalar $new_data->{$k}->{content}->@*)

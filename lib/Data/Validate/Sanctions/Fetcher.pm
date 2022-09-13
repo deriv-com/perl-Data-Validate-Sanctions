@@ -342,7 +342,7 @@ sub _hmt_csv {
         # Fields to be added in the  new file format (https://redmine.deriv.cloud/issues/51922)
         # We can read these fields normally after the data is released in the new format
         my ($passport_no, $non_latin_alias);
-        $passport_no     = $row[$column{'Passport Number'}]        if defined $column{'Passport Number'};
+        $passport_no     = $row[$column{'Passport Number'}]       if defined $column{'Passport Number'};
         $non_latin_alias = $row[$column{'Name Non-Latin Script'}] if defined $column{'Name Non-Latin Script'};
 
         _process_sanction_entry(
@@ -393,7 +393,7 @@ sub _eu_xml {
         my @place_of_birth = map { $_->{'-countryIso2Code'} || () } $entry->{birthdate}->@*;
         my @citizen        = map { $_->{'-countryIso2Code'} || () } $entry->{citizenship}->@*;
         my @residence      = map { $_->{'-countryIso2Code'} || () } $entry->{address}->@*;
-        my @postal_code    = map { $_->{'-zipCode'} || $_->{'-poBox'} || () } $entry->{address}->@*;
+        my @postal_code    = map { $_->{'-zipCode'}         || $_->{'-poBox'} || () } $entry->{address}->@*;
         my @nationality    = map { $_->{'-countryIso2Code'} || () } $entry->{identification}->@*;
         my @national_id    = map { $_->{'-identificationTypeCode'} eq 'id'       ? $_->{'-number'} || () : () } $entry->{identification}->@*;
         my @passport_no    = map { $_->{'-identificationTypeCode'} eq 'passport' ? $_->{'-number'} || () : () } $entry->{identification}->@*;
@@ -462,7 +462,7 @@ sub run {
                 print "Source $id: $count entries fetched \n" if $args{verbose};
             }
         } catch {
-            $result->{id}->{error} = $@;
+            $result->{$id}->{error} = $@;
         }
     }
 

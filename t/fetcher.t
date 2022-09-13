@@ -8,6 +8,7 @@ use YAML::XS qw(Dump);
 use Path::Tiny qw(tempfile);
 use List::Util qw(first);
 use Test::More;
+use Test::Deep;
 use Test::Warnings;
 use Test::MockModule;
 use Test::Warn;
@@ -39,21 +40,23 @@ subtest 'source url arguments' => sub {
         hmt_url               => 'hmt.binary.com',
     );
 
-    my $data;
-    warnings_like {
-        $data = Data::Validate::Sanctions::Fetcher::run(%test_args);
-    }
-    [
-        qr/\bEU-Sanctions\b.*\bUser agent MockObject is hit by the url: eu.binary.com\b/,
-        qr/\bHMT-Sanctions\b.*\bUser agent MockObject is hit by the url: hmt.binary.com\b/,
-        qr/\bOFAC-Consolidated\b.*\bUser agent MockObject is hit by the url: ofac_con.binary.com\b/,
-        qr/\bOFAC-SDN\b.*\bUser agent MockObject is hit by the url: ofac_snd.binary.com\b/,
-    ],
-        'Source urls are updated by params';
+    my $data = Data::Validate::Sanctions::Fetcher::run(%test_args);
+    cmp_deeply $data, {'HMT-Sanctions' => {
+                               error => ignore(),
+                             },
+          'OFAC-Consolidated' => {
+                                   error => ignore(),
+                                 },
+          'EU-Sanctions' => {
+                              error => ignore(),
+                            },
+          'OFAC-SDN' => {
+                              error => ignore(),
+                            },
+        },
+        'All sources return errors - no content';
 
     is $calls, 3 * 4, 'the fetcher tried thrice per source and failed finally.';
-
-    is_deeply $data, {}, 'There is no result with invalid urls';
 
 };
 
@@ -64,30 +67,25 @@ subtest 'EU Sanctions' => sub {
     warnings_like {
         $data = Data::Validate::Sanctions::Fetcher::run(%args, eu_url => undef);
     }
-    [qr/EU Sanctions will fail whithout eu_token or eu_url/, qr/Url is empty for EU-Sanctions/],
+    [qr/EU Sanctions will fail whithout eu_token or eu_url/],
         'Correct warning when the EU sanctions token is missing';
 
-    is $data->{$source_name}, undef, 'Result is empty as expected';
+    cmp_deeply $data->{$source_name}, {error => ignore()}, 'There is an error in the result';
+    like $data->{$source_name}->{error}, qr/Url is empty for EU-Sanctions/, 'Correct error for missing EU url';
 
-    warning_like {
-        $data = Data::Validate::Sanctions::Fetcher::run(
+    $data = Data::Validate::Sanctions::Fetcher::run(
             %args,
             eu_url   => undef,
             eu_token => 'ASDF'
         );
-    }
-    qr(\bEU-Sanctions\b.*\bUser agent MockObject is hit by the url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content\?token=ASDF\b),
-        'token is added to the default url';
-    is $data->{$source_name}, undef, 'Result is empty';
+    like $data->{$source_name}->{error}, qr(\bUser agent MockObject is hit by the url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content\?token=ASDF\b), 'Token is added to the URL in error message';
 
-    warning_like {
-        $data = Data::Validate::Sanctions::Fetcher::run(
+    $data = Data::Validate::Sanctions::Fetcher::run(
             %args,
             eu_url   => 'http://dummy.binary.com',
             eu_token => 'ASDF'
         );
-    }
-    qr(\bEU-Sanctions\b.*\bUser agent MockObject is hit by the url: http://dummy.binary.com at\b), 'token is not added to eu_url value';
+    like $data->{$source_name}->{error}, qr(\bUser agent MockObject is hit by the url: http://dummy.binary.com\b), 'eu_url argument is directly used, without eu_token modification';
 
     $data = Data::Validate::Sanctions::Fetcher::run(%args);
     ok $data->{$source_name}, 'EU Sanctions are loaded from the sample file';

@@ -21,8 +21,8 @@ sub new {    ## no critic (RequireArgUnpacking)
     my ($class, %args) = @_;
 
     my $self = {};
-    $self->{redis_read} = $args{redis_read} or 'Redis read connection is missing';
-    $self->{redis_write} = $args{redis_write} or 'Redis write connection is missing';
+    $self->{redis_read} = $args{redis_read} or die 'Redis read connection is missing';
+    $self->{redis_write} = $args{redis_write} or die 'Redis write connection is missing';
 
     $self->{sources} = [keys Data::Validate::Sanctions::Fetcher::config(eu_token => 'dummy')->%*];
 
@@ -71,7 +71,7 @@ sub _load_data {
     
     my $last_time;
     for my $source ($self->{sources}->@*) {
-        my $updated = $redis_read->hget("SANCTIONS::$source", 'updated') // 0;
+        my $updated = $self->{redis_read}->hget("SANCTIONS::$source", 'updated') // 0;
         next if $updated <= $self->{last_time};
 
         $self->{_data}->{$source}->{content} = decode_json_utf8($self->{redis_read}->hget("SANCTIONS::$source", 'content'));
