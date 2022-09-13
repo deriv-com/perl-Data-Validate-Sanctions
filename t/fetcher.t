@@ -13,7 +13,7 @@ use Test::Warnings;
 use Test::MockModule;
 use Test::Warn;
 use Test::MockObject;
-use List::Util qw (any);
+use List::Util;
 
 my %args = (
     eu_url                => "file://t/data/sample_eu.xml",
@@ -254,7 +254,7 @@ sub find_entry_by_name {
 
     my @result;
     for my $entry ($data->{content}->@*) {
-        push(@result, $entry) if any { $_ eq $name } $entry->{names}->@*;
+        push(@result, $entry) if List::Util::any { $_ eq $name } $entry->{names}->@*;
     }
 
     return undef unless @result;

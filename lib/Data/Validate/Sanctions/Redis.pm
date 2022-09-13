@@ -5,14 +5,13 @@ use warnings;
 
 use parent 'Data::Validate::Sanctions';
 
-use Carp;
+require Exporter;
+our @ISA       = qw(Exporter);
+our @EXPORT_OK = qw/is_sanctioned set_sanction_file get_sanction_file/;
+
 use Data::Validate::Sanctions::Fetcher;
 use Scalar::Util qw(blessed);
-use Date::Utility;
-use Data::Compare;
-use List::Util qw(any uniq max min);
-use Locale::Country;
-use Text::Trim qw(trim);
+use List::Util qw(max);
 use JSON::MaybeUTF8 qw(encode_json_utf8 decode_json_utf8);
 
 our $VERSION = '0.13';
