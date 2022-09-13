@@ -13,6 +13,7 @@ use Data::Compare;
 use List::Util qw(any uniq max min);
 use Locale::Country;
 use Text::Trim qw(trim);
+use JSON::MaybeUTF8 qw(encode_json_utf8 decode_json_utf8);
 
 our $VERSION = '0.1';
 
