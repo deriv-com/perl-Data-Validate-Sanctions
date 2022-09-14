@@ -6,7 +6,7 @@ use warnings;
 use DateTime::Format::Strptime;
 use Date::Utility;
 use IO::Uncompress::Unzip qw(unzip $UnzipError);
-use List::Util qw(uniq any);
+use List::Util            qw(uniq any);
 use Mojo::UserAgent;
 use Text::CSV;
 use Text::Trim qw(trim);

@@ -5,27 +5,20 @@ use warnings;
 
 use parent 'Data::Validate::Sanctions';
 
-require Exporter;
-our @ISA       = qw(Exporter);
-our @EXPORT_OK = qw/is_sanctioned set_sanction_file get_sanction_file/;
-
 use Data::Validate::Sanctions::Fetcher;
-use Scalar::Util qw(blessed);
-use List::Util qw(max);
+use Scalar::Util    qw(blessed);
+use YAML::XS        qw/DumpFile/;
+use List::Util      qw(max);
 use JSON::MaybeUTF8 qw(encode_json_utf8 decode_json_utf8);
 
 # VERSION
 
-my $instance;
-
 sub new {
     my ($class, %args) = @_;
 
-    return $instance if $instance;
-
     my $self = {};
-    $self->{redis_read} = $args{redis_read} or die 'Redis read connection is missing';
-    $self->{redis_write} = $args{redis_write} or die 'Redis write connection is missing';
+    $self->{redis_read}  = $args{redis_read}  or die 'Redis read connection is missing';
+    $self->{redis_write} = $args{redis_write};
 
     $self->{sources} = [keys Data::Validate::Sanctions::Fetcher::config(eu_token => 'dummy')->%*];
 
@@ -56,7 +49,7 @@ sub get_sanction_file {
 }
 
 sub get_sanctioned_info {
-    my $self = blessed($_[0]) ? shift : $instance;
+    my $self = shift;
 
     die "This function can only be called on an object" unless $self;
 
@@ -64,31 +57,31 @@ sub get_sanctioned_info {
 }
 
 sub _load_data {
-    my $self                              = shift;
+    my $self = shift;
 
-    $self->{last_time}                    //= 0;
-    $self->{_data}                        //= {};
-    $self->{_sanctioned_name_tokens}      //= {};
-    $self->{_token_sanctioned_names}      //= {};
-    
-    my $last_time;
+    $self->{last_time}               //= 0;
+    $self->{_data}                   //= {};
+    $self->{_sanctioned_name_tokens} //= {};
+    $self->{_token_sanctioned_names} //= {};
+
+    my $last_time = $self->{last_time};
     for my $source ($self->{sources}->@*) {
-        my $updated = $self->{redis_read}->hget("SANCTIONS::$source", 'updated') // 0;
+        my $updated = $self->{redis_read}->hget("SANCTIONS::$source", 'published') // 0;
         next if $updated <= $self->{last_time};
 
         $self->{_data}->{$source}->{content} = decode_json_utf8($self->{redis_read}->hget("SANCTIONS::$source", 'content'));
         $self->{_data}->{$source}->{updated} = $updated;
-        $last_time = $updated if $updated > $last_time;
+        $last_time                           = $updated if $updated > $last_time;
     }
-    $self->{_last_time} = $last_time;
+    $self->{last_time} = $last_time;
 
     $self->_index_data();
 
     foreach my $sanctioned_name (keys $self->{_index}->%*) {
-        my @tokens = _clean_names($sanctioned_name);
+        my @tokens = Data::Validate::Sanctions::_clean_names($sanctioned_name);
         $self->{_sanctioned_name_tokens}->{$sanctioned_name} = \@tokens;
-        foreach my $token (@tokens){
-            $self->{_token_sanctioned_names}->{$token}->{$sanctioned_name}=1;
+        foreach my $token (@tokens) {
+            $self->{_token_sanctioned_names}->{$token}->{$sanctioned_name} = 1;
         }
     }
 
@@ -98,15 +91,15 @@ sub _load_data {
 sub _save_data {
     my $self = shift;
 
+    die 'Redis write connection is missing' unless $self->{redis_write};
     my $now = time;
     for my $source ($self->{sources}->@*) {
         $self->{redis_write}->hmset(
-            "SANCTIONS::$source", 
-            'updated', $self->{_data}->{$source}->{updated}, 
-            'content', encode_json_utf8($self->{_data}->{$source}->{content}),
-            'fetched', $now,
-            'error',   $self->{_data}->{$source}->{error}
-        );
+            "SANCTIONS::$source",
+            'published' => $self->{_data}->{$source}->{updated} // 0,
+            'content'   => encode_json_utf8($self->{_data}->{$source}->{content} // []),
+            ($self->{_data}->{$source}->{error} ? () : ('verified' => $now)),
+            'error' => $self->{_data}->{$source}->{error} // '');
     }
 
     return;
@@ -114,6 +107,14 @@ sub _save_data {
 
 sub _default_sanction_file {
     die 'Not applicable';
+}
+
+sub export_data {
+    my ($self, $path) = @_;
+
+    $self->_load_data();
+
+    DumpFile($path, $self->{_data});
 }
 
 1;
@@ -145,6 +146,14 @@ Data::Validate::Sanctions::Redis is a simple validitor to validate a name agains
 For more details about the sanction sources please refer to L<Data::Validate::Sanctions>.
 
 =head1 METHODS
+
+=head2 new
+
+Create the object, and set the redis reader and writer objects:
+
+    my $validator = Data::Validate::Sanctions::Redis->new(redis_read => $redis_read, redis_write => $redis_write);
+
+The validator is a singleton object; so it will always return the same object if it's called for multiple times in a process.
 
 =head2 is_sanctioned
 
@@ -181,17 +190,13 @@ Fetches latest versions of sanction lists, and updates corresponding sections of
 Returns timestamp of when the latest list was updated.
 If argument is provided - return timestamp of when that list was updated.
 
-=head2 new
-
-Create the object, and set the redis reader and writer objects:
-
-    my $validator = Data::Validate::Sanctions::Redis->new(redis_read => $redis_read, redis_write => $redis_write);
-
-The validator is a singleton object; so it will always return the same object if it's called for multiple times in a process.
-
 =head2 _name_matches
 
 Pass in the client's name and sanctioned individual's name to see if they are similar or not
+
+=head2 export_data
+
+Exports the sanction lists to a local file in YAML format.
 
 =head1 AUTHOR
 
