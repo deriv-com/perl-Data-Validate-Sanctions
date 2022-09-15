@@ -10,6 +10,7 @@ use Scalar::Util    qw(blessed);
 use YAML::XS        qw/DumpFile/;
 use List::Util      qw(max);
 use JSON::MaybeUTF8 qw(encode_json_utf8 decode_json_utf8);
+use Syntax::Keyword::Try;
 
 # VERSION
 
@@ -68,12 +69,20 @@ sub _load_data {
 
     my $last_time = $self->{last_time};
     for my $source ($self->{sources}->@*) {
-        my $updated = $self->{redis_read}->hget("SANCTIONS::$source", 'published') // 0;
-        next if $updated <= ($self->{_data}->{$source}->{updated} // 0);
+        try {
+            my $updated = $self->{redis_read}->hget("SANCTIONS::$source", 'published') // 0;
+            next if $updated <= ($self->{_data}->{$source}->{updated} // 0);
 
-        $self->{_data}->{$source}->{content} = decode_json_utf8($self->{redis_read}->hget("SANCTIONS::$source", 'content'));
-        $self->{_data}->{$source}->{updated} = $updated;
-        $last_time                           = $updated if $updated > $last_time;
+            $self->{_data}->{$source}->{content}  = decode_json_utf8($self->{redis_read}->hget("SANCTIONS::$source", 'content'));
+            $self->{_data}->{$source}->{verified} = $self->{redis_read}->hget("SANCTIONS::$source", 'verified');
+            $self->{_data}->{$source}->{updated}  = $updated;
+            $last_time                            = $updated if $updated > $last_time;
+        } catch {
+            $self->{_data}->{$source}->{content}  = [];
+            $self->{_data}->{$source}->{updated}  = 0;
+            $self->{_data}->{$source}->{verified} = 0;
+            $self->{_data}->{$source}->{error}    = "Failed to load from Redis: $@";
+        }
     }
     $self->{last_time} = $last_time;
 
@@ -94,14 +103,15 @@ sub _save_data {
     my $self = shift;
 
     die 'Redis write connection is missing' unless $self->{redis_write};
-    my $now = time;
+
     for my $source ($self->{sources}->@*) {
+        $self->{_data}->{$source}->{verified} = time;
         $self->{redis_write}->hmset(
             "SANCTIONS::$source",
             'published' => $self->{_data}->{$source}->{updated} // 0,
             'content'   => encode_json_utf8($self->{_data}->{$source}->{content} // []),
-            ($self->{_data}->{$source}->{error} ? () : ('verified' => $now)),
-            'error' => $self->{_data}->{$source}->{error} // ''
+            'verified'  => $self->{_data}->{$source}->{verified},
+            'error'     => $self->{_data}->{$source}->{error} // ''
         );
     }
 
@@ -112,12 +122,10 @@ sub _default_sanction_file {
     die 'Not applicable';
 }
 
-sub export_data {
-    my ($self, $path) = @_;
+sub data {
+    my ($self) = @_;
 
-    $self->_load_data();
-
-    DumpFile($path, $self->{_data});
+    return $self->{_data};
 }
 
 1;

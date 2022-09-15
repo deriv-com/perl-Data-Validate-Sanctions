@@ -4,13 +4,13 @@ use warnings;
 use Class::Unload;
 use YAML;
 use File::Slurp;
-use Path::Tiny     qw(tempfile);
+use Path::Tiny qw(tempfile);
 use Test::Warnings;
 use Test::More;
 use Test::Fatal;
 use Test::MockModule;
 use Test::RedisServer;
-use Test::MockTime qw(set_fixed_time);
+use Test::MockTime qw(set_fixed_time restore_time);
 use RedisDB;
 use JSON::MaybeUTF8 qw(decode_json_utf8);
 use Clone           qw(clone);
@@ -78,9 +78,8 @@ subtest 'Class constructor' => sub {
     like exception { $validator = Data::Validate::Sanctions::Redis->new() }, qr/Redis read connection is missing/,
         'Correct error for missing redis-read';
 
-    is exception { $validator = Data::Validate::Sanctions::Redis->new(redis_read => $redis) }, undef,
-        'Successfully created the object with redis-read object';
-    is_deeply $validator->{_data},
+    ok $validator = Data::Validate::Sanctions::Redis->new(redis_read => $redis), 'Successfully created the object with redis-read object';
+    is_deeply $validator->data,
         {
         'EU-Sanctions'      => {},
         'HMT-Sanctions'     => {},
@@ -110,14 +109,15 @@ subtest 'Update Data' => sub {
     $validator->update_data();
     my $expected = {
         'EU-Sanctions' => {
-            content => [],
-            updated => 90
+            content  => [],
+            updated  => 90,
+            verified => 1500,
         },
-        'HMT-Sanctions'     => {},
-        'OFAC-Consolidated' => {},
-        'OFAC-SDN'          => {},
+        'HMT-Sanctions'     => {verified => 1500},
+        'OFAC-Consolidated' => {verified => 1500},
+        'OFAC-SDN'          => {verified => 1500},
     };
-    is_deeply $validator->{_data}, $expected, 'Data is correctly loaded';
+    is_deeply $validator->data, $expected, 'Data is correctly loaded';
     check_redis_content('EU-Sanctions',      $mock_data->{'EU-Sanctions'}, 1500);
     check_redis_content('HMT-Sanctions',     {},                           1500);
     check_redis_content('OFAC-Consolidated', {},                           1500);
@@ -128,7 +128,8 @@ subtest 'Update Data' => sub {
     $mock_data->{'EU-Sanctions'}->{updated} = 91;
     $validator->update_data();
     $expected->{'EU-Sanctions'}->{updated} = 91;
-    is_deeply $validator->{_data}, $expected, 'Data is loaded with new update time';
+    $expected->{$_}->{verified} = 1600 for keys %$expected;
+    is_deeply $validator->data, $expected, 'Data is loaded with new update time';
     check_redis_content('EU-Sanctions', $mock_data->{'EU-Sanctions'}, 1600, 'Redis content changed by increased update time');
 
     # redis is updated with new entries, even if the publish date is the same
@@ -151,7 +152,8 @@ subtest 'Update Data' => sub {
     $expected->{'EU-Sanctions'} = clone($mock_data->{'EU-Sanctions'});
     set_fixed_time(1700);
     $validator->update_data();
-    is_deeply $validator->{_data}, $expected, 'Data is changed with new entries, even with the same update date';
+    $expected->{$_}->{verified} = 1700 for keys %$expected;
+    is_deeply $validator->data, $expected, 'Data is changed with new entries, even with the same update date';
     check_redis_content('EU-Sanctions', $expected->{'EU-Sanctions'}, 1700, 'New entries appear in Redis');
 
     # In case of error, content and dates are not changed
@@ -159,17 +161,20 @@ subtest 'Update Data' => sub {
     $mock_data->{'EU-Sanctions'}->{error}   = 'Test error';
     $mock_data->{'EU-Sanctions'}->{updated} = 92;
     $mock_data->{'EU-Sanctions'}->{content} = [1, 2, 3];
-    like Test::Warnings::warning { $validator->update_data() }, qr/EU-Sanctions list update failed because: Test error/, 'Error warning appears in logs';
+    like Test::Warnings::warning { $validator->update_data() }, qr/EU-Sanctions list update failed because: Test error/,
+        'Error warning appears in logs';
     $expected->{'EU-Sanctions'}->{error} = 'Test error';
-    is_deeply $validator->{_data}, $expected, 'Data is not changed if there is error';
-    check_redis_content('EU-Sanctions', $expected->{'EU-Sanctions'}, 1700, 'Redis content is not changed when there is an error');
+    $expected->{$_}->{verified} = 1800 for keys %$expected;
+    is_deeply $validator->data, $expected, 'Data is not changed if there is error';
+    check_redis_content('EU-Sanctions', $expected->{'EU-Sanctions'}, 1800, 'Redis content is not changed when there is an error');
 
     # All sources are updated at the same time
     $mock_data = $sample_data;
     $expected  = clone($mock_data);
     set_fixed_time(1900);
     $validator->update_data();
-    is_deeply $validator->{_data}, $expected, 'Data is populated from all sources';
+    $expected->{$_}->{verified} = 1900 for keys %$expected;
+    is_deeply $validator->data, $expected, 'Data is populated from all sources';
     check_redis_content('EU-Sanctions',  $mock_data->{'EU-Sanctions'},  1900, 'EU-Sanctions error is removed with the same content and update date');
     check_redis_content('HMT-Sanctions', $mock_data->{'HMT-Sanctions'}, 1900, 'Sanction list is stored in redis');
     check_redis_content('OFAC-Consolidated', $mock_data->{'OFAC-Consolidated'}, 1900, 'Sanction list is stored in redis');
@@ -177,22 +182,16 @@ subtest 'Update Data' => sub {
 
     # New objects load the same data
     my $validator2 = Data::Validate::Sanctions::Redis->new(redis_read => $redis);
-    is_deeply $validator2->{_data}, $validator->{_data}, 'New validator object loads the same data from redis';
+    is_deeply $validator2->data, $validator->data, 'New validator object loads the same data from redis';
 
+    restore_time();
     $mock_fetcher->unmock_all;
-};
-
-subtest 'Export data' => sub {
-    my $validator = Data::Validate::Sanctions::Redis->new(redis_read => $redis);
-
-    my $tempfile = Path::Tiny->tempfile;
-    $validator->export_data($tempfile);
-    is_deeply YAML::LoadFile($tempfile), $validator->{_data}, 'File content is the same as the sanction list';
 };
 
 subtest 'get sanctioned info' => sub {
     # reload data freshly from the sample data
     clear_redis();
+    set_fixed_time(1000);
     my $mock_fetcher = Test::MockModule->new('Data::Validate::Sanctions::Fetcher');
     $mock_fetcher->redefine(run => sub { return clone($sample_data) });
     my $validator = Data::Validate::Sanctions::Redis->new(
@@ -203,7 +202,8 @@ subtest 'get sanctioned info' => sub {
 
     # create a new new validator for sanction checks. No write_redis is needed.
     $validator = Data::Validate::Sanctions::Redis->new(redis_read => $redis);
-    is_deeply $validator->{_data}, $sample_data, 'Sample data is correctly loaded';
+    $sample_data->{$_}->{verified} = 1000 for keys %$sample_data;
+    is_deeply $validator->data, $sample_data, 'Sample data is correctly loaded';
 
     ok !$validator->is_sanctioned(qw(sergei ivanov)),                      "Sergei Ivanov not is_sanctioned";
     ok $validator->is_sanctioned(qw(tmpa)),                                "now sanction file is tmpa, and tmpa is in test1 list";
