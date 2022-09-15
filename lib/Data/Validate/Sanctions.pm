@@ -18,6 +18,7 @@ use Data::Compare;
 use List::Util qw(any uniq max min);
 use Locale::Country;
 use Text::Trim qw(trim);
+use Clone qw(clone);
 
 our $VERSION = '0.14';
 
