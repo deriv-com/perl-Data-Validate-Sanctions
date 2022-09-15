@@ -50,6 +50,11 @@ sub update_data {
         $self->{_data}->{$k}->{updated} //= 0;
         $self->{_data}->{$k}->{content} //= [];
 
+        if (!$new_data->{$k}->{error} && $self->{_data}->{$k}->{error}) {
+            delete $self->{_data}->{$k}->{error};
+            $updated = 1;
+        }
+
         if ($new_data->{$k}->{error}) {
             warn "$k list update failed because: $new_data->{$k}->{error}";
             $updated = 1;
@@ -327,7 +332,7 @@ sub _index_data {
 
     $self->{_index} = {};
     for my $source (keys $self->{_data}->%*) {
-        my @content = ($self->{_data}->{$source}->{content} // [])->@*;
+        my @content = clone($self->{_data}->{$source}->{content} // [])->@*;
 
         for my $entry (@content) {
             $entry->{source} = $source;

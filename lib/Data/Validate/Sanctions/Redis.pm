@@ -17,15 +17,17 @@ sub new {
     my ($class, %args) = @_;
 
     my $self = {};
-    $self->{redis_read}  = $args{redis_read}  or die 'Redis read connection is missing';
+    $self->{redis_read}  = $args{redis_read} or die 'Redis read connection is missing';
     $self->{redis_write} = $args{redis_write};
 
     $self->{sources} = [keys Data::Validate::Sanctions::Fetcher::config(eu_token => 'dummy')->%*];
 
-    $self->{args} = {%args};
-
+    $self->{args}      = {%args};
     $self->{last_time} = 0;
-    return bless $self, ref($class) || $class;
+    my $object = bless $self, ref($class) || $class;
+    $object->_load_data();
+
+    return $object;
 }
 
 sub last_updated {
@@ -67,7 +69,7 @@ sub _load_data {
     my $last_time = $self->{last_time};
     for my $source ($self->{sources}->@*) {
         my $updated = $self->{redis_read}->hget("SANCTIONS::$source", 'published') // 0;
-        next if $updated <= $self->{last_time};
+        next if $updated <= ($self->{_data}->{$source}->{updated} // 0);
 
         $self->{_data}->{$source}->{content} = decode_json_utf8($self->{redis_read}->hget("SANCTIONS::$source", 'content'));
         $self->{_data}->{$source}->{updated} = $updated;
@@ -99,7 +101,8 @@ sub _save_data {
             'published' => $self->{_data}->{$source}->{updated} // 0,
             'content'   => encode_json_utf8($self->{_data}->{$source}->{content} // []),
             ($self->{_data}->{$source}->{error} ? () : ('verified' => $now)),
-            'error' => $self->{_data}->{$source}->{error} // '');
+            'error' => $self->{_data}->{$source}->{error} // ''
+        );
     }
 
     return;
