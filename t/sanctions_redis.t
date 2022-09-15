@@ -322,10 +322,10 @@ sub check_redis_content {
 
     is_deeply \%stored,
         {
-        content   => $config->{content} // [],
-        published => $config->{updated} // 0,
-        error     => $config->{error}   // '',
-        verified  => $verified_time,
+        content  => $config->{content} // [],
+        updated  => $config->{updated} // 0,
+        error    => $config->{error}   // '',
+        verified => $verified_time,
         },
         "$comment - $source_name";
 }

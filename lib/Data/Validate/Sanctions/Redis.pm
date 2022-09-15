@@ -7,7 +7,6 @@ use parent 'Data::Validate::Sanctions';
 
 use Data::Validate::Sanctions::Fetcher;
 use Scalar::Util    qw(blessed);
-use YAML::XS        qw/DumpFile/;
 use List::Util      qw(max);
 use JSON::MaybeUTF8 qw(encode_json_utf8 decode_json_utf8);
 use Syntax::Keyword::Try;
@@ -70,7 +69,7 @@ sub _load_data {
     my $last_time = $self->{last_time};
     for my $source ($self->{sources}->@*) {
         try {
-            my $updated = $self->{redis_read}->hget("SANCTIONS::$source", 'published') // 0;
+            my $updated = $self->{redis_read}->hget("SANCTIONS::$source", 'updated') // 0;
             next if $updated <= ($self->{_data}->{$source}->{updated} // 0);
 
             $self->{_data}->{$source}->{content}  = decode_json_utf8($self->{redis_read}->hget("SANCTIONS::$source", 'content'));
@@ -108,10 +107,10 @@ sub _save_data {
         $self->{_data}->{$source}->{verified} = time;
         $self->{redis_write}->hmset(
             "SANCTIONS::$source",
-            'published' => $self->{_data}->{$source}->{updated} // 0,
-            'content'   => encode_json_utf8($self->{_data}->{$source}->{content} // []),
-            'verified'  => $self->{_data}->{$source}->{verified},
-            'error'     => $self->{_data}->{$source}->{error} // ''
+            'updated'  => $self->{_data}->{$source}->{updated} // 0,
+            'content'  => encode_json_utf8($self->{_data}->{$source}->{content} // []),
+            'verified' => $self->{_data}->{$source}->{verified},
+            'error'    => $self->{_data}->{$source}->{error} // ''
         );
     }
 
