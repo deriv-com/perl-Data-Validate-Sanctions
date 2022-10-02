@@ -17,8 +17,7 @@ sub new {
     my ($class, %args) = @_;
 
     my $self = {};
-    $self->{redis_read}  = $args{redis_read} or die 'Redis read connection is missing';
-    $self->{redis_write} = $args{redis_write};
+    $self->{redis} = $args{redis} or die 'Redis connection is missing';
 
     $self->{sources} = [keys Data::Validate::Sanctions::Fetcher::config(eu_token => 'dummy')->%*];
 
@@ -69,11 +68,11 @@ sub _load_data {
     my $last_time = $self->{last_time};
     for my $source ($self->{sources}->@*) {
         try {
-            my $updated = $self->{redis_read}->hget("SANCTIONS::$source", 'updated') // 0;
+            my $updated = $self->{redis}->hget("SANCTIONS::$source", 'updated') // 0;
             next if $updated <= ($self->{_data}->{$source}->{updated} // 0);
 
-            $self->{_data}->{$source}->{content}  = decode_json_utf8($self->{redis_read}->hget("SANCTIONS::$source", 'content'));
-            $self->{_data}->{$source}->{verified} = $self->{redis_read}->hget("SANCTIONS::$source", 'verified');
+            $self->{_data}->{$source}->{content}  = decode_json_utf8($self->{redis}->hget("SANCTIONS::$source", 'content'));
+            $self->{_data}->{$source}->{verified} = $self->{redis}->hget("SANCTIONS::$source", 'verified');
             $self->{_data}->{$source}->{updated}  = $updated;
             $last_time                            = $updated if $updated > $last_time;
         } catch {
@@ -101,11 +100,9 @@ sub _load_data {
 sub _save_data {
     my $self = shift;
 
-    die 'Redis write connection is missing' unless $self->{redis_write};
-
     for my $source ($self->{sources}->@*) {
         $self->{_data}->{$source}->{verified} = time;
-        $self->{redis_write}->hmset(
+        $self->{redis}->hmset(
             "SANCTIONS::$source",
             'updated'  => $self->{_data}->{$source}->{updated} // 0,
             'content'  => encode_json_utf8($self->{_data}->{$source}->{content} // []),
@@ -134,62 +131,102 @@ __END__
 
 =head1 NAME
 
-Data::Validate::Sanctions::Redis - An extention of L<Data::Validate::Sanctions> that stores sanction data in redis rather than a local file.
+Data::Validate::Sanctions::Redis - An extention of L<Data::Validate::Sanctions::Redis> that stores sanction data in redis.
 
 =head1 SYNOPSIS
-    # it only works with OO calls
+
     use Data::Validate::Sanctions::Redis;
 
-    my $validator = Data::Validate::Sanctions->new(redis_read => $redis_read, redis_write => $redis_write);
+    # to validate clients
+    my $validator = Data::Validate::Sanctions->new(redis => $redis_read);
+    # with their name
     print 'BAD' if $validator->is_sanctioned("$last_name $first_name");
+    # or with more profile data
+    print 'BAD' if $validator->get_sanctioned_info(first_name => $first_name, last_name => $last_name, date_of_birth => $date_of_birth)->{matched};
 
-    # In order to update the sanction dataset:
-    my $validator = Data::Validate::Sanctions->new(redis_read => $redis_read, redis_write => $redis_write);
-
-    # eu_token or eu_url is required
+    # to update the sanction dataset (needs redis write access)
+    my $validator = Data::Validate::Sanctions->new(redis => $redis_write);
     $validator->update_data(eu_token => $token);
 
 
 =head1 DESCRIPTION
 
 Data::Validate::Sanctions::Redis is a simple validitor to validate a name against sanctions lists.
-For more details about the sanction sources please refer to L<Data::Validate::Sanctions>.
+For more details about the sanction sources please refer to the parent module L<Data::Validate::Sanctions>.
 
 =head1 METHODS
 
 =head2 new
 
-Create the object, and set the redis reader and writer objects:
+Create the object with the redis object:
 
-    my $validator = Data::Validate::Sanctions::Redis->new(redis_read => $redis_read, redis_write => $redis_write);
-
-The validator is a singleton object; so it will always return the same object if it's called for multiple times in a process.
+    my $validator = Data::Validate::Sanctions::Redis->new(redis => $redis);
 
 =head2 is_sanctioned
 
-    is_sanctioned($last_name, $first_name);
-    is_sanctioned($first_name, $last_name);
-    is_sanctioned("$last_name $first_name");
+Checks if the input profile info matches a sanctioned entity.
+The arguments are the same as those of B<get_sanctioned_info>.
 
-when one string is passed, please be sure last_name is before first_name.
+It returns 1 if a match is found, otherwise 0.
 
-or you can pass first_name, last_name (last_name, first_name), we'll check both "$last_name $first_name" and "$first_name $last_name".
-
-retrun 1 if match is found and 0 if match is not found.
-
-It will remove all non-alpha chars and compare with the list we have.
+=cut
 
 =head2 get_sanctioned_info
 
-    my $result = $validator->get_sanctioned_info($last_name, $first_name, $date_of_birth);
-    print 'match: ', $result->{matched_args}->{name}, ' on list ', $result->{list} if $result->{matched};
+Tries to find a match a sanction entry matching the input profile args.
+It takes arguments in two forms. In the new API, it takes a hashref containing the following named arguments:
 
-return hashref with keys:
-    B<matched>      1 or 0, depends if name has matched
-    B<list>         name of list matched (present only if matched)
-    B<matched_args> The list of arguments matched (name, date of birth, residence, etc.)
+=over 4
 
-It will remove all non-alpha chars and compare with the list we have.
+=item * first_name: first name
+
+=item * last_name: last name
+
+=item * date_of_birth: (optional) date of birth as a string or epoch
+
+=item * place_of_birth: (optional) place of birth as a country name or code
+
+=item * residence: (optional) name or code of the country of residence
+
+=item * nationality: (optional) name or code of the country of nationality
+
+=item * citizen: (optional) name or code of the country of citizenship
+
+=item * postal_code: (optional) postal/zip code
+
+=item * national_id: (optional) national ID number
+
+=item * passport_no: (oiptonal) passort number
+
+=back
+
+For backward compatibility it also supports the old API, taking the following args:
+
+=over 4
+
+=item * first_name: first name
+
+=item * last_name: last name
+
+=item * date_of_birth: (optional) date of birth as a string or epoch
+
+=back
+
+It returns a hash-ref containg the following data:
+
+=over 4
+
+=item - matched:      1 if a match was found; 0 otherwise
+
+=item - list:         the source for the matched entry,
+
+=item - matched_args: a name-value hash-ref of the similar arguments,
+
+=item - comment:      additional comments if necessary,
+
+=back
+
+=cut
 
 =head2 update_data
 

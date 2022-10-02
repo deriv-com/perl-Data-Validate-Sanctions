@@ -22,7 +22,7 @@ use Clone      qw(clone);
 
 our $VERSION = '0.14';
 
-my $sanction_file = _default_sanction_file();
+my $sanction_file;
 my $instance;
 
 # for OO
@@ -98,6 +98,7 @@ sub set_sanction_file {    ## no critic (RequireArgUnpacking)
 }
 
 sub get_sanction_file {
+    $sanction_file //= _default_sanction_file();
     return $instance ? $instance->{sanction_file} : $sanction_file;
 }
 
@@ -184,9 +185,12 @@ It returns a hash-ref containg the following data:
 =over 4
 
 =item - matched:      1 if a match was found; 0 otherwise
-        list:         the source for the matched entry,
-        matched_args: a name-value hash-ref of the similar arguments,
-        comment:      additional comments if necessary,
+
+=item - list:         the source for the matched entry,
+
+=item - matched_args: a name-value hash-ref of the similar arguments,
+
+=item - comment:      additional comments if necessary,
 
 =back
 
@@ -195,7 +199,7 @@ It returns a hash-ref containg the following data:
 sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
     my $self = blessed($_[0]) ? shift : $instance;
     unless ($self) {
-        $instance = __PACKAGE__->new(sanction_file => $sanction_file);
+        $instance = __PACKAGE__->new(sanction_file => get_sanction_file());
         $self     = $instance;
     }
 
