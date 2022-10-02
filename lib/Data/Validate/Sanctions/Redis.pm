@@ -9,6 +9,7 @@ use Data::Validate::Sanctions::Fetcher;
 use Scalar::Util    qw(blessed);
 use List::Util      qw(max);
 use JSON::MaybeUTF8 qw(encode_json_utf8 decode_json_utf8);
+use YAML::XS        qw(DumpFile);
 use Syntax::Keyword::Try;
 
 # VERSION
@@ -124,6 +125,12 @@ sub data {
     my ($self) = @_;
 
     return $self->{_data};
+}
+
+sub export_data {
+    my ($self, $path) = @_;
+
+    DumpFile($path, $self->{_data});
 }
 
 1;
