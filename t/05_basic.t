@@ -9,7 +9,7 @@ use Test::Exception;
 use Test::Warnings;
 use Test::More;
 
-$ENV{SANCTION_FILE} = "../share/sanctions.yml";
+$ENV{SANCTION_FILE} = "./share/sanctions.yml";
 
 ok Data::Validate::Sanctions::is_sanctioned('NEVEROV', 'Sergei Ivanovich', -253411200), "Sergei Ivanov is_sanctioned for sure";
 ok Data::Validate::Sanctions::is_sanctioned('NEVEROV', 'Sergei Ivanovich'), "Sergei Ivanov is matched even without a birth date";
