@@ -5,6 +5,8 @@ use YAML::XS qw(Dump);
 use Path::Tiny qw(tempfile);
 use Test::Warnings;
 use Test::More;
+use Test::RedisServer;
+use RedisDB;
 
 my $validator = Data::Validate::Sanctions->new;
 
@@ -192,5 +194,13 @@ $validator = Data::Validate::Sanctions->new;
 ok $validator->is_sanctioned(qw(tmpb)), "get sanction file from ENV";
 $validator = Data::Validate::Sanctions->new(sanction_file => "$tmpa");
 ok $validator->is_sanctioned(qw(tmpa)), "get sanction file from args";
+
+subtest 'Subclass factory' => sub {
+    my $redis_server = Test::RedisServer->new();
+    my $redis        = RedisDB->new($redis_server->connect_info);
+
+    my $validator = Data::Validate::Sanctions->new(storage => 'redis', connection => $redis);
+    is ref($validator), 'Data::Validate::Sanctions::Redis', 'A validator with redis storage is created';
+};
 
 done_testing;

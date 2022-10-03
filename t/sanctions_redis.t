@@ -77,7 +77,7 @@ subtest 'Class constructor' => sub {
     my $validator;
     like exception { $validator = Data::Validate::Sanctions::Redis->new() }, qr/Redis connection is missing/, 'Correct error for missing redis';
 
-    ok $validator = Data::Validate::Sanctions::Redis->new(redis => $redis), 'Successfully created the object with redis object';
+    ok $validator = Data::Validate::Sanctions::Redis->new(connection => $redis), 'Successfully created the object with redis object';
     is_deeply $validator->data,
         {
         'EU-Sanctions'      => {},
@@ -97,7 +97,7 @@ subtest 'Update Data' => sub {
             content => []}};
     $mock_fetcher->redefine(run => sub { return clone($mock_data) });
     set_fixed_time(1500);
-    my $validator = Data::Validate::Sanctions::Redis->new(redis => $redis);
+    my $validator = Data::Validate::Sanctions::Redis->new(connection => $redis);
     $validator->update_data();
     my $expected = {
         'EU-Sanctions' => {
@@ -173,7 +173,7 @@ subtest 'Update Data' => sub {
     check_redis_content('OFAC-SDN',          $mock_data->{'OFAC-SDN'},          1900, 'Sanction list is stored in redis');
 
     # New objects load the same data
-    my $validator2 = Data::Validate::Sanctions::Redis->new(redis => $redis);
+    my $validator2 = Data::Validate::Sanctions::Redis->new(connection => $redis);
     is_deeply $validator2->data, $validator->data, 'New validator object loads the same data from redis';
 
     restore_time();
@@ -186,11 +186,11 @@ subtest 'get sanctioned info' => sub {
     set_fixed_time(1000);
     my $mock_fetcher = Test::MockModule->new('Data::Validate::Sanctions::Fetcher');
     $mock_fetcher->redefine(run => sub { return clone($sample_data) });
-    my $validator = Data::Validate::Sanctions::Redis->new(redis => $redis);
+    my $validator = Data::Validate::Sanctions::Redis->new(connection => $redis);
     $validator->update_data();
 
     # create a new new validator for sanction checks. No write_redis is needed.
-    $validator = Data::Validate::Sanctions::Redis->new(redis => $redis);
+    $validator = Data::Validate::Sanctions::Redis->new(connection => $redis);
     $sample_data->{$_}->{verified} = 1000 for keys %$sample_data;
     is_deeply $validator->data, $sample_data, 'Sample data is correctly loaded';
 

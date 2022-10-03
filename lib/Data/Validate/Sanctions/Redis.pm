@@ -18,7 +18,8 @@ sub new {
     my ($class, %args) = @_;
 
     my $self = {};
-    $self->{redis} = $args{redis} or die 'Redis connection is missing';
+
+    $self->{connection} = $args{connection} or die 'Redis connection is missing';
 
     $self->{sources} = [keys Data::Validate::Sanctions::Fetcher::config(eu_token => 'dummy')->%*];
 
@@ -69,7 +70,7 @@ sub _load_data {
     my $last_time = $self->{last_time};
     for my $source ($self->{sources}->@*) {
         try {
-            my ($content, $verified, $updated, $error) = $self->{redis}->hmget("SANCTIONS::$source", qw/content verified updated error/)->@*;
+            my ($content, $verified, $updated, $error) = $self->{connection}->hmget("SANCTIONS::$source", qw/content verified updated error/)->@*;
             $updated //= 0;
             next if $updated <= ($self->{_data}->{$source}->{updated} // 0);
 
@@ -105,7 +106,7 @@ sub _save_data {
     for my $source ($self->{sources}->@*) {
         $self->{_data}->{$source}->{verified} = time;
 
-        $self->{redis}->hmset(
+        $self->{connection}->hmset(
             "SANCTIONS::$source",
             updated  => $self->{_data}->{$source}->{updated} // 0,
             content  => encode_json_utf8($self->{_data}->{$source}->{content} // []),
@@ -127,12 +128,6 @@ sub data {
     return $self->{_data};
 }
 
-sub export_data {
-    my ($self, $path) = @_;
-
-    DumpFile($path, $self->{_data});
-}
-
 1;
 __END__
 
@@ -146,16 +141,20 @@ Data::Validate::Sanctions::Redis - An extention of L<Data::Validate::Sanctions::
 
     use Data::Validate::Sanctions::Redis;
 
-    # to validate clients
-    my $validator = Data::Validate::Sanctions->new(redis => $redis_read);
-    # with their name
+    my $validator = Data::Validate::Sanctions::Redis->new(connection => $redis_read);
+    
+    # to validate clients by their name
     print 'BAD' if $validator->is_sanctioned("$last_name $first_name");
-    # or with more profile data
+    # or by more profile data
     print 'BAD' if $validator->get_sanctioned_info(first_name => $first_name, last_name => $last_name, date_of_birth => $date_of_birth)->{matched};
 
     # to update the sanction dataset (needs redis write access)
-    my $validator = Data::Validate::Sanctions->new(redis => $redis_write);
+    my $validator = Data::Validate::Sanctions::Redis->new(connection => $redis_write);
     $validator->update_data(eu_token => $token);
+
+
+    # create object from the parent (factory) class
+    $validator = Data::Validate::Sanctions->new(storage => 'redis', connection => $redis_write);
 
 
 =head1 DESCRIPTION
@@ -169,7 +168,7 @@ For more details about the sanction sources please refer to the parent module L<
 
 Create the object with the redis object:
 
-    my $validator = Data::Validate::Sanctions::Redis->new(redis => $redis);
+    my $validator = Data::Validate::Sanctions::Redis->new(connection => $redis);
 
 =head2 is_sanctioned
 
@@ -249,10 +248,6 @@ If argument is provided - return timestamp of when that list was updated.
 =head2 _name_matches
 
 Pass in the client's name and sanctioned individual's name to see if they are similar or not
-
-=head2 export_data
-
-Exports the sanction lists to a local file in YAML format.
 
 =head1 AUTHOR
 

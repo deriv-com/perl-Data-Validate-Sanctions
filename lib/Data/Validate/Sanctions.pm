@@ -9,6 +9,7 @@ our @EXPORT_OK = qw/is_sanctioned set_sanction_file get_sanction_file/;
 
 use Carp;
 use Data::Validate::Sanctions::Fetcher;
+use Data::Validate::Sanctions::Redis;
 use File::stat;
 use File::ShareDir;
 use YAML::XS     qw/DumpFile LoadFile/;
@@ -29,7 +30,12 @@ my $instance;
 sub new {    ## no critic (RequireArgUnpacking)
     my ($class, %args) = @_;
 
+    my $storage = delete $args{storage} // '';
+
+    return Data::Validate::Sanctions::Redis->new(%args) if $storage eq 'redis';
+
     my $self = {};
+
     $self->{sanction_file} = $args{sanction_file} // _default_sanction_file();
 
     $self->{args} = {%args};
@@ -407,6 +413,12 @@ sub _name_matches {
     return 0;
 }
 
+sub export_data {
+    my ($self, $path) = @_;
+
+    DumpFile($path, $self->{_data});
+}
+
 1;
 __END__
 
@@ -501,6 +513,11 @@ set sanction_file which is used by L</is_sanctioned> (procedure-oriented)
 =head2 _name_matches
 
 Pass in the client's name and sanctioned individual's name to see if they are similar or not
+
+
+=head2 export_data
+
+Exports the sanction lists to a local file in YAML format.
 
 =head1 AUTHOR
 
