@@ -31,18 +31,6 @@ sub new {
     return $object;
 }
 
-sub last_updated {
-    my $self = shift;
-    my $list = shift;
-
-    if ($list) {
-        return $self->{_data}->{$list}->{updated};
-    } else {
-        $self->_load_data();
-        return max(map { $_->{updated} } values %{$self->{_data}});
-    }
-}
-
 sub set_sanction_file {
     die 'Not applicable';
 }
