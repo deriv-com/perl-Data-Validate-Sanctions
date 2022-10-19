@@ -67,11 +67,11 @@ sub _load_data {
             $self->{_data}->{$source}->{updated}  = $updated;
             $self->{_data}->{$source}->{error}    = $error;
             $last_time                            = $updated if $updated > $last_time;
-        } catch {
+        } catch ($e) {
             $self->{_data}->{$source}->{content}  = [];
             $self->{_data}->{$source}->{updated}  = 0;
             $self->{_data}->{$source}->{verified} = 0;
-            $self->{_data}->{$source}->{error}    = "Failed to load from Redis: $@";
+            $self->{_data}->{$source}->{error}    = "Failed to load from Redis: $e";
         }
     }
     $self->{last_time} = $last_time;
