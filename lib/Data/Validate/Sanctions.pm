@@ -50,8 +50,7 @@ sub update_data {
     $self->_load_data();
 
     my $new_data = Data::Validate::Sanctions::Fetcher::run($self->{args}->%*, %args);
-
-    my $updated;
+    my $updated = 0;
     foreach my $k (keys %$new_data) {
         $self->{_data}->{$k}            //= {};
         $self->{_data}->{$k}->{updated} //= 0;
@@ -64,14 +63,14 @@ sub update_data {
 
         if ($new_data->{$k}->{error}) {
             warn "$k list update failed because: $new_data->{$k}->{error}";
-            $updated = 1;
             $self->{_data}->{$k}->{error} = $new_data->{$k}->{error};
+            $updated = 1;
         } elsif ($self->{_data}{$k}->{updated} != $new_data->{$k}->{updated}
             || scalar $self->{_data}{$k}->{content}->@* != scalar $new_data->{$k}->{content}->@*)
         {
+            print "Source $k is updated with new data \n" if $args{verbose};
             $self->{_data}->{$k} = $new_data->{$k};
             $updated = 1;
-            print "Source $k is updated with new data \n" if $args{verbose};
         } else {
             print "Source $k is not changed \n" if $args{verbose};
         }

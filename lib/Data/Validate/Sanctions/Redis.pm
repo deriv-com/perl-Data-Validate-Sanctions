@@ -65,6 +65,7 @@ sub _load_data {
             $self->{_data}->{$source}->{content}  = decode_json_utf8($content);
             $self->{_data}->{$source}->{verified} = $verified;
             $self->{_data}->{$source}->{updated}  = $updated;
+            $self->{_data}->{$source}->{error}    = $error;
             $last_time                            = $updated if $updated > $last_time;
         } catch {
             $self->{_data}->{$source}->{content}  = [];
@@ -93,7 +94,6 @@ sub _save_data {
 
     for my $source ($self->{sources}->@*) {
         $self->{_data}->{$source}->{verified} = time;
-
         $self->{connection}->hmset(
             "SANCTIONS::$source",
             updated  => $self->{_data}->{$source}->{updated} // 0,

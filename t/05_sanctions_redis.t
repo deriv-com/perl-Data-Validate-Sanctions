@@ -33,7 +33,7 @@ my $sample_data = {
                 dob_epoch => [],
                 dob_year  => []
             },
-        ]
+        ],
     },
     'HMT-Sanctions' => {
         updated => 150,
@@ -94,7 +94,8 @@ subtest 'Update Data' => sub {
     my $mock_data    = {
         'EU-Sanctions' => {
             updated => 90,
-            content => []}};
+            content => []},
+    };
     $mock_fetcher->redefine(run => sub { return clone($mock_data) });
     set_fixed_time(1500);
     my $validator = Data::Validate::Sanctions::Redis->new(connection => $redis);
@@ -124,7 +125,7 @@ subtest 'Update Data' => sub {
     is_deeply $validator->data, $expected, 'Data is loaded with new update time';
     check_redis_content('EU-Sanctions', $mock_data->{'EU-Sanctions'}, 1600, 'Redis content changed by increased update time');
 
-    # redis is updated with new entries, even if the publish date is the same
+    # redis is updated with change in the number of entities, even if the publish date is the same
     $mock_data = {
         'EU-Sanctions' => {
             updated => 91,
@@ -160,6 +161,10 @@ subtest 'Update Data' => sub {
     is_deeply $validator->data, $expected, 'Data is not changed if there is error';
     check_redis_content('EU-Sanctions', $expected->{'EU-Sanctions'}, 1800, 'Redis content is not changed when there is an error');
 
+    set_fixed_time(1850);
+    $validator = Data::Validate::Sanctions::Redis->new(connection => $redis);
+    is_deeply $validator->data->{'EU-Sanctions'}, $expected->{'EU-Sanctions'}, 'All fieds are correctly loaded form redis in constructor';
+
     # All sources are updated at the same time
     $mock_data = $sample_data;
     $expected  = clone($mock_data);
@@ -171,10 +176,6 @@ subtest 'Update Data' => sub {
     check_redis_content('HMT-Sanctions', $mock_data->{'HMT-Sanctions'}, 1900, 'Sanction list is stored in redis');
     check_redis_content('OFAC-Consolidated', $mock_data->{'OFAC-Consolidated'}, 1900, 'Sanction list is stored in redis');
     check_redis_content('OFAC-SDN',          $mock_data->{'OFAC-SDN'},          1900, 'Sanction list is stored in redis');
-
-    # New objects load the same data
-    my $validator2 = Data::Validate::Sanctions::Redis->new(connection => $redis);
-    is_deeply $validator2->data, $validator->data, 'New validator object loads the same data from redis';
 
     restore_time();
     $mock_fetcher->unmock_all;
@@ -192,6 +193,7 @@ subtest 'get sanctioned info' => sub {
     # create a new new validator for sanction checks. No write_redis is needed.
     $validator = Data::Validate::Sanctions::Redis->new(connection => $redis);
     $sample_data->{$_}->{verified} = 1000 for keys %$sample_data;
+    $sample_data->{$_}->{error} = '' for keys %$sample_data;
     is_deeply $validator->data, $sample_data, 'Sample data is correctly loaded';
 
     ok !$validator->is_sanctioned(qw(sergei ivanov)),                      "Sergei Ivanov not is_sanctioned";
