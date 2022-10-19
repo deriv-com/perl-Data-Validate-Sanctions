@@ -110,12 +110,6 @@ sub _default_sanction_file {
     die 'Not applicable';
 }
 
-sub data {
-    my ($self) = @_;
-
-    return $self->{_data};
-}
-
 1;
 __END__
 

@@ -121,6 +121,14 @@ sub is_sanctioned {    ## no critic (RequireArgUnpacking)
     return (get_sanctioned_info(@_))->{matched};
 }
 
+sub data {
+    my ($self) = @_;
+
+    $self->_load_data() unless $self->{_data};
+
+    return $self->{_data};
+}
+
 =head2 _match_other_fields
 
 Matches fields possibly available in addition to name and date of birth.
@@ -518,6 +526,10 @@ Pass in the client's name and sanctioned individual's name to see if they are si
 =head2 export_data
 
 Exports the sanction lists to a local file in YAML format.
+
+=head2 data
+
+Gets the sanction list content with lazy loading.
 
 =head1 AUTHOR
 
