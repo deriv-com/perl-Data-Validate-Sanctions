@@ -1,3 +1,25 @@
+alias:
+  - &install_dzil 
+    run:
+      command: |
+        cpm install -g --no-test Dist::Zilla Dist::Zilla::App::Command::cover ExtUtils::MakeMaker
+      name: Install Dzil
+  - &install_author_deps
+    run: 
+      name: Install dzil author dependencies
+      command: |
+        cpm install --no-test -g \
+        -w 2 \
+        --mirror=http://cpan.cpantesters.org/ $(dzil authordeps --missing)
+  - &install_deps
+    run:
+      name: Install dist deps
+      command: |
+        # see https://github.com/team-at-cpan/Dist-Zilla-Plugin-PodInherit/issues/1 to check why we not use 
+        # dzil listdeps --missing directly here
+        cpanm -n --installdeps .
+        dzil listdeps --author --missing --cpanm-versions | xargs cpanm -n
+ 
 jobs:
   test:
     parameters:
@@ -9,24 +31,44 @@ jobs:
       - image: perldocker/perl-tester:<< parameters.perl-version >>
     steps:
       - checkout
-      - run:
-          command:
-            cpm install -g --no-test Dist::Zilla Dist::Zilla::App::Command::cover ExtUtils::MakeMaker
-          name: Install Dzil
-      - run:
-          name: Install dzil author dependencies
-          command: |
-            cpm install -g \
-            -w 2 \
-            --mirror=http://cpan.cpantesters.org/ $(dzil authordeps --missing)
-      - run:
-          name: Install dist deps
-          command: |
-            dzil listdeps --author --missing --cpanm-versions | xargs cpanm -n
+      - *install_dzil
+      - *install_author_deps
+      - *install_deps
       - run:
           name: Run Tests
           command: |
-            dzil smoke --release --author && dzil cover -test && dzil xtest
+            dzil smoke --release --author && dzil cover -test -report codecov && dzil xtest
+  release:
+    docker:
+      - image: perldocker/perl-tester:5.34
+    steps:
+      - checkout
+      - *install_dzil
+      - *install_author_deps
+      - *install_deps
+      - run:
+          name: setup PAUSE account
+          command: |
+            echo -e "user $PAUSE_USER\npassword $PAUSE_PASSWORD\n" >> ~/.pause
+      - run:
+          name: setup git
+          command: |
+            git config --global user.email "circleci@binary.com"
+            git config --global user.name "circleci"
+            # set remote github because dzil will push to github
+            # https://metacpan.org/release/DERIV/Dist-Zilla-PluginBundle-Author-DERIV-0.003/source/lib/Dist/Zilla/PluginBundle/Author/DERIV.pm#L122
+            git remote add github $(git remote get-url origin)
+      - run:
+          name: Release to PAUSE
+          command: |
+            if grep -Pzq '\{\{\$NEXT\}\}\n\s*\n' Changes
+            then
+                echo "No changes, no need release"
+                exit 0
+            fi
+            # use git push to test permission
+            git push github master
+            echo "y\n" | DZIL_CONFIRMRELEASE_DEFAULT=y dzil release
 
 workflows:
   build-workflow:
@@ -41,4 +83,12 @@ workflows:
               - "5.30"
               - "5.32"
               - "5.34"
+    - release:
+       context: release-binary
+       requires:
+         - test
+       filters:
+         branches:
+           only: 
+           - master
 version: 2.1
