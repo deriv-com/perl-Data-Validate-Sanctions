@@ -58,14 +58,17 @@ sub _load_data {
     my $last_time = $self->{last_time};
     for my $source ($self->{sources}->@*) {
         try {
+            $self->{_data}->{$source} //= {};
+
             my ($content, $verified, $updated, $error) = $self->{connection}->hmget("SANCTIONS::$source", qw/content verified updated error/)->@*;
             $updated //= 0;
-            next if $updated <= ($self->{_data}->{$source}->{updated} // 0);
+            my $current_update_date = $self->{_data}->{$source}->{updated} // 0;
+            next if $current_update_date && $updated <= $current_update_date;
 
-            $self->{_data}->{$source}->{content}  = decode_json_utf8($content);
-            $self->{_data}->{$source}->{verified} = $verified;
+            $self->{_data}->{$source}->{content}  = decode_json_utf8($content // '[]');
+            $self->{_data}->{$source}->{verified} = $verified // 0;
             $self->{_data}->{$source}->{updated}  = $updated;
-            $self->{_data}->{$source}->{error}    = $error;
+            $self->{_data}->{$source}->{error}    = $error // '';
             $last_time                            = $updated if $updated > $last_time;
         } catch ($e) {
             $self->{_data}->{$source}->{content}  = [];

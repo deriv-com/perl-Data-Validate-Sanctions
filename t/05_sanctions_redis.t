@@ -12,7 +12,7 @@ use Test::MockModule;
 use Test::RedisServer;
 use Test::MockTime qw(set_fixed_time restore_time);
 use RedisDB;
-use JSON::MaybeUTF8 qw(decode_json_utf8);
+use JSON::MaybeUTF8 qw(encode_json_utf8 decode_json_utf8);
 use Clone           qw(clone);
 
 use Data::Validate::Sanctions::Redis;
@@ -80,10 +80,10 @@ subtest 'Class constructor' => sub {
     ok $validator = Data::Validate::Sanctions::Redis->new(connection => $redis), 'Successfully created the object with redis object';
     is_deeply $validator->data,
         {
-        'EU-Sanctions'      => {},
-        'HMT-Sanctions'     => {},
-        'OFAC-Consolidated' => {},
-        'OFAC-SDN'          => {},
+        'EU-Sanctions'      => {content => [], verified => 0, updated => 0, error=> ''},
+        'HMT-Sanctions'     => {content => [], verified => 0, updated => 0, error=> ''},
+        'OFAC-Consolidated' => {content => [], verified => 0, updated => 0, error=> ''},
+        'OFAC-SDN'          => {content => [], verified => 0, updated => 0, error=> ''},
         },
         'There is no sanction data';
 };
@@ -106,9 +106,9 @@ subtest 'Update Data' => sub {
             updated  => 90,
             verified => 1500,
         },
-        'HMT-Sanctions'     => {verified => 1500},
-        'OFAC-Consolidated' => {verified => 1500},
-        'OFAC-SDN'          => {verified => 1500},
+        'HMT-Sanctions'     => {content => [], verified => 1500, updated => 0, error=> ''},
+        'OFAC-Consolidated' => {content => [], verified => 1500, updated => 0, error=> ''},
+        'OFAC-SDN'          => {content => [], verified => 1500, updated => 0, error=> ''},
     };
     is_deeply $validator->data, $expected, 'Data is correctly loaded';
     check_redis_content('EU-Sanctions',      $mock_data->{'EU-Sanctions'}, 1500);
@@ -179,6 +179,48 @@ subtest 'Update Data' => sub {
 
     restore_time();
     $mock_fetcher->unmock_all;
+};
+
+subtest 'load data' => sub {
+    clear_redis();
+    my $validator = Data::Validate::Sanctions::Redis->new(connection => $redis);
+    my $expected = {
+        'EU-Sanctions' => {content => [], verified => 0, updated => 0, error => ''},
+        'HMT-Sanctions'=> {content => [], verified => 0, updated => 0, error => ''},
+        'OFAC-Consolidated' => {content => [], verified => 0, updated => 0, error => ''},
+        'OFAC-SDN' =>   {content => [], verified => 0, updated => 0, error => ''}
+    };
+    is_deeply $validator->data, $expected, 'Saction lists are loaded with default values when redis is empty';
+    is $validator->last_updated, 0, 'Updated date is zero';
+
+    my $test_data = {
+        'EU-Sanctions' => {},
+        'HMT-Sanctions'=> {updated => 1001, content => [{names     => ['TMPA']}], verified => 1101, extra_field => 1},
+        'OFAC-SDN' =>   {updated => 1002, content => [], verified => 1102, error => 'Test error'}
+    };
+
+    $expected = {
+        'EU-Sanctions' => {content => [], verified => 0, updated => 0, error => ''},
+        'HMT-Sanctions'=> {updated => 1001, content => [{names     => ['TMPA']}], verified => 1101, error => ''},
+        'OFAC-Consolidated' => {content => [], verified => 0, updated => 0, error => ''},
+        'OFAC-SDN' => {updated => 1002, content => [], verified => 1102, error => 'Test error'}
+    };
+
+    for my $source (keys %$test_data) {
+        # save data to redis
+        for my $field (keys $test_data->{$source}->%*) {
+            my $value = $test_data->{$source}->{$field};
+            $value = encode_json_utf8($value) if ref $value;
+            $redis->hmset("SANCTIONS::$source", $field, $value);
+        }
+    }
+
+    $validator = Data::Validate::Sanctions::Redis->new(connection => $redis);
+    is_deeply $validator->data->{'EU-Sanctions'}, {content => [], verified => 0, updated => 0, error => ''}, 'EU sanctions list loaded with default values from Redis';
+    is_deeply $validator->data->{'HMT-Sanctions'}, {updated => 1001, content => [{names     => ['TMPA']}], verified => 1101, error => ''}, 'HMT sanctions loaded correctly with extra field ignored';
+    is_deeply $validator->data->{'OFAC-SDN'}, {updated => 1002, content => [], verified => 1102, error => 'Test error'}, 'OFAC-SND loaded with correct error';
+    is_deeply $validator->data->{'OFAC-Consolidated'}, {content => [], verified => 0, updated => 0, error => ''}, 'Missing source OFAC-Consolodated loaded with default values';
+    is $validator->last_updated, 1002, 'Update date is the maximum of the dates in all sources';
 };
 
 subtest 'get sanctioned info' => sub {
@@ -296,6 +338,7 @@ subtest 'get sanctioned info' => sub {
         delete $expected_result->{matched_args}->{$field};
         is_deeply $validator->get_sanctioned_info({%$args, $field => undef}), $expected_result, "Missing optional args are ignored - $field";
     }
+    restore_time();
 };
 
 sub clear_redis {

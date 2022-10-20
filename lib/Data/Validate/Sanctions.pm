@@ -92,7 +92,7 @@ sub last_updated {
         return $self->{_data}->{$list}->{updated};
     } else {
         $self->_load_data();
-        return max(map { $_->{updated} } values %{$self->{_data}});
+        return max(map { $_->{updated} // 0 } values %{$self->{_data}});
     }
 }
 
@@ -348,6 +348,7 @@ Indexes data by name. Each name may have multiple matching entries.
 sub _index_data {
     my $self = shift;
 
+    $self->{_data} //= {};
     $self->{_index} = {};
     for my $source (keys $self->{_data}->%*) {
         my @content = clone($self->{_data}->{$source}->{content} // [])->@*;
