@@ -28,6 +28,7 @@ on test => sub {
     requires 'Test::Warnings', '0.026';
     requires 'Test::MockModule', '0.15';
     requires 'Test::MockObject', '1.20161202';
+    requires 'Test::MockTime';
     requires 'Test::Deep', '0';
     requires 'FindBin', '0';
     requires 'Path::Tiny', '0';
