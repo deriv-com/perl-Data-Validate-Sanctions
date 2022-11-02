@@ -7,6 +7,7 @@ jobs:
         default: "5.34"
     docker:
       - image: perldocker/perl-tester:<< parameters.perl-version >>
+      - image: cimg/redis:6.2.7
     steps:
       - checkout
       - run:
@@ -23,10 +24,6 @@ jobs:
           name: Install dist deps
           command: |
             dzil listdeps --author --missing --cpanm-versions | xargs cpanm -n
-      - run:
-          name: Install redis server
-          command: |
-            apt-get install redis-server
       - run:
           name: Run Tests
           command: |

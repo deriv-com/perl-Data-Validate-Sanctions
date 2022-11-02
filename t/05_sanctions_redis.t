@@ -9,7 +9,6 @@ use Test::Warnings;
 use Test::More;
 use Test::Fatal;
 use Test::MockModule;
-use Test::RedisServer;
 use Test::MockTime qw(set_fixed_time restore_time);
 use RedisDB;
 use JSON::MaybeUTF8 qw(encode_json_utf8 decode_json_utf8);
@@ -17,7 +16,10 @@ use Clone           qw(clone);
 
 use Data::Validate::Sanctions::Redis;
 
-my $redis_server = Test::RedisServer->new();
+my $redis_server;
+eval { require Test::RedisServer; $redis_server = Test::RedisServer->new(conf => {port => 6379}) }
+    or plan skip_all => 'Test::RedisServer is required for this test';
+
 my $redis        = RedisDB->new($redis_server->connect_info);
 
 my $sample_data = {

@@ -7,7 +7,9 @@ use Test::Warnings;
 use Test::More;
 use Test::RedisServer;
 use RedisDB;
-
+my $redis_server;
+    eval { require Test::RedisServer; $redis_server = Test::RedisServer->new(conf => {port => 6379}) }
+    or plan skip_all => 'Test::RedisServer is required for this test';
 my $validator = Data::Validate::Sanctions->new;
 
 ok $validator->is_sanctioned('NEVEROV', 'Sergei Ivanovich', -253411200), "Sergei Ivanov is_sanctioned for sure";
@@ -196,7 +198,6 @@ $validator = Data::Validate::Sanctions->new(sanction_file => "$tmpa");
 ok $validator->is_sanctioned(qw(tmpa)), "get sanction file from args";
 
 subtest 'Subclass factory' => sub {
-    my $redis_server = Test::RedisServer->new();
     my $redis        = RedisDB->new($redis_server->connect_info);
 
     my $validator = Data::Validate::Sanctions->new(storage => 'redis', connection => $redis);
