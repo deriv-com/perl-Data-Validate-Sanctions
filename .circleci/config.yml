@@ -13,7 +13,7 @@ jobs:
       - run:
           name: Install Docker client
           command: |
-            apt-get add docker-cli
+            apt-get install docker-cli
       - run:
           name: Run Redis server
           command: |
