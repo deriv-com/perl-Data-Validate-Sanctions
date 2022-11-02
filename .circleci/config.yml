@@ -11,6 +11,14 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install Docker client
+          command: |
+            apk add docker-cli
+      - run:
+          name: Run Redis server
+          command: |
+            docker run --name redis-testing -d -p 6378:6379 redis
+      - run:
           command:
             cpm install -g --no-test Dist::Zilla Dist::Zilla::App::Command::cover ExtUtils::MakeMaker
           name: Install Dzil
@@ -24,10 +32,6 @@ jobs:
           name: Install dist deps
           command: |
             dzil listdeps --author --missing --cpanm-versions | xargs cpanm -n
-      - run:
-          name: Run Redis server
-          command: |
-            docker run --name redis-testing -d -p 6378:6379 redis
       - run:
           name: Run Tests
           command: |
