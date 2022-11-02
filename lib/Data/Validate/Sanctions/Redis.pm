@@ -123,12 +123,11 @@ __END__
 Data::Validate::Sanctions::Redis - An extension of L<Data::Validate::Sanctions::Redis> that stores sanction data in redis.
 
 =head1 SYNOPSIS
-
     ## no critic
     use Data::Validate::Sanctions::Redis;
-    
+
     my $validator = Data::Validate::Sanctions::Redis->new(connection => $redis_read);
-    
+
     # to validate clients by their name
     print 'BAD' if $validator->is_sanctioned("$last_name $first_name");
     # or by more profile data
@@ -140,8 +139,6 @@ Data::Validate::Sanctions::Redis - An extension of L<Data::Validate::Sanctions::
 
     # create object from the parent (factory) class
     my $validator = Data::Validate::Sanctions->new(storage => 'redis', connection => $redis_write);
-
-    ## no critic
 
 =head1 DESCRIPTION
 
