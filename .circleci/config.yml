@@ -27,7 +27,7 @@ jobs:
       - run:
           name: Run Redis server
           command: |
-          docker run --name redis-testing -d -p 6378:6379 redis
+            docker run --name redis-testing -d -p 6378:6379 redis
       - run:
           name: Run Tests
           command: |
