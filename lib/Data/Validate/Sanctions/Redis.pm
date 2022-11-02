@@ -123,11 +123,11 @@ __END__
 Data::Validate::Sanctions::Redis - An extension of L<Data::Validate::Sanctions::Redis> that stores sanction data in redis.
 
 =head1 SYNOPSIS
-
-    use Data::Validate::Sanctions::Redis;
-    my $redis_read, $last_name, $first_name, $date_of_birth, $redis_write, $token, $validator;
+    ## no critic
     
-    $validator = Data::Validate::Sanctions::Redis->new(connection => $redis_read);
+    use Data::Validate::Sanctions::Redis; 
+    
+    my $validator = Data::Validate::Sanctions::Redis->new(connection => $redis_read); 
     
     # to validate clients by their name
     print 'BAD' if $validator->is_sanctioned("$last_name $first_name");
@@ -135,13 +135,14 @@ Data::Validate::Sanctions::Redis - An extension of L<Data::Validate::Sanctions::
     print 'BAD' if $validator->get_sanctioned_info(first_name => $first_name, last_name => $last_name, date_of_birth => $date_of_birth)->{matched};
 
     # to update the sanction dataset (needs redis write access)
-    $validator = Data::Validate::Sanctions::Redis->new(connection => $redis_write);
+    my $validator = Data::Validate::Sanctions::Redis->new(connection => $redis_write); ## no critic
     $validator->update_data(eu_token => $token);
 
 
     # create object from the parent (factory) class
-    $validator = Data::Validate::Sanctions->new(storage => 'redis', connection => $redis_write);
+    my $validator = Data::Validate::Sanctions->new(storage => 'redis', connection => $redis_write);
 
+    ## no critic
 
 =head1 DESCRIPTION
 
