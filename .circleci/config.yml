@@ -25,6 +25,10 @@ jobs:
           command: |
             dzil listdeps --author --missing --cpanm-versions | xargs cpanm -n
       - run:
+          name: Run Redis server
+          command: |
+          docker run --name redis-testing -d -p 6378:6379 redis
+      - run:
           name: Run Tests
           command: |
             dzil smoke --release --author && dzil cover -test && dzil xtest
