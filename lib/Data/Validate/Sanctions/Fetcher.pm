@@ -461,7 +461,7 @@ sub run {
                 my $count = $data->{content}->@*;
                 print "Source $id: $count entries fetched \n" if $args{verbose};
             }
-        } catch  ($e) {
+        } catch ($e) {
             $result->{$id}->{error} = $e;
         }
     }

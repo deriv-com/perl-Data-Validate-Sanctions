@@ -4,7 +4,7 @@ use utf8;
 
 use Class::Unload;
 use Data::Validate::Sanctions;
-use YAML::XS qw(Dump);
+use YAML::XS   qw(Dump);
 use Path::Tiny qw(tempfile);
 use List::Util qw(first);
 use Test::More;
@@ -41,18 +41,20 @@ subtest 'source url arguments' => sub {
     );
 
     my $data = Data::Validate::Sanctions::Fetcher::run(%test_args);
-    cmp_deeply $data, {'HMT-Sanctions' => {
-                               error => ignore(),
-                             },
-          'OFAC-Consolidated' => {
-                                   error => ignore(),
-                                 },
-          'EU-Sanctions' => {
-                              error => ignore(),
-                            },
-          'OFAC-SDN' => {
-                              error => ignore(),
-                            },
+    cmp_deeply $data,
+        {
+        'HMT-Sanctions' => {
+            error => ignore(),
+        },
+        'OFAC-Consolidated' => {
+            error => ignore(),
+        },
+        'EU-Sanctions' => {
+            error => ignore(),
+        },
+        'OFAC-SDN' => {
+            error => ignore(),
+        },
         },
         'All sources return errors - no content';
 
@@ -67,25 +69,27 @@ subtest 'EU Sanctions' => sub {
     warnings_like {
         $data = Data::Validate::Sanctions::Fetcher::run(%args, eu_url => undef);
     }
-    [qr/EU Sanctions will fail whithout eu_token or eu_url/],
-        'Correct warning when the EU sanctions token is missing';
+    [qr/EU Sanctions will fail whithout eu_token or eu_url/], 'Correct warning when the EU sanctions token is missing';
 
     cmp_deeply $data->{$source_name}, {error => ignore()}, 'There is an error in the result';
     like $data->{$source_name}->{error}, qr/Url is empty for EU-Sanctions/, 'Correct error for missing EU url';
 
     $data = Data::Validate::Sanctions::Fetcher::run(
-            %args,
-            eu_url   => undef,
-            eu_token => 'ASDF'
-        );
-    like $data->{$source_name}->{error}, qr(\bUser agent MockObject is hit by the url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content\?token=ASDF\b), 'Token is added to the URL in error message';
+        %args,
+        eu_url   => undef,
+        eu_token => 'ASDF'
+    );
+    like $data->{$source_name}->{error},
+        qr(\bUser agent MockObject is hit by the url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content\?token=ASDF\b),
+        'Token is added to the URL in error message';
 
     $data = Data::Validate::Sanctions::Fetcher::run(
-            %args,
-            eu_url   => 'http://dummy.binary.com',
-            eu_token => 'ASDF'
-        );
-    like $data->{$source_name}->{error}, qr(\bUser agent MockObject is hit by the url: http://dummy.binary.com\b), 'eu_url argument is directly used, without eu_token modification';
+        %args,
+        eu_url   => 'http://dummy.binary.com',
+        eu_token => 'ASDF'
+    );
+    like $data->{$source_name}->{error}, qr(\bUser agent MockObject is hit by the url: http://dummy.binary.com\b),
+        'eu_url argument is directly used, without eu_token modification';
 
     $data = Data::Validate::Sanctions::Fetcher::run(%args);
     ok $data->{$source_name}, 'EU Sanctions are loaded from the sample file';
@@ -144,8 +148,8 @@ subtest 'HMT Sanctions' => sub {
 
     $data = Data::Validate::Sanctions::Fetcher::run(%args);
     ok $data->{$source_name}, 'HMT Sanctions are loaded from the sample file';
-    is $data->{$source_name}{updated}, 1587945600, "Sanctions update date matches the sample file";
-    is scalar $data->{$source_name}{content}->@*, 23, "Number of names matches the content of the sample file";
+    is $data->{$source_name}{updated},            1587945600, "Sanctions update date matches the sample file";
+    is scalar $data->{$source_name}{content}->@*, 23,         "Number of names matches the content of the sample file";
 
     is_deeply find_entry_by_name($data->{$source_name}, 'HOJATI Mohsen'),
         {
@@ -195,8 +199,8 @@ subtest 'OFAC Sanctions' => sub {
         # OFAC sources have the same structure. We've created the samle sample file for both of them.
 
         ok $data->{$source_name}, 'Sanctions are loaded from the sample file';
-        is $data->{$source_name}{updated}, 1587513600, "Sanctions update date matches the content of sample file";
-        is scalar $data->{$source_name}{content}->@*, 6, "Number of names matches the content of the sample file";
+        is $data->{$source_name}{updated},            1587513600, "Sanctions update date matches the content of sample file";
+        is scalar $data->{$source_name}{content}->@*, 6,          "Number of names matches the content of the sample file";
 
         my $dataset = $data->{$source_name}->{names_list};
 

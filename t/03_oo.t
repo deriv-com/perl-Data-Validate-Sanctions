@@ -1,20 +1,20 @@
 use strict;
 use Class::Unload;
 use Data::Validate::Sanctions;
-use YAML::XS qw(Dump);
+use YAML::XS   qw(Dump);
 use Path::Tiny qw(tempfile);
 use Test::Warnings;
 use Test::More;
 use Test::RedisServer;
 use RedisDB;
 my $redis_server;
-    eval { require Test::RedisServer; $redis_server = Test::RedisServer->new(conf => {port => 6379}) }
+eval { require Test::RedisServer; $redis_server = Test::RedisServer->new(conf => {port => 6379}) }
     or plan skip_all => 'Test::RedisServer is required for this test';
 my $validator = Data::Validate::Sanctions->new;
 
 ok $validator->is_sanctioned('NEVEROV', 'Sergei Ivanovich', -253411200), "Sergei Ivanov is_sanctioned for sure";
 my $result = $validator->get_sanctioned_info('abu', 'usama', -306028800);
-is $result->{matched}, 1;
+is $result->{matched},                   1;
 is $result->{matched_args}->{dob_epoch}, -306028800;
 ok $result->{matched_args}->{name} =~ m/\babu\b/i and $result->{matched_args}->{name} =~ m/\busama\b/i;
 
@@ -27,7 +27,7 @@ $result = $validator->get_sanctioned_info('Ali', 'Abu');
 is $result->{matched}, 1, 'Should match because has dob_text';
 
 $result = $validator->get_sanctioned_info('Abu', 'Salem', '1948-10-10');
-is $result->{matched}, 1;
+is $result->{matched},                  1;
 is $result->{matched_args}->{dob_year}, 1948;
 ok $result->{matched_args}->{name} =~ m/\babu\b/i and $result->{matched_args}->{name} =~ m/\bsalem\b/i;
 
@@ -88,12 +88,12 @@ $tmpb->spew(
     });
 
 $validator = Data::Validate::Sanctions->new(sanction_file => "$tmpa");
-ok !$validator->is_sanctioned(qw(sergei ivanov)), "Sergei Ivanov not is_sanctioned";
-ok $validator->is_sanctioned(qw(tmpa)), "now sanction file is tmpa, and tmpa is in test1 list";
+ok !$validator->is_sanctioned(qw(sergei ivanov)),                      "Sergei Ivanov not is_sanctioned";
+ok $validator->is_sanctioned(qw(tmpa)),                                "now sanction file is tmpa, and tmpa is in test1 list";
 ok !$validator->is_sanctioned("Mohammad reere yuyuy", "wqwqw  qqqqq"), "is not in test1 list";
-ok $validator->is_sanctioned("Zaki", "Ahmad"), "is in test1 list - searched without dob";
-ok $validator->is_sanctioned("Zaki", "Ahmad", '1999-01-05'), 'the guy is sanctioned when dob year is matching';
-ok $validator->is_sanctioned("atom", "test", '1999-01-05'),  "Match correctly with one world name in sanction list";
+ok $validator->is_sanctioned("Zaki", "Ahmad"),                         "is in test1 list - searched without dob";
+ok $validator->is_sanctioned("Zaki", "Ahmad", '1999-01-05'),           'the guy is sanctioned when dob year is matching';
+ok $validator->is_sanctioned("atom", "test", '1999-01-05'),            "Match correctly with one world name in sanction list";
 
 is_deeply $validator->get_sanctioned_info("Zaki", "Ahmad", '1999-01-05'),
     {
@@ -198,9 +198,12 @@ $validator = Data::Validate::Sanctions->new(sanction_file => "$tmpa");
 ok $validator->is_sanctioned(qw(tmpa)), "get sanction file from args";
 
 subtest 'Subclass factory' => sub {
-    my $redis        = RedisDB->new($redis_server->connect_info);
+    my $redis = RedisDB->new($redis_server->connect_info);
 
-    my $validator = Data::Validate::Sanctions->new(storage => 'redis', connection => $redis);
+    my $validator = Data::Validate::Sanctions->new(
+        storage    => 'redis',
+        connection => $redis
+    );
     is ref($validator), 'Data::Validate::Sanctions::Redis', 'A validator with redis storage is created';
 };
 

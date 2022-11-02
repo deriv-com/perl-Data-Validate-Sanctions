@@ -50,7 +50,7 @@ sub update_data {
     $self->_load_data();
 
     my $new_data = Data::Validate::Sanctions::Fetcher::run($self->{args}->%*, %args);
-    my $updated = 0;
+    my $updated  = 0;
     foreach my $k (keys %$new_data) {
         $self->{_data}->{$k}            //= {};
         $self->{_data}->{$k}->{updated} //= 0;
@@ -424,7 +424,7 @@ sub _name_matches {
 sub export_data {
     my ($self, $path) = @_;
 
-    DumpFile($path, $self->{_data});
+    return DumpFile($path, $self->{_data});
 }
 
 1;
