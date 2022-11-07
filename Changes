@@ -1,8 +1,6 @@
 Revision history for Data-Validate-Sanctions
 
 {{$NEXT}}
-0.14    2022-09-13 13:55:00 CST
-        New module for redis storage
 
 0.13      2022-07-26 13:55:00 CST
         Improving the search for larger sanction lists

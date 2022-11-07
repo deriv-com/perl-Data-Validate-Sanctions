@@ -12,7 +12,7 @@ jobs:
       - run:
           name: Install Redis server
           command: |
-            apt-get install -y redis && apt-get install -y redis-server 
+            apt-get install -y redis
       - run:
           command:
             cpm install -g --no-test Dist::Zilla Dist::Zilla::App::Command::cover ExtUtils::MakeMaker
