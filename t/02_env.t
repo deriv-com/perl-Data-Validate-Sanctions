@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use YAML::XS qw(Dump);
+use YAML::XS   qw(Dump);
 use Path::Tiny qw(tempfile);
 use Test::Exception;
 use Test::Warnings;
