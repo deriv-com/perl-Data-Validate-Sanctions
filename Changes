@@ -1,6 +1,8 @@
 Revision history for Data-Validate-Sanctions
 
 {{$NEXT}}
+
+0.15      2022-11-23 11:12:24+00:00 UTC
         Sanction data will be fetched on a single server and stored in Redis by a new module Data::Validate::Sanction::Redis
 
 0.14    2022-08-05 03:02:40+00:00 UTC
