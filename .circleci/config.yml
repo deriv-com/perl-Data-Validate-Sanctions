@@ -35,6 +35,10 @@ jobs:
       - *install_author_deps
       - *install_deps
       - run:
+          name: Install Redis server
+          command: |
+            apt-get install -y redis
+      - run:
           name: Run Tests
           command: |
             dzil smoke --release --author && dzil cover -test -report codecov && dzil xtest
