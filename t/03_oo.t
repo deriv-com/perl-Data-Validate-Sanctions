@@ -8,7 +8,7 @@ use Test::More;
 use Test::RedisServer;
 use RedisDB;
 my $redis_server;
-eval { require Test::RedisServer; $redis_server = Test::RedisServer->new(conf => {port => 6379}) }
+eval { require Test::RedisServer; $redis_server = Test::RedisServer->new(conf => {port => 6311}) }
     or plan skip_all => 'Test::RedisServer is required for this test';
 my $validator = Data::Validate::Sanctions->new;
 

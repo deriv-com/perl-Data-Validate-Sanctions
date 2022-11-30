@@ -17,7 +17,7 @@ use Clone           qw(clone);
 use Data::Validate::Sanctions::Redis;
 
 my $redis_server;
-eval { require Test::RedisServer; $redis_server = Test::RedisServer->new(conf => {port => 6379}) }
+eval { require Test::RedisServer; $redis_server = Test::RedisServer->new(conf => {port => 6311}) }
     or plan skip_all => 'Test::RedisServer is required for this test';
 
 my $redis = RedisDB->new($redis_server->connect_info);
@@ -120,6 +120,16 @@ subtest 'Update Data' => sub {
         },
     };
     $mock_fetcher->redefine(run => sub { return clone($mock_data) });
+
+    my $index_call_counter = 0;
+    my $mock_sanction      = Test::MockModule->new('Data::Validate::Sanctions');
+    $mock_sanction->redefine(
+        _index_data => sub {
+            $index_call_counter++;
+
+            return $mock_sanction->original('_index_data')->(shift);
+        });
+
     set_fixed_time(1500);
     my $validator = Data::Validate::Sanctions::Redis->new(connection => $redis);
     $validator->update_data();
@@ -153,6 +163,9 @@ subtest 'Update Data' => sub {
     check_redis_content('HMT-Sanctions',     {},                           1500);
     check_redis_content('OFAC-Consolidated', {},                           1500);
     check_redis_content('OFAC-SDN',          {},                           1500);
+    is $index_call_counter, 1, 'index called after update';
+    $validator->update_data();
+    is $index_call_counter, 1, 'index not been called after update, due to unchanged data';
 
     # rewrite to redis if update (publish) time is changed
     set_fixed_time(1600);
@@ -162,6 +175,7 @@ subtest 'Update Data' => sub {
     $expected->{$_}->{verified} = 1600 for keys %$expected;
     is_deeply $validator->data, $expected, 'Data is loaded with new update time';
     check_redis_content('EU-Sanctions', $mock_data->{'EU-Sanctions'}, 1600, 'Redis content changed by increased update time');
+    is $index_call_counter, 2, 'index called after update';
 
     # redis is updated with change in the number of entities, even if the publish date is the same
     $mock_data = {
@@ -342,14 +356,26 @@ subtest 'get sanctioned info' => sub {
     set_fixed_time(1000);
     my $mock_fetcher = Test::MockModule->new('Data::Validate::Sanctions::Fetcher');
     $mock_fetcher->redefine(run => sub { return clone($sample_data) });
+
+    my $index_call_counter = 0;
+    my $mock_sanction      = Test::MockModule->new('Data::Validate::Sanctions');
+    $mock_sanction->redefine(
+        _index_data => sub {
+            $index_call_counter++;
+
+            return $mock_sanction->original('_index_data')->(shift);
+        });
+
     my $validator = Data::Validate::Sanctions::Redis->new(connection => $redis);
     $validator->update_data();
+    is $index_call_counter, 1, 'index function called';
 
     # create a new new validator for sanction checks. No write_redis is needed.
     $validator                     = Data::Validate::Sanctions::Redis->new(connection => $redis);
     $sample_data->{$_}->{verified} = 1000 for keys %$sample_data;
     $sample_data->{$_}->{error}    = ''   for keys %$sample_data;
     is_deeply $validator->data, $sample_data, 'Sample data is correctly loaded';
+    is $index_call_counter, 2, 'index function called';
 
     ok !$validator->is_sanctioned(qw(sergei ivanov)),                      "Sergei Ivanov not is_sanctioned";
     ok $validator->is_sanctioned(qw(tmpa)),                                "now sanction file is tmpa, and tmpa is in test1 list";
@@ -357,6 +383,7 @@ subtest 'get sanctioned info' => sub {
     ok $validator->is_sanctioned("Zaki", "Ahmad"),                         "is in test1 list - searched without dob";
     ok $validator->is_sanctioned("Zaki", "Ahmad", '1999-01-05'),           'the guy is sanctioned when dob year is matching';
     ok $validator->is_sanctioned("atom", "test", '1999-01-05'),            "Match correctly with one world name in sanction list";
+    is $index_call_counter, 2, 'index function not have been called';
 
     is_deeply $validator->get_sanctioned_info("Zaki", "Ahmad", '1999-01-05'),
         {
@@ -451,6 +478,8 @@ subtest 'get sanctioned info' => sub {
         delete $expected_result->{matched_args}->{$field};
         is_deeply $validator->get_sanctioned_info({%$args, $field => undef}), $expected_result, "Missing optional args are ignored - $field";
     }
+    is $index_call_counter, 2, 'index function not have been called';
+
     restore_time();
 };
 

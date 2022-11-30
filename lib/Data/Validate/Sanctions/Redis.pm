@@ -23,10 +23,10 @@ sub new {
 
     $self->{sources} = [keys Data::Validate::Sanctions::Fetcher::config(eu_token => 'dummy')->%*];
 
-    $self->{args}      = {%args};
+    $self->{args} = {%args};
 
     $self->{last_modification} = 0;
-    $self->{last_index} = 0;
+    $self->{last_index}        = 0;
 
     my $object = bless $self, ref($class) || $class;
     $object->_load_data();
@@ -53,8 +53,8 @@ sub get_sanctioned_info {
 sub _load_data {
     my $self = shift;
 
-    $self->{last_modification}               //= 0;
-    $self->{last_index}               //= 0;
+    $self->{last_modification}       //= 0;
+    $self->{last_index}              //= 0;
     $self->{_data}                   //= {};
     $self->{_sanctioned_name_tokens} //= {};
     $self->{_token_sanctioned_names} //= {};
@@ -73,7 +73,7 @@ sub _load_data {
             $self->{_data}->{$source}->{verified} = $verified // 0;
             $self->{_data}->{$source}->{updated}  = $updated;
             $self->{_data}->{$source}->{error}    = $error // '';
-            $last_modification                            = $updated if $updated > $last_modification;
+            $last_modification                    = $updated if $updated > $last_modification;
         } catch ($e) {
             $self->{_data}->{$source}->{content}  = [];
             $self->{_data}->{$source}->{updated}  = 0;
