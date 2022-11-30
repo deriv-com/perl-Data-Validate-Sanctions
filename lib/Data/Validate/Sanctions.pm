@@ -40,7 +40,9 @@ sub new {    ## no critic (RequireArgUnpacking)
 
     $self->{args} = {%args};
 
-    $self->{last_time} = 0;
+    $self->{last_modification} = 0;
+    $self->{last_index} = 0;
+
     return bless $self, ref($class) || $class;
 }
 
@@ -316,16 +318,20 @@ sub get_sanctioned_info {    ## no critic (RequireArgUnpacking)
 sub _load_data {
     my $self          = shift;
     my $sanction_file = $self->{sanction_file};
-    $self->{last_time}               //= 0;
+    $self->{last_modification}               //= 0;
+    $self->{last_index}               //= 0;
     $self->{_data}                   //= {};
     $self->{_sanctioned_name_tokens} //= {};
     $self->{_token_sanctioned_names} //= {};
 
     if (-e $sanction_file) {
-        return $self->{_data} if stat($sanction_file)->mtime <= $self->{last_time} && $self->{_data};
-        $self->{last_time} = stat($sanction_file)->mtime;
+        return $self->{_data} if stat($sanction_file)->mtime <= $self->{last_modification} && $self->{_data};
+        $self->{last_modification} = stat($sanction_file)->mtime;
         $self->{_data}     = LoadFile($sanction_file);
     }
+
+    return $self->{_data} if $self->{last_modification} <= $self->{last_index};
+    
     $self->_index_data();
 
     foreach my $sanctioned_name (keys $self->{_index}->%*) {
@@ -363,6 +369,9 @@ sub _index_data {
             }
         }
     }
+
+    $self->{last_index} = time;
+
     return;
 }
 
@@ -375,7 +384,7 @@ sub _save_data {
     DumpFile($new_sanction_file, $self->{_data});
 
     rename $new_sanction_file, $sanction_file or die "Can't rename $new_sanction_file to $sanction_file, please check it\n";
-    $self->{last_time} = stat($sanction_file)->mtime;
+    $self->{last_modification} = stat($sanction_file)->mtime;
     return;
 }
 
