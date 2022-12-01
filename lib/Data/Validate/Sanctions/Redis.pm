@@ -61,7 +61,7 @@ sub _load_data {
 
     my $last_modification = $self->{last_modification};
 
-    return $self->{_data} if $self->{_data} and $last_modification < time + $self->IGNORE_OPERATION_INTERVAL;
+    return $self->{_data} if $self->{_data} and $last_modification + $self->IGNORE_OPERATION_INTERVAL > time;
 
     for my $source ($self->{sources}->@*) {
         try {

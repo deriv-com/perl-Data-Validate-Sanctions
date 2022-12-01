@@ -326,7 +326,7 @@ sub _load_data {
     $self->{_sanctioned_name_tokens} //= {};
     $self->{_token_sanctioned_names} //= {};
 
-    return $self->{_data} if $self->{_data} and $last_modification < time + $self->IGNORE_OPERATION_INTERVAL;
+    return $self->{_data} if $self->{_data} and $self->{last_modification} + $self->IGNORE_OPERATION_INTERVAL > time;
 
     if (-e $sanction_file) {
         return $self->{_data} if stat($sanction_file)->mtime <= $self->{last_modification} && $self->{_data};
