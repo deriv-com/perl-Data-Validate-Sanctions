@@ -329,8 +329,9 @@ sub _load_data {
     return $self->{_data} if $self->{_data} and $self->{last_modification} + $self->IGNORE_OPERATION_INTERVAL > time;
 
     if (-e $sanction_file) {
-        return $self->{_data} if stat($sanction_file)->mtime <= $self->{last_modification} && $self->{_data};
-        $self->{last_modification} = stat($sanction_file)->mtime;
+        my $file_modify_time = stat($sanction_file)->mtime;
+        return $self->{_data} if $file_modify_time <= $self->{last_modification} && $self->{_data};
+        $self->{last_modification} = $file_modify_time;
         $self->{_data}             = LoadFile($sanction_file);
     }
 

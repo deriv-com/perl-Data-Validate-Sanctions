@@ -59,26 +59,25 @@ sub _load_data {
     $self->{_sanctioned_name_tokens} //= {};
     $self->{_token_sanctioned_names} //= {};
 
-    my $last_modification = $self->{last_modification};
+    return $self->{_data} if $self->{_data} and $self->{last_modification} + $self->IGNORE_OPERATION_INTERVAL > time;
 
-    return $self->{_data} if $self->{_data} and $last_modification + $self->IGNORE_OPERATION_INTERVAL > time;
-
+    my $latest_update = 0;
     for my $source ($self->{sources}->@*) {
         try {
             $self->{_data}->{$source} //= {};
 
-            my ($updated) = $self->{connection}->hmget("SANCTIONS::$source", qw/updated/)->@*;
+            my ($updated) = $self->{connection}->hget("SANCTIONS::$source" => 'updated');
             $updated //= 0;
             my $current_update_date = $self->{_data}->{$source}->{updated} // 0;
             next if $current_update_date && $updated <= $current_update_date;
 
-            my ($content, $verified, $error) = $self->{connection}->hmget("SANCTIONS::$source", qw/content verified updated error/)->@*;
+            my ($content, $verified, $error) = $self->{connection}->hmget("SANCTIONS::$source", qw/content verified error/)->@*;
 
             $self->{_data}->{$source}->{content}  = decode_json_utf8($content // '[]');
             $self->{_data}->{$source}->{verified} = $verified // 0;
             $self->{_data}->{$source}->{updated}  = $updated;
             $self->{_data}->{$source}->{error}    = $error // '';
-            $last_modification                    = $updated if $updated > $last_modification;
+            $latest_update                        = $updated if $updated > $latest_update;
         } catch ($e) {
             $self->{_data}->{$source}->{content}  = [];
             $self->{_data}->{$source}->{updated}  = 0;
@@ -86,9 +85,8 @@ sub _load_data {
             $self->{_data}->{$source}->{error}    = "Failed to load from Redis: $e";
         }
     }
-    $self->{last_modification} = $last_modification;
 
-    return $self->{_data} if $self->{last_modification} <= $self->{last_index};
+    return $self->{_data} if $latest_update <= $self->{last_index};
 
     $self->_index_data();
 
@@ -116,6 +114,8 @@ sub _save_data {
             error    => $self->{_data}->{$source}->{error} // ''
         );
     }
+
+    $self->{last_modification} = time;
 
     return;
 }

@@ -261,7 +261,7 @@ subtest 'load data' => sub {
             updated  => 0,
             error    => ''
         }};
-    is_deeply $validator->data, $expected, 'Saction lists are loaded with default values when redis is empty';
+    is_deeply $validator->data, $expected, 'Sanction lists are loaded with default values when redis is empty';
     is $validator->last_updated, 0, 'Updated date is zero';
 
     my $test_data = {
@@ -348,6 +348,21 @@ subtest 'load data' => sub {
         },
         'Missing source OFAC-Consolodated loaded with default values';
     is $validator->last_updated, 1002, 'Update date is the maximum of the dates in all sources';
+
+    my $cache_data = clone $validator->data;
+    $validator->_load_data();
+    is_deeply $cache_data, $validator->data, 'no change in data';
+
+    $validator->_save_data();
+    my $cache_data_after_modify = clone $validator->data;
+
+    $validator->_load_data();
+    is_deeply $cache_data_after_modify, $validator->data, 'no change in data';
+
+    $redis->hset('SANCTIONS::EU-Sanctions', 'updated', time);
+
+    $validator->_load_data();
+    is_deeply $cache_data_after_modify, $validator->data, 'no change in data';
 };
 
 subtest 'get sanctioned info' => sub {
