@@ -60,14 +60,19 @@ sub _load_data {
     $self->{_token_sanctioned_names} //= {};
 
     my $last_modification = $self->{last_modification};
+
+    return $self->{_data} if $self->{_data} and $last_modification < time + $self->IGNORE_OPERATION_INTERVAL;
+
     for my $source ($self->{sources}->@*) {
         try {
             $self->{_data}->{$source} //= {};
 
-            my ($content, $verified, $updated, $error) = $self->{connection}->hmget("SANCTIONS::$source", qw/content verified updated error/)->@*;
+            my ($updated) = $self->{connection}->hmget("SANCTIONS::$source", qw/updated/)->@*;
             $updated //= 0;
             my $current_update_date = $self->{_data}->{$source}->{updated} // 0;
             next if $current_update_date && $updated <= $current_update_date;
+
+            my ($content, $verified, $error) = $self->{connection}->hmget("SANCTIONS::$source", qw/content verified updated error/)->@*;
 
             $self->{_data}->{$source}->{content}  = decode_json_utf8($content // '[]');
             $self->{_data}->{$source}->{verified} = $verified // 0;

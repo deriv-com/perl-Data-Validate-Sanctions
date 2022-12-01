@@ -26,6 +26,8 @@ our $VERSION = '0.14';
 my $sanction_file;
 my $instance;
 
+use constant IGNORE_OPERATION_INTERVAL => 8 * 60;    # 8 minutes
+
 # for OO
 sub new {    ## no critic (RequireArgUnpacking)
     my ($class, %args) = @_;
@@ -324,13 +326,13 @@ sub _load_data {
     $self->{_sanctioned_name_tokens} //= {};
     $self->{_token_sanctioned_names} //= {};
 
+    return $self->{_data} if $self->{_data} and $last_modification < time + $self->IGNORE_OPERATION_INTERVAL;
+
     if (-e $sanction_file) {
         return $self->{_data} if stat($sanction_file)->mtime <= $self->{last_modification} && $self->{_data};
         $self->{last_modification} = stat($sanction_file)->mtime;
         $self->{_data}             = LoadFile($sanction_file);
     }
-
-    return $self->{_data} if $self->{last_modification} <= $self->{last_index};
 
     $self->_index_data();
 
