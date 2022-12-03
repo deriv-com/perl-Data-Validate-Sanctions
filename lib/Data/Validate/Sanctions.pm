@@ -44,6 +44,7 @@ sub new {    ## no critic (RequireArgUnpacking)
 
     $self->{last_modification} = 0;
     $self->{last_index}        = 0;
+    $self->{last_data_load} =0;
 
     return bless $self, ref($class) || $class;
 }
@@ -322,17 +323,19 @@ sub _load_data {
     my $sanction_file = $self->{sanction_file};
     $self->{last_modification}       //= 0;
     $self->{last_index}              //= 0;
+    $self->{last_data_load}          //= 0;
     $self->{_data}                   //= {};
     $self->{_sanctioned_name_tokens} //= {};
     $self->{_token_sanctioned_names} //= {};
 
-    return $self->{_data} if $self->{_data} and $self->{last_modification} + $self->IGNORE_OPERATION_INTERVAL > time;
+    return $self->{_data} if $self->{_data} and $self->{last_data_load} + $self->IGNORE_OPERATION_INTERVAL > time;
 
     if (-e $sanction_file) {
         my $file_modify_time = stat($sanction_file)->mtime;
         return $self->{_data} if $file_modify_time <= $self->{last_modification} && $self->{_data};
         $self->{last_modification} = $file_modify_time;
         $self->{_data}             = LoadFile($sanction_file);
+        $self->{last_data_load}    = time;
     }
 
     $self->_index_data();

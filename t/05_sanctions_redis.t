@@ -354,15 +354,15 @@ subtest 'load data' => sub {
     is_deeply $cache_data, $validator->data, 'no change in data';
 
     $validator->_save_data();
-    my $cache_data_after_modify = clone $validator->data;
+    my $cache_data_after_reload = clone $validator->data;
 
     $validator->_load_data();
-    is_deeply $cache_data_after_modify, $validator->data, 'no change in data';
+    is_deeply $cache_data_after_reload, $validator->data, 'no change in data';
 
     $redis->hset('SANCTIONS::EU-Sanctions', 'updated', time);
 
     $validator->_load_data();
-    is_deeply $cache_data_after_modify, $validator->data, 'no change in data';
+    is_deeply $cache_data_after_reload, $validator->data, 'no change in data';
 };
 
 subtest 'get sanctioned info' => sub {

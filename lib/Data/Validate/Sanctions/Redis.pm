@@ -27,6 +27,7 @@ sub new {
 
     $self->{last_modification} = 0;
     $self->{last_index}        = 0;
+    $self->{last_data_load}    = 0;
 
     my $object = bless $self, ref($class) || $class;
     $object->_load_data();
@@ -59,7 +60,7 @@ sub _load_data {
     $self->{_sanctioned_name_tokens} //= {};
     $self->{_token_sanctioned_names} //= {};
 
-    return $self->{_data} if $self->{_data} and $self->{last_modification} + $self->IGNORE_OPERATION_INTERVAL > time;
+    return $self->{_data} if $self->{_data} and $self->{last_data_load} + $self->IGNORE_OPERATION_INTERVAL > time;
 
     my $latest_update = 0;
     for my $source ($self->{sources}->@*) {
@@ -85,6 +86,9 @@ sub _load_data {
             $self->{_data}->{$source}->{error}    = "Failed to load from Redis: $e";
         }
     }
+
+    $self->{last_modification} = $latest_update;
+    $self->{last_data_load} = time;
 
     return $self->{_data} if $latest_update <= $self->{last_index};
 
@@ -114,8 +118,6 @@ sub _save_data {
             error    => $self->{_data}->{$source}->{error} // ''
         );
     }
-
-    $self->{last_modification} = time;
 
     return;
 }
