@@ -17,7 +17,7 @@ use Clone           qw(clone);
 use Data::Validate::Sanctions::Redis;
 
 my $redis_server;
-eval { require Test::RedisServer; $redis_server = Test::RedisServer->new(conf => {port => 6311}) }
+eval { require Test::RedisServer; $redis_server = Test::RedisServer->new(conf => {port => 6379}) }
     or plan skip_all => 'Test::RedisServer is required for this test';
 
 my $redis = RedisDB->new($redis_server->connect_info);
