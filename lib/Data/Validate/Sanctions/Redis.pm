@@ -88,7 +88,7 @@ sub _load_data {
     }
 
     $self->{last_modification} = $latest_update;
-    $self->{last_data_load} = time;
+    $self->{last_data_load}    = time;
 
     return $self->{_data} if $latest_update <= $self->{last_index};
 

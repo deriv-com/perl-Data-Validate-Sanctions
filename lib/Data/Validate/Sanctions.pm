@@ -44,7 +44,7 @@ sub new {    ## no critic (RequireArgUnpacking)
 
     $self->{last_modification} = 0;
     $self->{last_index}        = 0;
-    $self->{last_data_load} =0;
+    $self->{last_data_load}    = 0;
 
     return bless $self, ref($class) || $class;
 }
