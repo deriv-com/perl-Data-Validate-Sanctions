@@ -1,6 +1,8 @@
 Revision history for Data-Validate-Sanctions
 
 {{$NEXT}}
+
+0.16      2022-12-21 00:19:22+00:00 UTC
         A time limit is settled to avoid loading data per request as it might take resources to process a huge sanction list
         Improve Redis interaction to increase the performance
 
