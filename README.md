@@ -66,7 +66,7 @@ Data::Validate::Sanctions - Validate a name against sanctions lists
 
 # DESCRIPTION
 
-Data::Validate::Sanctions is a simple validitor to validate a name against sanctions lists.
+Data::Validate::Sanctions is a simple validator to validate a name against sanctions lists.
 
 The list is from:
 \- [https://www.treasury.gov/ofac/downloads/sdn.csv](https://www.treasury.gov/ofac/downloads/sdn.csv),
@@ -93,7 +93,7 @@ or you can pass first\_name, last\_name (last\_name, first\_name), we'll check b
 
 retrun 1 if match is found and 0 if match is not found.
 
-It will remove all non-alpha chars and compare with the list we have.
+It will remove all non-alpha chars and compare them with the list we have.
 
 ## get\_sanctioned\_info
 
@@ -105,7 +105,7 @@ return hashref with keys:
     **list**         name of list matched (present only if matched)
     **matched\_args** The list of arguments matched (name, date of birth, residence, etc.)
 
-It will remove all non-alpha chars and compare with the list we have.
+It will remove all non-alpha chars and compare them with the list we have.
 
 ## update\_data
 
@@ -114,7 +114,7 @@ Fetches latest versions of sanction lists, and updates corresponding sections of
 ## last\_updated
 
 Returns timestamp of when the latest list was updated.
-If argument is provided - return timestamp of when that list was updated.
+If an argument is provided - return the timestamp of when that list was updated.
 
 ## new
 
@@ -132,7 +132,7 @@ set sanction\_file which is used by ["is\_sanctioned"](#is_sanctioned) (procedur
 
 ## \_name\_matches
 
-Pass in the client's name and sanctioned individual's name to see if they are similar or not
+Pass in the client's name and the sanctioned individual's name to see if they are similar or not
 
 ## export\_data
 
