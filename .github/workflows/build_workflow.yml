@@ -33,7 +33,7 @@ jobs:
       run: |
         # see https://github.com/team-at-cpan/Dist-Zilla-Plugin-PodInherit/issues/1 to check why we not use
         # dzil listdeps --missing directly here
-        cpanm --installdeps .
+        cpanm -n --installdeps .
         dzil listdeps --author --missing --cpanm-versions | xargs cpanm -n
     - name: Install Redis Server
       run: apt-get install -y redis
@@ -61,7 +61,7 @@ jobs:
       run: |
         # see https://github.com/team-at-cpan/Dist-Zilla-Plugin-PodInherit/issues/1 to check why we not use
         # dzil listdeps --missing directly here
-        cpanm --installdeps .
+        cpanm -n --installdeps .
         dzil listdeps --author --missing --cpanm-versions | xargs cpanm -n
     - name: setup PAUSE account
       run: echo -e "user $PAUSE_USER\npassword $PAUSE_PASSWORD\n" >> ~/.pause
