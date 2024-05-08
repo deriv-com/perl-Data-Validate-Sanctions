@@ -14,6 +14,8 @@ use Syntax::Keyword::Try;
 use XML::Fast;
 use Locale::Country;
 
+
+use constant MAX_REDIRECTS => 3;
 # VERSION
 
 =head2 config
@@ -505,6 +507,7 @@ sub _entries_from_remote_src {
     my $ua = Mojo::UserAgent->new;
     $ua->connect_timeout(15);
     $ua->inactivity_timeout(60);
+    $ua->max_redirects(MAX_REDIRECTS);
 
     my $retry_counter = 0;
     while ($retry_counter < $retries) {
