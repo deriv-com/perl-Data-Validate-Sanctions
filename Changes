@@ -1,6 +1,8 @@
 Revision history for Data-Validate-Sanctions
 
 {{$NEXT}}
+
+0.17      2024-05-27 12:42:34+00:00 UTC
        Cron sanction update failed for OFAC-SDN and OFAC-Consolidated
 
 0.16     2022-12-21 00:00:00 UTC
