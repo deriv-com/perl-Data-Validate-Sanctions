@@ -83,6 +83,11 @@ sub config {
             url         => $eu_url,
             parser      => \&_eu_xml,
         },
+        'MOHA-Sanctions' => {
+            description => 'MOHA: Sanction list made by the ministry of home affairs Malaysia',
+            url         => $args{moha_url} || 'https://www.moha.gov.my/images/SenaraiKementerianDalamNegeri/September2024/ENG/SENARAI%20KDN%202024_5SEPTEMBER2024-ENG.xml',
+            parser      => \&_moha_xml,
+        },
     };
 }
 
@@ -425,6 +430,77 @@ sub _eu_xml {
     };
 }
 
+
+=head2 _moha_xml
+
+
+=cut
+
+sub _moha_xml {
+    my $raw_data = shift;
+
+    # Create a new XML::Simple object
+    my $xml = XML::Simple->new(ForceArray => 1, KeyAttr => {});
+
+    # Parse the XML data
+    my $data = eval {
+        $xml->XMLin($raw_data);
+    };
+
+    # Check for errors during parsing
+    if ($@) {
+        warn "Error parsing XML: $@\n";
+        return;
+    }
+
+    # Access the relevant structure
+    my $tables = $data->{'Part'}[0]{'Table'};
+
+    my $count = 0;
+    # Check if tables contain the data
+    foreach my $table (@$tables) {
+        my $rows = $table->{'TBody'}[0]{'TR'};
+        
+        foreach my $row (@$rows) {
+            # Assuming each TR has multiple TD and we want specific indices
+            my $cells = $row->{'TD'};
+
+            # Check if we have enough cells to extract data
+            if (@$cells >= 13) {
+                my $reference_number = $cells->[1]{'P'}[0];    # Reference
+                my $name = $cells->[2]{'P'}[0];                 # Name
+                my $designation = $cells->[4]{'P'}[0];          # Designation
+                my $date_of_birth = $cells->[5]{'P'}[0];        # Date of Birth
+                my $other_name = $cells->[7]{'P'}[0];           # Other Name
+
+                # Skip rows with placeholder values
+                next if $reference_number =~ /^\(\d+\)\s*Reference$/;
+                next if $reference_number =~ /^\(\d+\)\s*Reference$/;
+                next if $name =~ /^\(\d+\)\s*Name$/;
+                next if $designation =~ /^\(\d+\)\s*Design-ation$/;
+                next if $date_of_birth =~ /^\(\d+\)\s*Date of Birth$/;
+                next if $other_name =~ /^\(\d+\)\s*Other\s*Name$/;
+
+
+                # Trim whitespaces (optional)
+                $reference_number =~ s/^\s+|\s+$//g;
+                $name =~ s/^\s+|\s+$//g;
+                $designation =~ s/^\s+|\s+$//g;
+                $date_of_birth =~ s/^\s+|\s+$//g;
+                $other_name =~ s/^\s+|\s+$//g;
+
+                # Print the extracted values
+                print "Reference Number: $reference_number\n";
+                print "Name: $name\n";
+                print "Designation: $designation\n";
+                print "Date of Birth: $date_of_birth\n";
+                print "Other Name: $other_name\n\n";
+                say pp ($count++);
+            }
+        }
+    }
+}
+
 =head2 run
 
 Fetches latest version of lists, and returns combined hash of successfully downloaded ones
@@ -437,6 +513,7 @@ sub run {
     my $result = {};
 
     my $config  = config(%args);
+
     my $retries = $args{retries} // 3;
 
     foreach my $id (sort keys %$config) {
@@ -515,10 +592,8 @@ sub _entries_from_remote_src {
 
         try {
             my $resp = $ua->get($src_url);
-
             die "File not downloaded for $id\n" if $resp->result->is_error;
             $entries = $resp->result->body;
-
             last;
         } catch ($e) {
             $error_log = $e;
