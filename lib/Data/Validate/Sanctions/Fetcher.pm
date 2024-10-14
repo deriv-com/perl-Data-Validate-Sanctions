@@ -12,6 +12,7 @@ use Text::CSV;
 use Text::Trim qw(trim);
 use Syntax::Keyword::Try;
 use XML::Fast;
+use XML::Simple;
 use Locale::Country;
 
 
@@ -82,6 +83,11 @@ sub config {
             description => 'EUROPA.EU: Consolidated list of persons, groups and entities subject to EU financial sanctions',
             url         => $eu_url,
             parser      => \&_eu_xml,
+        },
+        'MOHA-Sanctions' => {
+            description => 'MOHA: Sanction list made by the ministry of home affairs Malaysia',
+            url         => $args{moha_url} || 'https://www.moha.gov.my/images/SenaraiKementerianDalamNegeri/September2024/ENG/SENARAI%20KDN%202024_5SEPTEMBER2024-ENG.xml',
+            parser      => \&_moha_xml,
         },
     };
 }
@@ -425,6 +431,79 @@ sub _eu_xml {
     };
 }
 
+
+=head2 _moha_xml
+
+Parses the XML data from MOHA (Ministry of Home Affairs Malaysia) and returns a hash-ref of the parsed data.
+
+=cut
+
+sub _moha_xml {
+    my $raw_data = shift;
+
+    # Create a new XML::Simple object
+    my $xml = XML::Simple->new(ForceArray => 1, KeyAttr => {});
+
+    # Parse the XML data
+    my $data = eval {
+        $xml->XMLin($raw_data);
+    };
+
+    # Check for errors during parsing
+    if ($@) {
+        warn "Error parsing XML: $@\n";
+        return;
+    }
+    my $publish_date = $data->{'x:xmpmeta'}[0]{'rdf:RDF'}[0]{'rdf:Description'}[0]{'xmp:CreateDate'}[0];
+    my $publish_epoch = _date_to_epoch($publish_date);
+    # Access the relevant structure
+    my $tables = $data->{'Part'}[0]{'Table'};
+
+    my $dataset  = [];
+    foreach my $table (@$tables) {
+        my $rows = $table->{'TBody'}[0]{'TR'};
+        foreach my $row (@$rows[1 .. $#$rows]) {
+            # Assuming each TR has multiple TD and we want specific indices
+            my $cells = $row->{'TD'};
+
+            # Check if we have enough cells to extract data
+            if (@$cells >= 13) {
+                my $name = $cells->[2]{'P'}[0];                 # Name
+                my $date_of_birth = $cells->[5]{'P'}[0];        # Date of Birth
+                my $other_name = $cells->[7]{'P'}[0];           # Other Name
+                my $place_of_birth = $cells->[6]{'P'}[0];       # Place of Birth
+                my $nationality = $cells->[8]{'P'}[0];          # Nationality
+                my $passport_number = $cells->[9]{'P'}[0];      # Passport Number
+                my $identification_number = $cells->[10]{'P'}[0]; # Identification Number
+
+                # Trim whitespaces (optional)
+                $name =~ s/^\s+|\s+$//g;
+                $date_of_birth =~ s/^\s+|\s+$//g;
+                $other_name =~ s/^\s+|\s+$//g;
+                $place_of_birth =~ s/^\s+|\s+$//g;
+                $nationality =~ s/^\s+|\s+$//g;
+                $passport_number =~ s/^\s+|\s+$//g;
+                $identification_number =~ s/^\s+|\s+$//g;
+
+                _process_sanction_entry(
+                    $dataset,
+                    names          => [$name, $other_name],
+                    date_of_birth  => [$date_of_birth],
+                    place_of_birth => [$place_of_birth],
+                    nationality    => [$nationality],
+                    national_id    => [$identification_number],
+                    passport_no    => [$passport_number],
+                );
+            }
+        }
+    }
+
+    return {
+        updated => $publish_epoch,
+        content => $dataset,
+    };
+}
+
 =head2 run
 
 Fetches latest version of lists, and returns combined hash of successfully downloaded ones
@@ -437,6 +516,7 @@ sub run {
     my $result = {};
 
     my $config  = config(%args);
+
     my $retries = $args{retries} // 3;
 
     foreach my $id (sort keys %$config) {
@@ -515,10 +595,8 @@ sub _entries_from_remote_src {
 
         try {
             my $resp = $ua->get($src_url);
-
             die "File not downloaded for $id\n" if $resp->result->is_error;
             $entries = $resp->result->body;
-
             last;
         } catch ($e) {
             $error_log = $e;
