@@ -12,6 +12,7 @@ use Text::CSV;
 use Text::Trim qw(trim);
 use Syntax::Keyword::Try;
 use XML::Fast;
+use XML::Simple;
 use Locale::Country;
 
 
@@ -433,6 +434,7 @@ sub _eu_xml {
 
 =head2 _moha_xml
 
+Parses the XML data from MOHA (Ministry of Home Affairs Malaysia) and returns a hash-ref of the parsed data.
 
 =cut
 
@@ -452,53 +454,54 @@ sub _moha_xml {
         warn "Error parsing XML: $@\n";
         return;
     }
-
+    my $publish_date = $data->{'x:xmpmeta'}[0]{'rdf:RDF'}[0]{'rdf:Description'}[0]{'xmp:CreateDate'}[0];
+    my $publish_epoch = _date_to_epoch($publish_date);
     # Access the relevant structure
     my $tables = $data->{'Part'}[0]{'Table'};
 
-    my $count = 0;
-    # Check if tables contain the data
+    my $dataset  = [];
     foreach my $table (@$tables) {
         my $rows = $table->{'TBody'}[0]{'TR'};
-        
-        foreach my $row (@$rows) {
+        foreach my $row (@$rows[1 .. $#$rows]) {
             # Assuming each TR has multiple TD and we want specific indices
             my $cells = $row->{'TD'};
 
             # Check if we have enough cells to extract data
             if (@$cells >= 13) {
-                my $reference_number = $cells->[1]{'P'}[0];    # Reference
                 my $name = $cells->[2]{'P'}[0];                 # Name
-                my $designation = $cells->[4]{'P'}[0];          # Designation
                 my $date_of_birth = $cells->[5]{'P'}[0];        # Date of Birth
                 my $other_name = $cells->[7]{'P'}[0];           # Other Name
-
-                # Skip rows with placeholder values
-                next if $reference_number =~ /^\(\d+\)\s*Reference$/;
-                next if $reference_number =~ /^\(\d+\)\s*Reference$/;
-                next if $name =~ /^\(\d+\)\s*Name$/;
-                next if $designation =~ /^\(\d+\)\s*Design-ation$/;
-                next if $date_of_birth =~ /^\(\d+\)\s*Date of Birth$/;
-                next if $other_name =~ /^\(\d+\)\s*Other\s*Name$/;
-
+                my $place_of_birth = $cells->[6]{'P'}[0];       # Place of Birth
+                my $nationality = $cells->[8]{'P'}[0];          # Nationality
+                my $passport_number = $cells->[9]{'P'}[0];      # Passport Number
+                my $identification_number = $cells->[10]{'P'}[0]; # Identification Number
 
                 # Trim whitespaces (optional)
-                $reference_number =~ s/^\s+|\s+$//g;
                 $name =~ s/^\s+|\s+$//g;
-                $designation =~ s/^\s+|\s+$//g;
                 $date_of_birth =~ s/^\s+|\s+$//g;
                 $other_name =~ s/^\s+|\s+$//g;
+                $place_of_birth =~ s/^\s+|\s+$//g;
+                $nationality =~ s/^\s+|\s+$//g;
+                $passport_number =~ s/^\s+|\s+$//g;
+                $identification_number =~ s/^\s+|\s+$//g;
 
-                # Print the extracted values
-                print "Reference Number: $reference_number\n";
-                print "Name: $name\n";
-                print "Designation: $designation\n";
-                print "Date of Birth: $date_of_birth\n";
-                print "Other Name: $other_name\n\n";
-                say pp ($count++);
+                _process_sanction_entry(
+                    $dataset,
+                    names          => [$name, $other_name],
+                    date_of_birth  => [$date_of_birth],
+                    place_of_birth => [$place_of_birth],
+                    nationality    => [$nationality],
+                    national_id    => [$identification_number],
+                    passport_no    => [$passport_number],
+                );
             }
         }
     }
+
+    return {
+        updated => $publish_epoch,
+        content => $dataset,
+    };
 }
 
 =head2 run
