@@ -431,49 +431,100 @@ sub _eu_xml {
     };
 }
 
+use XML::Simple;
+use Data::Dumper;
+use Time::Piece;
+
 sub _unsc_xml {
-    my ($content) = @_;
-    my $xml = XML::Simple->new;
-    my $data = $xml->XMLin($content, ForceArray => ['INDIVIDUAL', 'INDIVIDUAL_ALIAS', 'INDIVIDUAL_ADDRESS', 'INDIVIDUAL_DATE_OF_BIRTH', 'INDIVIDUAL_PLACE_OF_BIRTH', 'INDIVIDUAL_DOCUMENT']);
+     my ($xml_content) = @_;
 
-    my $dataset = [];
-    foreach my $individual (@{$data->{INDIVIDUALS}->{INDIVIDUAL}}) {
-        my @names = grep { defined } (
-            $individual->{FIRST_NAME},
-            $individual->{SECOND_NAME},
-            $individual->{THIRD_NAME},
-        );
+    # Extract the dateGenerated attribute from the first line of the XML content
+    my ($date_generated) = $xml_content =~ /dateGenerated="([^"]+)"/;
+    die "Corrupt data. Release date is missing\n" unless $date_generated;
 
-        my @dob_list = map { $_->{YEAR} } @{$individual->{INDIVIDUAL_DATE_OF_BIRTH}};
-        my @place_of_birth = map { $_->{CITY} } @{$individual->{INDIVIDUAL_PLACE_OF_BIRTH}};
-        my @nationality = map { $_->{VALUE} } @{$individual->{NATIONALITY}};
-        my @residence = map { $_->{COUNTRY} } @{$individual->{INDIVIDUAL_ADDRESS}};
-        my @postal_code = ();  # No postal code in the sample XML
-        my @national_id = map { $_->{NUMBER} } @{$individual->{INDIVIDUAL_DOCUMENT}};
-        my @passport_no = ();  # No passport number in the sample XML
+    # Convert the dateGenerated to epoch milliseconds
+    my $publish_epoch = _date_to_epoch($date_generated // '');
 
-        _process_sanction_entry(
-            $dataset,
-            names          => \@names,
-            date_of_birth  => \@dob_list,
-            place_of_birth => \@place_of_birth,
-            residence      => \@residence,
-            nationality    => \@nationality,
-            postal_code    => \@postal_code,
-            national_id    => \@national_id,
-            passport_no    => \@passport_no,
-            comments       => $individual->{COMMENTS1},
-        );
+    # Preprocess the XML content to escape unescaped ampersands
+    $xml_content =~ s/&(?!(?:amp|lt|gt|quot|apos);)/&amp;/g;
+
+    my $data = XML::Simple::XMLin($xml_content, ForceArray => 1, KeyAttr => []);
+
+    my @entries;
+    for my $individual (@{$data->{INDIVIDUAL}}) {
+        my %entry;
+
+        $entry{dataid} = $individual->{DATAID}[0];
+        $entry{versionnum} = $individual->{VERSIONNUM}[0];
+        $entry{first_name} = $individual->{FIRST_NAME}[0];
+        $entry{second_name} = $individual->{SECOND_NAME}[0];
+        $entry{third_name} = $individual->{THIRD_NAME}[0] // '';
+        $entry{fourth_name} = $individual->{FOURTH_NAME}[0] // '';
+        $entry{un_list_type} = $individual->{UN_LIST_TYPE}[0];
+        $entry{reference_number} = $individual->{REFERENCE_NUMBER}[0];
+        $entry{listed_on} = $individual->{LISTED_ON}[0];
+        $entry{name_original_script} = $individual->{NAME_ORIGINAL_SCRIPT}[0] // '';
+
+        $entry{aliases} = [
+            map {
+                {
+                    quality => $_->{QUALITY}[0] // '',
+                    alias_name => $_->{ALIAS_NAME}[0] // '',
+                    note => $_->{NOTE}[0] // '',
+                }
+            } @{$individual->{INDIVIDUAL_ALIAS}}
+        ];
+
+        $entry{addresses} = [
+            map {
+                {
+                    street => $_->{STREET}[0] // '',
+                    city => $_->{CITY}[0] // '',
+                    state_province => $_->{STATE_PROVINCE}[0] // '',
+                    country => $_->{COUNTRY}[0] // '',
+                }
+            } @{$individual->{INDIVIDUAL_ADDRESS}}
+        ];
+
+        $entry{dates_of_birth} = [
+            map {
+                {
+                    type_of_date => $_->{TYPE_OF_DATE}[0] // '',
+                    date => $_->{DATE}[0] // '',
+                    year => $_->{YEAR}[0] // '',
+                }
+            } @{$individual->{INDIVIDUAL_DATE_OF_BIRTH}}
+        ];
+
+        $entry{places_of_birth} = [
+            map {
+                {
+                    city => $_->{CITY}[0] // '',
+                    country => $_->{COUNTRY}[0] // '',
+                }
+            } @{$individual->{INDIVIDUAL_PLACE_OF_BIRTH}}
+        ];
+
+        $entry{documents} = [
+            map {
+                {
+                    type_of_document => $_->{TYPE_OF_DOCUMENT}[0] // '',
+                    number => $_->{NUMBER}[0] // '',
+                    issuing_country => $_->{ISSUING_COUNTRY}[0] // '',
+                    note => $_->{NOTE}[0] // '',
+                    date_of_issue => $_->{DATE_OF_ISSUE}[0] // '',
+                    country_of_issue => $_->{COUNTRY_OF_ISSUE}[0] // '',
+                    city_of_issue => $_->{CITY_OF_ISSUE}[0] // '',
+                }
+            } @{$individual->{INDIVIDUAL_DOCUMENT}}
+        ];
+
+        push @entries, \%entry;
     }
-
-    my @date_parts    = split('T', $data->{'-dateGenerated'} // '');
-    my $publish_epoch = _date_to_epoch($date_parts[0]        // '');
-
-    die "Corrupt data. Release date is invalid\n" unless $publish_epoch;
 
     return {
         updated => $publish_epoch,
-        content => $dataset,
+        content => \@entries,
     };
 }
 

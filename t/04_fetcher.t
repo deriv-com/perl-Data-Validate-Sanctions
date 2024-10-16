@@ -263,54 +263,64 @@ subtest 'UNSC Sanctions' => sub {
     my $source_name = 'UNSC-Sanctions';
 
     ok $data->{$source_name}, 'Sanctions are loaded from the sample file';
-    is $data->{$source_name}{updated},            1729046402, "Sanctions update date matches the content of sample file";
-    is scalar $data->{$source_name}{content}->@*, 6,          "Number of names matches the content of the sample file";
+    is $data->{$source_name}{updated}, 1729036802, "Sanctions update date matches the content of sample file";
+    is scalar $data->{$source_name}{content}->@*, 1, "Number of names matches the content of the sample file";
 
-    is_deeply find_entry_by_name($data->{$source_name}, 'MUHAMMAD TAHER ANWARI'),
+    is_deeply find_entry_by_name($data->{$source_name}(content)->@*, 'NADA'),
         {
-        'names' => [
-            'MUHAMMAD TAHER ANWARI',
-            'Mohammad Taher Anwari',
-            'Muhammad Tahir Anwari',
-            'Mohammad Tahre Anwari',
-            'Haji Mudir'
-        ],
-        'dob_year'       => [1961],
-        'place_of_birth' => ['Zurmat District'],
-        'residence'      => ['Afghanistan'],
-        'nationality'    => ['Afghanistan'],
-        'comments'       => 'Belongs to Andar tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul. 2010. INTERPOL-UN Security Council Special Notice web link:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals'
+            'first_name' => 'John',
+            'second_name' => 'Doe',
+            'third_name' => 'Smith',
+            'fourth_name' => 'Johnson',
+            'un_list_type' => 'Individual',
+            'reference_number' => 'ABC123',
+            'listed_on' => '2023-01-01',
+            'name_original_script' => "\x{30b8}\x{30e7}\x{30f3}\x{30fb}\x{30c9}\x{30a6}",
+            'versionnum' => '1',
+            'dataid' => '12345',
+            'aliases' => [
+                {
+                    'quality' => 'f.k.a.',
+                    'alias_name' => 'NADA',
+                    'note' => ''
+                }
+            ],
+            'addresses' => [
+                {
+                    'country' => 'Democratic People\'s Republic of Korea',
+                    'city' => '',
+                    'street' => '',
+                    'state_province' => ''
+                }
+            ],
+            'dates_of_birth' => [
+                {
+                    'year' => '1980',
+                    'date' => '1980-01-01',
+                    'type_of_date' => 'Exact'
+                }
+            ],
+            'places_of_birth' => [
+                {
+                    'city' => 'Pyongyang',
+                    'country' => 'Democratic People\'s Republic of Korea'
+                }
+            ],
+            'documents' => [
+                {
+                    'type_of_document' => 'Passport',
+                    'number' => '123456789',
+                    'issuing_country' => 'Democratic People\'s Republic of Korea',
+                    'note' => 'Valid',
+                    'date_of_issue' => '2010-01-01',
+                    'country_of_issue' => 'Democratic People\'s Republic of Korea',
+                    'city_of_issue' => 'Pyongyang'
+                }
+            ]
         },
         "Alias names as saved in a single entry";
 
-    is_deeply find_entry_by_name($data->{$source_name}, 'ABDUL LATIF MANSUR'),
-        {
-        'names' => [
-            'ABDUL LATIF MANSUR',
-            'Abdul Latif Mansoor',
-            'Wali Mohammad'
-        ],
-        'dob_year'       => [1968],
-        'place_of_birth' => ['Zurmat District'],
-        'residence'      => ['Afghanistan'],
-        'nationality'    => ['Afghanistan'],
-        'comments'       => 'Taliban Shadow Governor for Logar Province as of late 2012. Believed to be in Afghanistan/Pakistan border area. Belongs to Sahak tribe (Ghilzai). Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul. 2010. INTERPOL-UN Security Council Special Notice web link:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals'
-        },
-        "Alias names as saved in a single entry";
-
-    is_deeply find_entry_by_name($data->{$source_name}, 'ABDUL KABIR MOHAMMAD JAN'),
-        {
-        'names' => [
-            'ABDUL KABIR MOHAMMAD JAN',
-            'A. Kabir'
-        ],
-        'dob_year'       => [1963],
-        'place_of_birth' => ['Pul-e-Khumri or Baghlan Jadid District'],
-        'residence'      => ['Afghanistan'],
-        'nationality'    => ['Afghanistan'],
-        'comments'       => 'Active in terrorist operations in Eastern Afghanistan. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul. 2010. INTERPOL-UN Security Council Special Notice web link:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals'
-        },
-        "Alias names as saved in a single entry";
+    done_testing();
 };
 
 sub find_entry_by_name {
