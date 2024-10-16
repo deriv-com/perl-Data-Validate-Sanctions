@@ -12,6 +12,7 @@ use Text::CSV;
 use Text::Trim qw(trim);
 use Syntax::Keyword::Try;
 use XML::Fast;
+use XML::Simple;
 use Locale::Country;
 
 
@@ -82,6 +83,11 @@ sub config {
             description => 'EUROPA.EU: Consolidated list of persons, groups and entities subject to EU financial sanctions',
             url         => $eu_url,
             parser      => \&_eu_xml,
+        },
+         'UNSC-Sanctions' => {
+            description => 'UN: United Nations Security Council Consolidated List',
+            url         => $args{unsc_url} || 'https://scsanctions.un.org/resources/xml/en/consolidated.xml?_gl=1*17zxk5d*_ga*MTI5MTEzMzMyNS4xNzI5MDY3MjA1*_ga_TK9BQL5X7Z*MTcyOTA2NzIwNC4xLjAuMTcyOTA2NzIwNi4wLjAuMA',
+            parser      => \&_unsc_xml,
         },
     };
 }
@@ -415,6 +421,52 @@ sub _eu_xml {
     }
 
     my @date_parts    = split('T', $ref->{'-generationDate'} // '');
+    my $publish_epoch = _date_to_epoch($date_parts[0]        // '');
+
+    die "Corrupt data. Release date is invalid\n" unless $publish_epoch;
+
+    return {
+        updated => $publish_epoch,
+        content => $dataset,
+    };
+}
+
+sub _unsc_xml {
+    my ($content) = @_;
+    my $xml = XML::Simple->new;
+    my $data = $xml->XMLin($content, ForceArray => ['INDIVIDUAL', 'INDIVIDUAL_ALIAS', 'INDIVIDUAL_ADDRESS', 'INDIVIDUAL_DATE_OF_BIRTH', 'INDIVIDUAL_PLACE_OF_BIRTH', 'INDIVIDUAL_DOCUMENT']);
+
+    my $dataset = [];
+    foreach my $individual (@{$data->{INDIVIDUALS}->{INDIVIDUAL}}) {
+        my @names = grep { defined } (
+            $individual->{FIRST_NAME},
+            $individual->{SECOND_NAME},
+            $individual->{THIRD_NAME},
+        );
+
+        my @dob_list = map { $_->{YEAR} } @{$individual->{INDIVIDUAL_DATE_OF_BIRTH}};
+        my @place_of_birth = map { $_->{CITY} } @{$individual->{INDIVIDUAL_PLACE_OF_BIRTH}};
+        my @nationality = map { $_->{VALUE} } @{$individual->{NATIONALITY}};
+        my @residence = map { $_->{COUNTRY} } @{$individual->{INDIVIDUAL_ADDRESS}};
+        my @postal_code = ();  # No postal code in the sample XML
+        my @national_id = map { $_->{NUMBER} } @{$individual->{INDIVIDUAL_DOCUMENT}};
+        my @passport_no = ();  # No passport number in the sample XML
+
+        _process_sanction_entry(
+            $dataset,
+            names          => \@names,
+            date_of_birth  => \@dob_list,
+            place_of_birth => \@place_of_birth,
+            residence      => \@residence,
+            nationality    => \@nationality,
+            postal_code    => \@postal_code,
+            national_id    => \@national_id,
+            passport_no    => \@passport_no,
+            comments       => $individual->{COMMENTS1},
+        );
+    }
+
+    my @date_parts    = split('T', $data->{'-dateGenerated'} // '');
     my $publish_epoch = _date_to_epoch($date_parts[0]        // '');
 
     die "Corrupt data. Release date is invalid\n" unless $publish_epoch;

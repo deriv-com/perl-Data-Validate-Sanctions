@@ -20,6 +20,7 @@ my %args = (
     ofac_sdn_url          => "file://t/data/sample_ofac_sdn.zip",
     ofac_consolidated_url => "file://t/data/sample_ofac_consolidated.xml",
     hmt_url               => "file://t/data/sample_hmt.csv",
+    unsc_url              => "file://t/data/sample_unsc.xml",
 );
 
 my $mocked_ua = Test::MockModule->new('Mojo::UserAgent');
@@ -55,10 +56,13 @@ subtest 'source url arguments' => sub {
         'OFAC-SDN' => {
             error => ignore(),
         },
+        'UNSC-Sanctions' => {
+            error => ignore(),
+        },
         },
         'All sources return errors - no content';
 
-    is $calls, 3 * 4, 'the fetcher tried thrice per source and failed finally.';
+    is $calls, 3 * 5, 'the fetcher tried thrice per source and failed finally.';
 
 };
 
@@ -251,6 +255,62 @@ subtest 'OFAC Sanctions' => sub {
             },
             'dob_text is correctly extracted';
     }
+};
+
+subtest 'UNSC Sanctions' => sub {
+    my $data = Data::Validate::Sanctions::Fetcher::run(%args);
+
+    my $source_name = 'UNSC-Sanctions';
+
+    ok $data->{$source_name}, 'Sanctions are loaded from the sample file';
+    is $data->{$source_name}{updated},            1729046402, "Sanctions update date matches the content of sample file";
+    is scalar $data->{$source_name}{content}->@*, 6,          "Number of names matches the content of the sample file";
+
+    is_deeply find_entry_by_name($data->{$source_name}, 'MUHAMMAD TAHER ANWARI'),
+        {
+        'names' => [
+            'MUHAMMAD TAHER ANWARI',
+            'Mohammad Taher Anwari',
+            'Muhammad Tahir Anwari',
+            'Mohammad Tahre Anwari',
+            'Haji Mudir'
+        ],
+        'dob_year'       => [1961],
+        'place_of_birth' => ['Zurmat District'],
+        'residence'      => ['Afghanistan'],
+        'nationality'    => ['Afghanistan'],
+        'comments'       => 'Belongs to Andar tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul. 2010. INTERPOL-UN Security Council Special Notice web link:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals'
+        },
+        "Alias names as saved in a single entry";
+
+    is_deeply find_entry_by_name($data->{$source_name}, 'ABDUL LATIF MANSUR'),
+        {
+        'names' => [
+            'ABDUL LATIF MANSUR',
+            'Abdul Latif Mansoor',
+            'Wali Mohammad'
+        ],
+        'dob_year'       => [1968],
+        'place_of_birth' => ['Zurmat District'],
+        'residence'      => ['Afghanistan'],
+        'nationality'    => ['Afghanistan'],
+        'comments'       => 'Taliban Shadow Governor for Logar Province as of late 2012. Believed to be in Afghanistan/Pakistan border area. Belongs to Sahak tribe (Ghilzai). Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul. 2010. INTERPOL-UN Security Council Special Notice web link:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals'
+        },
+        "Alias names as saved in a single entry";
+
+    is_deeply find_entry_by_name($data->{$source_name}, 'ABDUL KABIR MOHAMMAD JAN'),
+        {
+        'names' => [
+            'ABDUL KABIR MOHAMMAD JAN',
+            'A. Kabir'
+        ],
+        'dob_year'       => [1963],
+        'place_of_birth' => ['Pul-e-Khumri or Baghlan Jadid District'],
+        'residence'      => ['Afghanistan'],
+        'nationality'    => ['Afghanistan'],
+        'comments'       => 'Active in terrorist operations in Eastern Afghanistan. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul. 2010. INTERPOL-UN Security Council Special Notice web link:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals'
+        },
+        "Alias names as saved in a single entry";
 };
 
 sub find_entry_by_name {
