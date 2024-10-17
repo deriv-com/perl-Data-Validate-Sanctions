@@ -434,86 +434,63 @@ sub _eu_xml {
 sub _unsc_xml {
     my ($xml_content) = @_;
 
+    # Preprocess the XML content to escape unescaped ampersands
+    $xml_content =~ s/&(?!(?:amp|lt|gt|quot|apos);)/&amp;/g;
+    my $data = XML::Simple::XMLin($xml_content, ForceArray => 1, KeyAttr  => ['INDIVIDUALS', 'ENTITIES']);
+
     # Extract the dateGenerated attribute from the first line of the XML content
-    my ($date_generated) = $xml_content =~ /dateGenerated="([^"]+)"/;
+    my ($date_generated) = $data->{'dateGenerated'};
     die "Corrupt data. Release date is missing\n" unless $date_generated;
 
     # Convert the dateGenerated to epoch milliseconds
     my $publish_epoch = _date_to_epoch($date_generated // '');
 
-    # Preprocess the XML content to escape unescaped ampersands
-    $xml_content =~ s/&(?!(?:amp|lt|gt|quot|apos);)/&amp;/g;
-
-    my $data = XML::Simple::XMLin($xml_content, ForceArray => 1, KeyAttr => []);
-
     my @entries;
-    for my $individual (@{$data->{INDIVIDUAL}}) {
+    for my $individual (@{$data->{'INDIVIDUALS'}->[0]->{'INDIVIDUAL'}}) {
         my %entry;
 
-        $entry{dataid} = $individual->{DATAID}[0];
-        $entry{versionnum} = $individual->{VERSIONNUM}[0];
-        $entry{first_name} = $individual->{FIRST_NAME}[0];
-        $entry{second_name} = $individual->{SECOND_NAME}[0];
-        $entry{third_name} = $individual->{THIRD_NAME}[0] // '';
-        $entry{fourth_name} = $individual->{FOURTH_NAME}[0] // '';
-        $entry{un_list_type} = $individual->{UN_LIST_TYPE}[0];
-        $entry{reference_number} = $individual->{REFERENCE_NUMBER}[0];
-        $entry{listed_on} = $individual->{LISTED_ON}[0];
-        $entry{name_original_script} = $individual->{NAME_ORIGINAL_SCRIPT}[0] // '';
+        $entry{dataid}               = $individual->{'DATAID'}[0];
+        $entry{versionnum}           = $individual->{'VERSIONNUM'}[0];
+        $entry{first_name}           = $individual->{'FIRST_NAME'}[0];
+        $entry{second_name}          = $individual->{'SECOND_NAME'}[0];
+        $entry{third_name}           = $individual->{'THIRD_NAME'}[0]  // '';
+        $entry{fourth_name}          = $individual->{'FOURTH_NAME'}[0] // '';
+        $entry{un_list_type}         = $individual->{'UN_LIST_TYPE'}[0];
+        $entry{reference_number}     = $individual->{'REFERENCE_NUMBER'}[0];
+        $entry{listed_on}            = $individual->{'LISTED_ON'}[0];
+        $entry{name_original_script} = $individual->{'NAME_ORIGINAL_SCRIPT'}[0] // '';
 
-        $entry{aliases} = [
-            map {
-                {
-                    quality => $_->{QUALITY}[0] // '',
-                    alias_name => $_->{ALIAS_NAME}[0] // '',
-                    note => $_->{NOTE}[0] // '',
-                }
-            } @{$individual->{INDIVIDUAL_ALIAS}}
-        ];
+        $entry{aliases} = [map { {quality => $_->{'QUALITY'}[0] // '', alias_name => $_->{'ALIAS_NAME'}[0] // '', note => $_->{'NOTE'}[0] // '',} }
+                @{$individual->{'INDIVIDUAL_ALIAS'}}];
 
         $entry{addresses} = [
             map {
                 {
-                    street => $_->{STREET}[0] // '',
-                    city => $_->{CITY}[0] // '',
-                    state_province => $_->{STATE_PROVINCE}[0] // '',
-                    country => $_->{COUNTRY}[0] // '',
+                    street         => $_->{'STREET'}[0]         // '',
+                    city           => $_->{'CITY'}[0]           // '',
+                    state_province => $_->{'STATE_PROVINCE'}[0] // '',
+                    country        => $_->{'COUNTRY'}[0]        // '',
                 }
-            } @{$individual->{INDIVIDUAL_ADDRESS}}
-        ];
+            } @{$individual->{'INDIVIDUAL_ADDRESS'}}];
 
-        $entry{dates_of_birth} = [
-            map {
-                {
-                    type_of_date => $_->{TYPE_OF_DATE}[0] // '',
-                    date => $_->{DATE}[0] // '',
-                    year => $_->{YEAR}[0] // '',
-                }
-            } @{$individual->{INDIVIDUAL_DATE_OF_BIRTH}}
-        ];
+        $entry{dates_of_birth} = [map { {type_of_date => $_->{'TYPE_OF_DATE'}[0] // '', date => $_->{'DATE'}[0] // '', year => $_->{'YEAR'}[0] // '',} }
+                @{$individual->{'INDIVIDUAL_DATE_OF_BIRTH'}}];
 
-        $entry{places_of_birth} = [
-            map {
-                {
-                    city => $_->{CITY}[0] // '',
-                    country => $_->{COUNTRY}[0] // '',
-                }
-            } @{$individual->{INDIVIDUAL_PLACE_OF_BIRTH}}
-        ];
+        $entry{places_of_birth} =
+            [map { {city => $_->{'CITY'}[0] // '', country => $_->{'COUNTRY'}[0] // '',} } @{$individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}}];
 
         $entry{documents} = [
             map {
                 {
-                    type_of_document => $_->{TYPE_OF_DOCUMENT}[0] // '',
-                    number => $_->{NUMBER}[0] // '',
-                    issuing_country => $_->{ISSUING_COUNTRY}[0] // '',
-                    note => $_->{NOTE}[0] // '',
-                    date_of_issue => $_->{DATE_OF_ISSUE}[0] // '',
-                    country_of_issue => $_->{COUNTRY_OF_ISSUE}[0] // '',
-                    city_of_issue => $_->{CITY_OF_ISSUE}[0] // '',
+                    type_of_document => $_->{'TYPE_OF_DOCUMENT'}[0] // '',
+                    number           => $_->{'NUMBER'}[0]           // '',
+                    issuing_country  => $_->{'ISSUING_COUNTRY'}[0]  // '',
+                    note             => $_->{'NOTE'}[0]             // '',
+                    date_of_issue    => $_->{'DATE_OF_ISSUE'}[0]    // '',
+                    country_of_issue => $_->{'COUNTRY_OF_ISSUE'}[0] // '',
+                    city_of_issue    => $_->{'CITY_OF_ISSUE'}[0]    // '',
                 }
-            } @{$individual->{INDIVIDUAL_DOCUMENT}}
-        ];
+            } @{$individual->{'INDIVIDUAL_DOCUMENT'}}];
 
         push @entries, \%entry;
     }
@@ -522,7 +499,6 @@ sub _unsc_xml {
         updated => $publish_epoch,
         content => \@entries,
     };
-    return 1;
 }
 
 =head2 run
