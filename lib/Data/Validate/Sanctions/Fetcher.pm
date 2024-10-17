@@ -431,10 +431,6 @@ sub _eu_xml {
     };
 }
 
-use XML::Simple;
-use Data::Dumper;
-use Time::Piece;
-
 sub _unsc_xml {
      my ($xml_content) = @_;
 
