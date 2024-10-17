@@ -264,9 +264,9 @@ subtest 'UNSC Sanctions' => sub {
 
     ok $data->{$source_name}, 'Sanctions are loaded from the sample file';
     is $data->{$source_name}{updated}, 1729036802, "Sanctions update date matches the content of sample file";
-    is scalar $data->{$source_name}{content}->@*, 1, "Number of names matches the content of the sample file";
+    is scalar $data->{$source_name}->{'content'}->@*, 1, "Number of names matches the content of the sample file";
 
-    is_deeply find_entry_by_name($data->{$source_name}(content)->@*, 'NADA'),
+    is_deeply $data->{$source_name}->{content}->[0],
         {
             'first_name' => 'John',
             'second_name' => 'Doe',
@@ -319,8 +319,6 @@ subtest 'UNSC Sanctions' => sub {
             ]
         },
         "Alias names as saved in a single entry";
-
-    done_testing();
 };
 
 sub find_entry_by_name {
@@ -338,4 +336,4 @@ sub find_entry_by_name {
     return \@result;
 }
 
-done_testing;
+done_testing();

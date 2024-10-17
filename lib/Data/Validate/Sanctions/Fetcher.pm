@@ -432,7 +432,7 @@ sub _eu_xml {
 }
 
 sub _unsc_xml {
-     my ($xml_content) = @_;
+    my ($xml_content) = @_;
 
     # Extract the dateGenerated attribute from the first line of the XML content
     my ($date_generated) = $xml_content =~ /dateGenerated="([^"]+)"/;
@@ -522,6 +522,7 @@ sub _unsc_xml {
         updated => $publish_epoch,
         content => \@entries,
     };
+    return 1;
 }
 
 =head2 run
