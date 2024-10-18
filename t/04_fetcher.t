@@ -263,16 +263,22 @@ subtest 'UNSC Sanctions' => sub {
     my $source_name = 'UNSC-Sanctions';
     ok $data->{$source_name}, 'Sanctions are loaded from the sample file';
     is $data->{$source_name}{updated}, 1729123202, "Sanctions update date matches the content of sample file";
-    is scalar @{$data->{$source_name}{content}}, 6, "Number of names matches the content of the sample file";
+    is scalar @{$data->{$source_name}{content}}, 7, "Number of names matches the content of the sample file";
 
     is_deeply find_entry_by_name($data->{$source_name}, 'MOHAMMAD NAIM'),
         {
+          'citizen' => [
+                         'af'
+                       ],
+          'national_id' => [
+                             []
+                           ],
           'place_of_birth' => [
                                 'af'
                               ],
-          'nationality' => [
-                             'af'
-                           ],
+          'dob_year' => [
+                          '1975'
+                        ],
           'names' => [
                        'MOHAMMAD NAIM',
                        'BARICH',
@@ -295,9 +301,15 @@ subtest 'UNSC Sanctions' => sub {
                        'Gul Mohammad Kamran',
                        'Mawlawi Gul Mohammad'
                      ],
-          'dob_year' => [
-                          '1975'
-                        ]
+          'passport_no' => [
+                             []
+                           ],
+          'postal_code' => [
+                             '63000'
+                           ],
+          'nationality' => [
+                             'af'
+                           ]
         },
         'Alias names as saved in a single entry';
 };
