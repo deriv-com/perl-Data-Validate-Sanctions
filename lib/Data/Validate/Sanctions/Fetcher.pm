@@ -436,7 +436,11 @@ sub _unsc_xml {
 
     # Preprocess the XML content to escape unescaped ampersands
     $xml_content =~ s/&(?!(?:amp|lt|gt|quot|apos);)/&amp;/g;
-    my $data = XML::Simple::XMLin($xml_content, ForceArray => 1, KeyAttr  => ['INDIVIDUALS', 'ENTITIES']);
+    my $data = XML::Simple::XMLin(
+        $xml_content,
+        ForceArray => 1,
+        KeyAttr    => ['INDIVIDUALS', 'ENTITIES']
+    );
 
     # Extract the dateGenerated attribute from the first line of the XML content
     my ($date_generated) = $data->{'dateGenerated'};
@@ -445,7 +449,8 @@ sub _unsc_xml {
     # Convert the dateGenerated to epoch milliseconds
     my $publish_epoch = _date_to_epoch($date_generated // '');
 
-    my @entries;
+    my $dataset = [];
+
     for my $individual (@{$data->{'INDIVIDUALS'}->[0]->{'INDIVIDUAL'}}) {
         my %entry;
 
@@ -460,44 +465,62 @@ sub _unsc_xml {
         $entry{listed_on}            = $individual->{'LISTED_ON'}[0];
         $entry{name_original_script} = $individual->{'NAME_ORIGINAL_SCRIPT'}[0] // '';
 
-        $entry{aliases} = [map { {quality => $_->{'QUALITY'}[0] // '', alias_name => $_->{'ALIAS_NAME'}[0] // '', note => $_->{'NOTE'}[0] // '',} }
-                @{$individual->{'INDIVIDUAL_ALIAS'}}];
+        my @names = (
+            $entry{first_name} // '',
+            $entry{second_name} // '',
+            $entry{third_name} // '',
+            $entry{fourth_name} // '',
+            $entry{name_original_script} // '',
+        );
 
-        $entry{addresses} = [
+        foreach my $alias (@{$individual->{INDIVIDUAL_ALIAS}}) {
+            if (ref($alias->{'ALIAS_NAME'}[0]) ne 'HASH' || %{$alias->{'ALIAS_NAME'}[0]}) {
+                push @names, $alias->{'ALIAS_NAME'}[0] // '';
+            }
+        }
+
+        my @dob_list = (
+            $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'YEAR'}[0] // ''
+        );
+
+        my @place_of_birth = (
+            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'CITY'}[0] // '',
+            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'STATE_PROVINCE'}[0] // '',
+            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'COUNTRY'}[0] // ''
+        );
+
+        my @residence = (
             map {
-                {
-                    street         => $_->{'STREET'}[0]         // '',
-                    city           => $_->{'CITY'}[0]           // '',
-                    state_province => $_->{'STATE_PROVINCE'}[0] // '',
-                    country        => $_->{'COUNTRY'}[0]        // '',
-                }
-            } @{$individual->{'INDIVIDUAL_ADDRESS'}}];
+                $_->{'COUNTRY'}[0] // ''
+            } @{$individual->{'INDIVIDUAL_ADDRESS'}}
+        );
 
-        $entry{dates_of_birth} = [map { {type_of_date => $_->{'TYPE_OF_DATE'}[0] // '', date => $_->{'DATE'}[0] // '', year => $_->{'YEAR'}[0] // '',} }
-                @{$individual->{'INDIVIDUAL_DATE_OF_BIRTH'}}];
+        my @nationality = (
+            $individual->{'NATIONALITY'}[0]{'VALUE'}[0] // ''
+        );
 
-        $entry{places_of_birth} =
-            [map { {city => $_->{'CITY'}[0] // '', country => $_->{'COUNTRY'}[0] // '',} } @{$individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}}];
+        my @citizen = (); # Add citizen extraction logic if available
+        my @postal_code = (); # Add postal code extraction logic if available
+        my @national_id = (); # Add national ID extraction logic if available
+        my @passport_no = (); # Add passport number extraction logic if available
 
-        $entry{documents} = [
-            map {
-                {
-                    type_of_document => $_->{'TYPE_OF_DOCUMENT'}[0] // '',
-                    number           => $_->{'NUMBER'}[0]           // '',
-                    issuing_country  => $_->{'ISSUING_COUNTRY'}[0]  // '',
-                    note             => $_->{'NOTE'}[0]             // '',
-                    date_of_issue    => $_->{'DATE_OF_ISSUE'}[0]    // '',
-                    country_of_issue => $_->{'COUNTRY_OF_ISSUE'}[0] // '',
-                    city_of_issue    => $_->{'CITY_OF_ISSUE'}[0]    // '',
-                }
-            } @{$individual->{'INDIVIDUAL_DOCUMENT'}}];
-
-        push @entries, \%entry;
+        _process_sanction_entry(
+            $dataset,
+            names          => \@names,
+            date_of_birth  => \@dob_list,
+            place_of_birth => \@place_of_birth,
+            residence      => \@residence,
+            nationality    => \@nationality,
+            citizen        => \@citizen,
+            postal_code    => \@postal_code,
+            national_id    => \@national_id,
+            passport_no    => \@passport_no,
+        );
     }
 
     return {
         updated => $publish_epoch,
-        content => \@entries,
+        content => $dataset,
     };
 }
 

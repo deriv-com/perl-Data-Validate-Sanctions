@@ -259,72 +259,54 @@ subtest 'OFAC Sanctions' => sub {
 
 subtest 'UNSC Sanctions' => sub {
     my $data = Data::Validate::Sanctions::Fetcher::run(%args);
-
+    
     my $source_name = 'UNSC-Sanctions';
-
     ok $data->{$source_name}, 'Sanctions are loaded from the sample file';
-    is $data->{$source_name}{updated}, 1729036802, "Sanctions update date matches the content of sample file";
-    is scalar $data->{$source_name}->{'content'}->@*, 1, "Number of names matches the content of the sample file";
+    is $data->{$source_name}{updated}, 1729123202, "Sanctions update date matches the content of sample file";
+    is scalar @{$data->{$source_name}{content}}, 6, "Number of names matches the content of the sample file";
 
-    is_deeply $data->{$source_name}->{content}->[0],
+    is_deeply find_entry_by_name($data->{$source_name}, 'MOHAMMAD NAIM'),
         {
-            'first_name' => 'John',
-            'second_name' => 'Doe',
-            'third_name' => 'Smith',
-            'fourth_name' => 'Johnson',
-            'un_list_type' => 'Individual',
-            'reference_number' => 'ABC123',
-            'listed_on' => '2023-01-01',
-            'name_original_script' => "\x{30b8}\x{30e7}\x{30f3}\x{30fb}\x{30c9}\x{30a6}",
-            'versionnum' => '1',
-            'dataid' => '12345',
-            'aliases' => [
-                {
-                    'quality' => 'f.k.a.',
-                    'alias_name' => 'NADA',
-                    'note' => ''
-                }
-            ],
-            'addresses' => [
-                {
-                    'country' => 'Democratic People\'s Republic of Korea',
-                    'city' => '',
-                    'street' => '',
-                    'state_province' => ''
-                }
-            ],
-            'dates_of_birth' => [
-                {
-                    'year' => '1980',
-                    'date' => '1980-01-01',
-                    'type_of_date' => 'Exact'
-                }
-            ],
-            'places_of_birth' => [
-                {
-                    'city' => 'Pyongyang',
-                    'country' => 'Democratic People\'s Republic of Korea'
-                }
-            ],
-            'documents' => [
-                {
-                    'type_of_document' => 'Passport',
-                    'number' => '123456789',
-                    'issuing_country' => 'Democratic People\'s Republic of Korea',
-                    'note' => 'Valid',
-                    'date_of_issue' => '2010-01-01',
-                    'country_of_issue' => 'Democratic People\'s Republic of Korea',
-                    'city_of_issue' => 'Pyongyang'
-                }
-            ]
+          'place_of_birth' => [
+                                'af'
+                              ],
+          'nationality' => [
+                             'af'
+                           ],
+          'names' => [
+                       'MOHAMMAD NAIM',
+                       'BARICH',
+                       'KHUDAIDAD',
+                       "\x{645}\x{62d}\x{645}\x{62f} \x{646}\x{639}\x{64a}\x{645} \x{628}\x{631}\x{64a}\x{62e} \x{62e}\x{62f}\x{627}\x{64a}\x{62f}\x{627}\x{62f}",
+                       'Mullah Naeem Barech',
+                       'Mullah Naeem Baraich',
+                       'Mullah Naimullah',
+                       'Mullah Naim Bareh',
+                       'Mohammad Naim',
+                       'Mullah Naim Barich',
+                       'Mullah Naim Barech',
+                       'Mullah Naim Barech Akhund',
+                       'Mullah Naeem Baric',
+                       'Naim Berich',
+                       'Haji Gul Mohammed Naim Barich',
+                       'Gul Mohammad',
+                       'Haji Ghul Mohammad',
+                       'Spen Zrae',
+                       'Gul Mohammad Kamran',
+                       'Mawlawi Gul Mohammad'
+                     ],
+          'dob_year' => [
+                          '1975'
+                        ]
         },
-        "Alias names as saved in a single entry";
+        'Alias names as saved in a single entry';
 };
 
 sub find_entry_by_name {
     my ($data, $name) = @_;
 
     my @result;
+
     for my $entry ($data->{content}->@*) {
         push(@result, $entry) if List::Util::any { $_ eq $name } $entry->{names}->@*;
     }

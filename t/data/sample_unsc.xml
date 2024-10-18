@@ -1,39 +1,386 @@
-<CONSOLIDATED_LIST xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://www.un.org/sc/resources/sc-sanctions.xsd" dateGenerated="2024-10-16T00:00:02.670Z">
+<CONSOLIDATED_LIST xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://www.un.org/sc/resources/sc-sanctions.xsd" dateGenerated="2024-10-17T00:00:02.767Z">
+<INDIVIDUALS>
+<INDIVIDUAL>
+    <DATAID>110897</DATAID>
+    <VERSIONNUM>1</VERSIONNUM>
+    <FIRST_NAME>MOHAMMAD NAIM</FIRST_NAME>
+    <SECOND_NAME>BARICH</SECOND_NAME>
+    <THIRD_NAME>KHUDAIDAD</THIRD_NAME>
+    <UN_LIST_TYPE>Taliban</UN_LIST_TYPE>
+    <REFERENCE_NUMBER>TAi.013</REFERENCE_NUMBER>
+    <LISTED_ON>2001-02-23</LISTED_ON>
+    <GENDER>Male</GENDER>
+    <NAME_ORIGINAL_SCRIPT>محمد نعيم بريخ خدايداد</NAME_ORIGINAL_SCRIPT>
+    <COMMENTS1>Member of the Taliban Military Commission as at mid-2013. Believed to be in Afghanistan/Pakistan border area. Belongs to Barich tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 1 Jun. 2010. INTERPOL-UN Security Council Special Notice web link:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals</COMMENTS1>
+    <TITLE>
+    <VALUE>Mullah</VALUE>
+    </TITLE>
+    <DESIGNATION>
+    <VALUE>Deputy Minister of Civil Aviation under the Taliban regime</VALUE>
+    </DESIGNATION>
+    <NATIONALITY>
+    <VALUE>Afghanistan</VALUE>
+    </NATIONALITY>
+    <LIST_TYPE>
+    <VALUE>UN List</VALUE>
+    </LIST_TYPE>
+    <LAST_DAY_UPDATED>
+    <VALUE>2003-09-03</VALUE>
+    <VALUE>2007-07-09</VALUE>
+    <VALUE>2007-09-21</VALUE>
+    <VALUE>2012-02-13</VALUE>
+    <VALUE>2012-08-13</VALUE>
+    <VALUE>2013-04-22</VALUE>
+    <VALUE>2013-12-31</VALUE>
+    </LAST_DAY_UPDATED>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Mullah Naeem Barech</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Mullah Naeem Baraich</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Mullah Naimullah</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Mullah Naim Bareh</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Mohammad Naim</ALIAS_NAME>
+    <NOTE>previously listed as</NOTE>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Mullah Naim Barich</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Mullah Naim Barech</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Mullah Naim Barech Akhund</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Mullah Naeem Baric</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Naim Berich</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Haji Gul Mohammed Naim Barich</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Gul Mohammad</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Haji Ghul Mohammad</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Low</QUALITY>
+    <ALIAS_NAME>Spen Zrae</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Gul Mohammad Kamran</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Mawlawi Gul Mohammad</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY/>
+    <ALIAS_NAME/>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY/>
+    <ALIAS_NAME/>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY/>
+    <ALIAS_NAME/>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY/>
+    <ALIAS_NAME/>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ADDRESS>
+    <COUNTRY/>
+    </INDIVIDUAL_ADDRESS>
+    <INDIVIDUAL_DATE_OF_BIRTH>
+    <TYPE_OF_DATE>APPROXIMATELY</TYPE_OF_DATE>
+    <YEAR>1975</YEAR>
+    </INDIVIDUAL_DATE_OF_BIRTH>
+    <INDIVIDUAL_PLACE_OF_BIRTH>
+    <CITY>Lakhi village, Hazarjuft Area, Garmsir District</CITY>
+    <STATE_PROVINCE>Helmand Province</STATE_PROVINCE>
+    <COUNTRY>Afghanistan</COUNTRY>
+    </INDIVIDUAL_PLACE_OF_BIRTH>
+    <INDIVIDUAL_DOCUMENT/>
+    <SORT_KEY/>
+    <SORT_KEY_LAST_MOD/>
+</INDIVIDUAL>
     <INDIVIDUAL>
-        <DATAID>12345</DATAID>
-        <VERSIONNUM>1</VERSIONNUM>
-        <FIRST_NAME>John</FIRST_NAME>
-        <SECOND_NAME>Doe</SECOND_NAME>
-        <THIRD_NAME>Smith</THIRD_NAME>
-        <FOURTH_NAME>Johnson</FOURTH_NAME>
-        <UN_LIST_TYPE>Individual</UN_LIST_TYPE>
-        <REFERENCE_NUMBER>ABC123</REFERENCE_NUMBER>
-        <LISTED_ON>2023-01-01</LISTED_ON>
-        <NAME_ORIGINAL_SCRIPT>ジョン・ドウ</NAME_ORIGINAL_SCRIPT>
-        <INDIVIDUAL_ALIAS>
-            <QUALITY>f.k.a.</QUALITY>
-            <ALIAS_NAME>NADA</ALIAS_NAME>
-        </INDIVIDUAL_ALIAS>
-        <INDIVIDUAL_ADDRESS>
-            <COUNTRY>Democratic People's Republic of Korea</COUNTRY>
-        </INDIVIDUAL_ADDRESS>
-        <INDIVIDUAL_DATE_OF_BIRTH>
-            <TYPE_OF_DATE>Exact</TYPE_OF_DATE>
-            <DATE>1980-01-01</DATE>
-            <YEAR>1980</YEAR>
-        </INDIVIDUAL_DATE_OF_BIRTH>
-        <INDIVIDUAL_PLACE_OF_BIRTH>
-            <CITY>Pyongyang</CITY>
-            <COUNTRY>Democratic People's Republic of Korea</COUNTRY>
-        </INDIVIDUAL_PLACE_OF_BIRTH>
-        <INDIVIDUAL_DOCUMENT>
-            <TYPE_OF_DOCUMENT>Passport</TYPE_OF_DOCUMENT>
-            <NUMBER>123456789</NUMBER>
-            <ISSUING_COUNTRY>Democratic People's Republic of Korea</ISSUING_COUNTRY>
-            <NOTE>Valid</NOTE>
-            <DATE_OF_ISSUE>2010-01-01</DATE_OF_ISSUE>
-            <COUNTRY_OF_ISSUE>Democratic People's Republic of Korea</COUNTRY_OF_ISSUE>
-            <CITY_OF_ISSUE>Pyongyang</CITY_OF_ISSUE>
-        </INDIVIDUAL_DOCUMENT>
-    </INDIVIDUAL>
+    <DATAID>110899</DATAID>
+    <VERSIONNUM>1</VERSIONNUM>
+    <FIRST_NAME>FAZL MOHAMMAD</FIRST_NAME>
+    <SECOND_NAME>MAZLOOM</SECOND_NAME>
+    <UN_LIST_TYPE>Taliban</UN_LIST_TYPE>
+    <REFERENCE_NUMBER>TAi.023</REFERENCE_NUMBER>
+    <LISTED_ON>2001-02-23</LISTED_ON>
+    <NAME_ORIGINAL_SCRIPT>فضل محمد مظلوم</NAME_ORIGINAL_SCRIPT>
+    <COMMENTS1>Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul. 2010. INTERPOL-UN Security Council Special Notice web link:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals</COMMENTS1>
+    <TITLE>
+    <VALUE>Mullah</VALUE>
+    </TITLE>
+    <DESIGNATION>
+    <VALUE>Deputy Chief of Army Staff of the Taliban regime</VALUE>
+    </DESIGNATION>
+    <NATIONALITY>
+    <VALUE>Afghanistan</VALUE>
+    </NATIONALITY>
+    <LIST_TYPE>
+    <VALUE>UN List</VALUE>
+    </LIST_TYPE>
+    <LAST_DAY_UPDATED>
+    <VALUE>2003-09-03</VALUE>
+    <VALUE>2007-09-21</VALUE>
+    <VALUE>2008-10-03</VALUE>
+    <VALUE>2013-12-31</VALUE>
+    <VALUE>2016-09-07</VALUE>
+    </LAST_DAY_UPDATED>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Molah Fazl</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Fazel Mohammad Mazloom</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ADDRESS>
+    <COUNTRY>Qatar</COUNTRY>
+    </INDIVIDUAL_ADDRESS>
+    <INDIVIDUAL_DATE_OF_BIRTH>
+    <TYPE_OF_DATE>BETWEEN</TYPE_OF_DATE>
+    <FROM_YEAR>1963</FROM_YEAR>
+    <TO_YEAR>1968</TO_YEAR>
+    </INDIVIDUAL_DATE_OF_BIRTH>
+    <INDIVIDUAL_PLACE_OF_BIRTH>
+    <CITY>Uruzgan</CITY>
+    <COUNTRY>Afghanistan</COUNTRY>
+    </INDIVIDUAL_PLACE_OF_BIRTH>
+    <INDIVIDUAL_DOCUMENT/>
+    <SORT_KEY/>
+    <SORT_KEY_LAST_MOD/>
+</INDIVIDUAL>
+<INDIVIDUAL>
+    <DATAID>110900</DATAID>
+    <VERSIONNUM>1</VERSIONNUM>
+    <FIRST_NAME>SAID AHMED</FIRST_NAME>
+    <SECOND_NAME>SHAHIDKHEL</SECOND_NAME>
+    <UN_LIST_TYPE>Taliban</UN_LIST_TYPE>
+    <REFERENCE_NUMBER>TAi.028</REFERENCE_NUMBER>
+    <LISTED_ON>2001-02-23</LISTED_ON>
+    <NAME_ORIGINAL_SCRIPT>سيد أحمد شهيد خيل</NAME_ORIGINAL_SCRIPT>
+    <COMMENTS1>In July 2003 he was in custody in Kabul, Afghanistan. Released from custody in 2007. Believed to be in Afghanistan/Pakistan border area. Member of the Taliban leadership council as of mid-2013. Belongs to Andar tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul. 2010. INTERPOL-UN Security Council Special Notice web link:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals</COMMENTS1>
+    <TITLE>
+    <VALUE>Maulavi</VALUE>
+    </TITLE>
+    <DESIGNATION>
+    <VALUE>Deputy Minister of Education under the Taliban regime</VALUE>
+    </DESIGNATION>
+    <NATIONALITY>
+    <VALUE>Afghanistan</VALUE>
+    </NATIONALITY>
+    <LIST_TYPE>
+    <VALUE>UN List</VALUE>
+    </LIST_TYPE>
+    <LAST_DAY_UPDATED>
+    <VALUE>2003-09-03</VALUE>
+    <VALUE>2005-12-20</VALUE>
+    <VALUE>2007-09-21</VALUE>
+    <VALUE>2011-11-29</VALUE>
+    <VALUE>2013-12-31</VALUE>
+    </LAST_DAY_UPDATED>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY/>
+    <ALIAS_NAME/>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ADDRESS>
+    <COUNTRY/>
+    </INDIVIDUAL_ADDRESS>
+    <INDIVIDUAL_DATE_OF_BIRTH>
+    <TYPE_OF_DATE>APPROXIMATELY</TYPE_OF_DATE>
+    <YEAR>1975</YEAR>
+    </INDIVIDUAL_DATE_OF_BIRTH>
+    <INDIVIDUAL_PLACE_OF_BIRTH>
+    <CITY>Spandeh (Espandi ‘Olya) village, Andar District</CITY>
+    <STATE_PROVINCE>Ghazni Province</STATE_PROVINCE>
+    <COUNTRY>Afghanistan</COUNTRY>
+    </INDIVIDUAL_PLACE_OF_BIRTH>
+    <INDIVIDUAL_DOCUMENT/>
+    <SORT_KEY/>
+    <SORT_KEY_LAST_MOD/>
+</INDIVIDUAL>
+<INDIVIDUAL>
+    <DATAID>110901</DATAID>
+    <VERSIONNUM>1</VERSIONNUM>
+    <FIRST_NAME>MOHAMMAD</FIRST_NAME>
+    <SECOND_NAME>AHMADI</SECOND_NAME>
+    <UN_LIST_TYPE>Taliban</UN_LIST_TYPE>
+    <REFERENCE_NUMBER>TAi.031</REFERENCE_NUMBER>
+    <LISTED_ON>2001-02-23</LISTED_ON>
+    <NAME_ORIGINAL_SCRIPT>محمد احمدی</NAME_ORIGINAL_SCRIPT>
+    <COMMENTS1>Believed to be in Afghanistan/Pakistan border area. Belongs to Kakar tribe. He is a member of the Taliban Supreme Council. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul. 2010. INTERPOL-UN Security Council Special Notice web link:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals</COMMENTS1>
+    <TITLE>
+    <VALUE>Mullah</VALUE>
+    <VALUE>Haji</VALUE>
+    </TITLE>
+    <DESIGNATION>
+    <VALUE>President of Central Bank (Da Afghanistan Bank) under the Taliban regime</VALUE>
+    <VALUE>Minister of Finance under the Taliban regime</VALUE>
+    </DESIGNATION>
+    <NATIONALITY>
+    <VALUE>Afghanistan</VALUE>
+    </NATIONALITY>
+    <LIST_TYPE>
+    <VALUE>UN List</VALUE>
+    </LIST_TYPE>
+    <LAST_DAY_UPDATED>
+    <VALUE>2003-09-03</VALUE>
+    <VALUE>2007-09-21</VALUE>
+    <VALUE>2011-11-29</VALUE>
+    <VALUE>2013-12-31</VALUE>
+    </LAST_DAY_UPDATED>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY/>
+    <ALIAS_NAME/>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY/>
+    <ALIAS_NAME/>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ADDRESS>
+    <STREET>Kushal Khan Mena, District Number 5</STREET>
+    <CITY>Kabul</CITY>
+    <COUNTRY>Afghanistan</COUNTRY>
+    </INDIVIDUAL_ADDRESS>
+    <INDIVIDUAL_DATE_OF_BIRTH>
+    <TYPE_OF_DATE>APPROXIMATELY</TYPE_OF_DATE>
+    <YEAR>1963</YEAR>
+    </INDIVIDUAL_DATE_OF_BIRTH>
+    <INDIVIDUAL_PLACE_OF_BIRTH>
+    <CITY>Daman District</CITY>
+    <STATE_PROVINCE>Kandahar Province</STATE_PROVINCE>
+    <COUNTRY>Afghanistan</COUNTRY>
+    </INDIVIDUAL_PLACE_OF_BIRTH>
+    <INDIVIDUAL_DOCUMENT/>
+    <SORT_KEY/>
+    <SORT_KEY_LAST_MOD/>
+</INDIVIDUAL>
+    <INDIVIDUAL>
+    <DATAID>110912</DATAID>
+    <VERSIONNUM>1</VERSIONNUM>
+    <FIRST_NAME>ABDUL RAHMAN</FIRST_NAME>
+    <SECOND_NAME>ZAHED</SECOND_NAME>
+    <UN_LIST_TYPE>Taliban</UN_LIST_TYPE>
+    <REFERENCE_NUMBER>TAi.033</REFERENCE_NUMBER>
+    <LISTED_ON>2001-01-25</LISTED_ON>
+    <NAME_ORIGINAL_SCRIPT>عبدالرحمان زاهد</NAME_ORIGINAL_SCRIPT>
+    <COMMENTS1>Believed to be in Afghanistan/Pakistan border area. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul. 2010. INTERPOL-UN Security Council Special Notice web link:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals</COMMENTS1>
+    <TITLE>
+    <VALUE>Mullah</VALUE>
+    </TITLE>
+    <DESIGNATION>
+    <VALUE>Deputy Minister of Foreign Affairs under the Taliban regime</VALUE>
+    </DESIGNATION>
+    <NATIONALITY>
+    <VALUE>Afghanistan</VALUE>
+    </NATIONALITY>
+    <LIST_TYPE>
+    <VALUE>UN List</VALUE>
+    </LIST_TYPE>
+    <LAST_DAY_UPDATED>
+    <VALUE>2003-09-03</VALUE>
+    <VALUE>2007-07-18</VALUE>
+    <VALUE>2007-09-21</VALUE>
+    <VALUE>2011-11-29</VALUE>
+    </LAST_DAY_UPDATED>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY>Good</QUALITY>
+    <ALIAS_NAME>Abdul Rehman Zahid</ALIAS_NAME>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ADDRESS>
+    <COUNTRY/>
+    </INDIVIDUAL_ADDRESS>
+    <INDIVIDUAL_DATE_OF_BIRTH>
+    <TYPE_OF_DATE>APPROXIMATELY</TYPE_OF_DATE>
+    <YEAR>1963</YEAR>
+    </INDIVIDUAL_DATE_OF_BIRTH>
+    <INDIVIDUAL_PLACE_OF_BIRTH>
+    <CITY>Kharwar District</CITY>
+    <STATE_PROVINCE>Logar Province</STATE_PROVINCE>
+    <COUNTRY>Afghanistan</COUNTRY>
+    </INDIVIDUAL_PLACE_OF_BIRTH>
+    <INDIVIDUAL_DOCUMENT/>
+    <SORT_KEY/>
+    <SORT_KEY_LAST_MOD/>
+</INDIVIDUAL>
+<INDIVIDUAL>
+    <DATAID>110913</DATAID>
+    <VERSIONNUM>1</VERSIONNUM>
+    <FIRST_NAME>FAIZ</FIRST_NAME>
+    <UN_LIST_TYPE>Taliban</UN_LIST_TYPE>
+    <REFERENCE_NUMBER>TAi.036</REFERENCE_NUMBER>
+    <LISTED_ON>2001-02-23</LISTED_ON>
+    <NAME_ORIGINAL_SCRIPT>فيض</NAME_ORIGINAL_SCRIPT>
+    <COMMENTS1>Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul. 2010. INTERPOL-UN Security Council Special Notice web link:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals</COMMENTS1>
+    <TITLE>
+    <VALUE>Maulavi</VALUE>
+    </TITLE>
+    <DESIGNATION>
+    <VALUE>Head of the Information Department, Ministry of Foreign Affairs under the Taliban regime</VALUE>
+    </DESIGNATION>
+    <NATIONALITY>
+    <VALUE>Afghanistan</VALUE>
+    </NATIONALITY>
+    <LIST_TYPE>
+    <VALUE>UN List</VALUE>
+    </LIST_TYPE>
+    <LAST_DAY_UPDATED>
+    <VALUE>2003-09-03</VALUE>
+    <VALUE>2007-07-09</VALUE>
+    <VALUE>2007-09-21</VALUE>
+    <VALUE>2011-11-29</VALUE>
+    </LAST_DAY_UPDATED>
+    <INDIVIDUAL_ALIAS>
+    <QUALITY/>
+    <ALIAS_NAME/>
+    </INDIVIDUAL_ALIAS>
+    <INDIVIDUAL_ADDRESS>
+    <COUNTRY/>
+    </INDIVIDUAL_ADDRESS>
+    <INDIVIDUAL_DATE_OF_BIRTH>
+    <TYPE_OF_DATE>APPROXIMATELY</TYPE_OF_DATE>
+    <YEAR>1969</YEAR>
+    </INDIVIDUAL_DATE_OF_BIRTH>
+    <INDIVIDUAL_PLACE_OF_BIRTH>
+    <STATE_PROVINCE>Ghazni Province</STATE_PROVINCE>
+    <COUNTRY>Afghanistan</COUNTRY>
+    </INDIVIDUAL_PLACE_OF_BIRTH>
+    <INDIVIDUAL_DOCUMENT/>
+    <SORT_KEY/>
+    <SORT_KEY_LAST_MOD/>
+</INDIVIDUAL>
+</INDIVIDUALS>
 </CONSOLIDATED_LIST>
