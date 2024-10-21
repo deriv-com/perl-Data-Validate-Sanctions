@@ -86,7 +86,7 @@ sub config {
         },
          'UNSC-Sanctions' => {
             description => 'UN: United Nations Security Council Consolidated List',
-            url         => $args{unsc_url} || 'https://scsanctions.un.org/resources/xml/en/consolidated.xml?_gl=1*17zxk5d*_ga*MTI5MTEzMzMyNS4xNzI5MDY3MjA1*_ga_TK9BQL5X7Z*MTcyOTA2NzIwNC4xLjAuMTcyOTA2NzIwNi4wLjAuMA',
+            url         => $args{unsc_url} || 'https://scsanctions.un.org/resources/xml/en/consolidated.xml',
             parser      => \&_unsc_xml,
         },
     };
