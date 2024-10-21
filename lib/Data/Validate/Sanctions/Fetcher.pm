@@ -439,8 +439,7 @@ sub _unsc_xml {
     my $data = XML::Simple::XMLin(
         $xml_content,
         ForceArray => 1,
-        KeyAttr    => ['INDIVIDUALS', 'ENTITIES']
-    );
+        KeyAttr    => ['INDIVIDUALS', 'ENTITIES']);
 
     # Extract the dateGenerated attribute from the first line of the XML content
     my ($date_generated) = $data->{'dateGenerated'};
@@ -454,22 +453,17 @@ sub _unsc_xml {
     for my $individual (@{$data->{'INDIVIDUALS'}->[0]->{'INDIVIDUAL'}}) {
         my %entry;
 
-        $entry{dataid}               = $individual->{'DATAID'}[0];
-        $entry{versionnum}           = $individual->{'VERSIONNUM'}[0];
         $entry{first_name}           = $individual->{'FIRST_NAME'}[0];
         $entry{second_name}          = $individual->{'SECOND_NAME'}[0];
         $entry{third_name}           = $individual->{'THIRD_NAME'}[0]  // '';
         $entry{fourth_name}          = $individual->{'FOURTH_NAME'}[0] // '';
-        $entry{un_list_type}         = $individual->{'UN_LIST_TYPE'}[0];
-        $entry{reference_number}     = $individual->{'REFERENCE_NUMBER'}[0];
-        $entry{listed_on}            = $individual->{'LISTED_ON'}[0];
         $entry{name_original_script} = $individual->{'NAME_ORIGINAL_SCRIPT'}[0] // '';
 
         my @names = (
-            $entry{first_name} // '',
-            $entry{second_name} // '',
-            $entry{third_name} // '',
-            $entry{fourth_name} // '',
+            $entry{first_name}           // '',
+            $entry{second_name}          // '',
+            $entry{third_name}           // '',
+            $entry{fourth_name}          // '',
             $entry{name_original_script} // '',
         );
 
@@ -479,30 +473,32 @@ sub _unsc_xml {
             }
         }
 
-        my @dob_list = (
-            $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'YEAR'}[0] // ''
-        );
+        my @dob_list = ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'YEAR'}[0] // '');
 
         my @place_of_birth = (
-            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'CITY'}[0] // '',
+            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'CITY'}[0]           // '',
             $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'STATE_PROVINCE'}[0] // '',
-            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'COUNTRY'}[0] // ''
+            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'COUNTRY'}[0]        // ''
         );
 
-        my @residence = (
-            map {
-                $_->{'COUNTRY'}[0] // ''
-            } @{$individual->{'INDIVIDUAL_ADDRESS'}}
-        );
+        my @residence   = (map { $_->{'COUNTRY'}[0]  // '' } @{$individual->{'INDIVIDUAL_ADDRESS'}});
+        my @postal_code = (map { $_->{'ZIP_CODE'}[0] // '' } @{$individual->{'INDIVIDUAL_ADDRESS'}});
 
-        my @nationality = (
-            $individual->{'NATIONALITY'}[0]{'VALUE'}[0] // ''
-        );
+        my @nationality = ($individual->{'NATIONALITY'}[0]{'VALUE'}[0] // '');
+        my @national_id = [];
+        my @passport_no = [];
 
-        my @citizen = (); # Add citizen extraction logic if available
-        my @postal_code = (); # Add postal code extraction logic if available
-        my @national_id = (); # Add national ID extraction logic if available
-        my @passport_no = (); # Add passport number extraction logic if available
+        # Extract passport and national identification numbers
+        foreach my $document (@{$individual->{'INDIVIDUAL_DOCUMENT'}}) {
+            unless ($document->{'TYPE_OF_DOCUMENT'}[0] && $document->{'TYPE_OF_DOCUMENT'}[0]) {
+                next;
+            }
+            if ($document->{'TYPE_OF_DOCUMENT'}[0] eq 'Passport') {
+                push @passport_no, $document->{'NUMBER'}[0] // '';
+            } elsif ($document->{'TYPE_OF_DOCUMENT'}[0] eq 'National Identification Number') {
+                push @national_id, $document->{'NUMBER'}[0] // '';
+            }
+        }
 
         _process_sanction_entry(
             $dataset,
@@ -511,7 +507,7 @@ sub _unsc_xml {
             place_of_birth => \@place_of_birth,
             residence      => \@residence,
             nationality    => \@nationality,
-            citizen        => \@citizen,
+            citizen        => \@nationality, # no seprate field for citizenship in the XML 
             postal_code    => \@postal_code,
             national_id    => \@national_id,
             passport_no    => \@passport_no,
