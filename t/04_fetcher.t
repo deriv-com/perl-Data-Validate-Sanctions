@@ -55,13 +55,10 @@ subtest 'source url arguments' => sub {
         'OFAC-SDN' => {
             error => ignore(),
         },
-         'MOHA-Sanctions' => {
-            error => ignore(),
-        },
         },
         'All sources return errors - no content';
 
-    is $calls, 3 * 5, 'the fetcher tried thrice per source and failed finally.';
+    is $calls, 3 * 4, 'the fetcher tried thrice per source and failed finally.';
 
 };
 
