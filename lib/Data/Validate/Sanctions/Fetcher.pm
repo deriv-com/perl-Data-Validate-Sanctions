@@ -13,9 +13,9 @@ use Text::Trim qw(trim);
 use Syntax::Keyword::Try;
 use XML::Fast;
 use Locale::Country;
-use JSON qw(to_json);
+use JSON        qw(to_json);
 use Digest::SHA qw(sha256_hex);
-use Encode qw(encode);
+use Encode      qw(encode);
 use Data::Sanctions::DB;
 
 use constant MAX_REDIRECTS => 3;
@@ -471,7 +471,12 @@ sub run {
             }
 
             my $hash = _create_hash($data->{content});
-            $db->insert_or_update_sanction_list_provider($id, _clean_url($source->{url}), _epoch_to_date($data->{updated}), $hash, scalar $data->{content}->@*);
+            $db->insert_or_update_sanction_list_provider(
+                $id,
+                _clean_url($source->{url}),
+                _epoch_to_date($data->{updated}),
+                $hash, scalar $data->{content}->@*
+            );
 
         } catch ($e) {
             $result->{$id}->{error} = $e;
@@ -587,7 +592,12 @@ sub _create_hash {
     my ($data) = @_;
 
     # Convert the data to a JSON string
-    my $json_string = to_json($data, { canonical => 1, utf8 => 1 });
+    my $json_string = to_json(
+        $data,
+        {
+            canonical => 1,
+            utf8      => 1
+        });
 
     # Generate and return the SHA-256 hash
     return sha256_hex($json_string);
