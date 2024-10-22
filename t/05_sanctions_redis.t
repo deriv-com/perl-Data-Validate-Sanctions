@@ -184,7 +184,7 @@ subtest 'Update Data' => sub {
         'UNSC-Sanctions' => {
             content  => [],
             verified => 1500,
-            updated  => 91,
+            updated  => 90,
         },
     };
     is_deeply $validator->data, $expected, 'Data is correctly loaded';
@@ -310,7 +310,6 @@ subtest 'load data' => sub {
             content  => [],
             verified => 0,
             updated  => 0,
-            error    => ''
         }};
     is_deeply $validator->data, $expected, 'Sanction lists are loaded with default values when redis is empty';
     is $validator->last_updated, 0, 'Updated date is zero';
