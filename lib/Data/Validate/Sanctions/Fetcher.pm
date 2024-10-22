@@ -551,10 +551,10 @@ sub _deep_sort {
     my $structure = shift;
 
     if (ref($structure) eq 'HASH') {
-        my %sorted_hash = map { $_ => deep_sort($structure->{$_}) } sort keys %$structure;
+        my %sorted_hash = map { $_ => _deep_sort($structure->{$_}) } sort keys %$structure;
         return \%sorted_hash;
     } elsif (ref($structure) eq 'ARRAY') {
-        return [ map { deep_sort($_) } sort { $a cmp $b } @$structure ];
+        return [ map { _deep_sort($_) } sort { $a cmp $b } @$structure ];
     } else {
         return $structure;  # Base case: return the value
     }
