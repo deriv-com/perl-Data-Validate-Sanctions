@@ -14,6 +14,7 @@ use Syntax::Keyword::Try;
 use XML::Fast;
 use Locale::Country;
 use JSON qw(to_json);
+use Digest::SHA qw(sha256_hex);
 use Data::Sanctions::DB;
 
 use constant MAX_REDIRECTS => 3;
