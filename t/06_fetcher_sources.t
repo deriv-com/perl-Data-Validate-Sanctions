@@ -25,6 +25,8 @@ subtest 'Fetch and process all sources from default urls' => sub {
 
     cmp_ok($data->{'OFAC-Consolidated'}{updated}, '>=', 1541376000, "Fetcher::run OFAC-Consolidated sanctions.yml");
 
+    cmp_ok($data->{'UNSC-Sanctions'}{updated}, '>=', 1541376000, "Fetcher::run HMT-Sanctions sanctions.yml");
+
     cmp_ok(scalar $data->{'HMT-Sanctions'}{'content'}->@*, '==', 23, "HMT-Sanctions namelist - sample file");
 };
 
