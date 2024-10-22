@@ -469,10 +469,9 @@ sub run {
                 my $count = $data->{content}->@*;
                 print "Source $id: $count entries fetched \n" if $args{verbose};
             }
-            # Store the data in the database
-            my $sorted_data = _deep_sort($data->{content});
-            my $hash        = _create_sha256($sorted_data);
-            $db->insert_or_update_sanction_list_provider($id, $source->{url}, _epoch_to_date($data->{updated}), $hash, scalar $data->{content}->@*);
+
+            my $hash = _create_hash($data->{content});
+            $db->insert_or_update_sanction_list_provider($id, _clean_url($source->{url}), _epoch_to_date($data->{updated}), $hash, scalar $data->{content}->@*);
 
         } catch ($e) {
             $result->{$id}->{error} = $e;
@@ -538,38 +537,6 @@ sub _entries_from_remote_src {
     return $entries // die "An error occurred while fetching data from '$src_url' due to $error_log\n";
 }
 
-=head2 _deep_sort
-
-Sorts a data structure recursively
-
-=cut
-
-sub _deep_sort {
-    my $structure = shift;
-
-    if (ref($structure) eq 'HASH') {
-        my %sorted_hash = map { $_ => _deep_sort($structure->{$_}) } sort keys %$structure;
-        return \%sorted_hash;
-    } elsif (ref($structure) eq 'ARRAY') {
-        return [map { _deep_sort($_) } sort { $a cmp $b } @$structure];
-    } else {
-        return $structure;    # Base case: return the value
-    }
-}
-
-=head2 _create_sha256
-
-Create SHA256 hash from a data structure
-
-=cut
-
-sub _create_sha256 {
-    my $data        = shift;
-    my $json_string = to_json($data, {canonical => 1});
-    my $utf8_string = encode('UTF-8', $json_string);  # Encode the JSON string to UTF-8
-    return sha256_hex($utf8_string);
-}
-
 =head2 _epoch_to_date
 
 Converts an epoch timestamp to a date string in YYYY-MM-DD format.
@@ -589,6 +556,41 @@ sub _epoch_to_date {
 
     # Return formatted date string
     return $dt->ymd('-');
+}
+
+=head2 _clean_url
+
+Removes specific query parameters from a URL.
+
+  my $clean_url = $fetcher->_clean_url($url);
+
+=cut
+
+sub _clean_url {
+    my ($self, $url) = @_;
+
+    # Remove the token parameter from the URL
+    $url =~ s/[?&]token=[^&]+//;
+
+    return $url;
+}
+
+=head2 _create_hash
+
+Converts the data to a string and creates a SHA-256 hash.
+
+  my $hash = $fetcher->create_hash($data);
+
+=cut
+
+sub _create_hash {
+    my ($data) = @_;
+
+    # Convert the data to a JSON string
+    my $json_string = to_json($data, { canonical => 1, utf8 => 1 });
+
+    # Generate and return the SHA-256 hash
+    return sha256_hex($json_string);
 }
 
 1;
