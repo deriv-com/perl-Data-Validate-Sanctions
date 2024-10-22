@@ -200,12 +200,12 @@ subtest 'Update Data' => sub {
 
     # rewrite to redis if update (publish) time is changed
     set_fixed_time(1600);
-    $mock_data->{'EU-Sanctions'}->{updated} = 91;
+    $mock_data->{'EU-Sanctions'}->{updated}   = 91;
     $mock_data->{'UNSC-Sanctions'}->{updated} = 91;
     $validator->update_data();
-    $expected->{'EU-Sanctions'}->{updated} = 91;
+    $expected->{'EU-Sanctions'}->{updated}   = 91;
     $expected->{'UNSC-Sanctions'}->{updated} = 91;
-    $expected->{$_}->{verified} = 1600 for keys %$expected;
+    $expected->{$_}->{verified}              = 1600 for keys %$expected;
     is_deeply $validator->data, $expected, 'Data is loaded with new update time';
     check_redis_content('EU-Sanctions', $mock_data->{'EU-Sanctions'}, 1600, 'Redis content changed by increased update time');
     is $index_call_counter, 2, 'index called after update';
@@ -241,7 +241,7 @@ subtest 'Update Data' => sub {
             ]
         },
     };
-    $expected->{'EU-Sanctions'} = clone($mock_data->{'EU-Sanctions'});
+    $expected->{'EU-Sanctions'}   = clone($mock_data->{'EU-Sanctions'});
     $expected->{'UNSC-Sanctions'} = clone($mock_data->{'UNSC-Sanctions'});
     set_fixed_time(1700);
     $validator->update_data();
@@ -313,7 +313,7 @@ subtest 'load data' => sub {
             content  => [],
             verified => 0,
             updated  => 0,
-            error => ''
+            error    => ''
         }};
     is_deeply $validator->data, $expected, 'Sanction lists are loaded with default values when redis is empty';
     is $validator->last_updated, 0, 'Updated date is zero';

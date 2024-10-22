@@ -15,7 +15,6 @@ use XML::Fast;
 use XML::Simple;
 use Locale::Country;
 
-
 use constant MAX_REDIRECTS => 3;
 # VERSION
 
@@ -84,7 +83,7 @@ sub config {
             url         => $eu_url,
             parser      => \&_eu_xml,
         },
-         'UNSC-Sanctions' => {
+        'UNSC-Sanctions' => {
             description => 'UN: United Nations Security Council Consolidated List',
             url         => $args{unsc_url} || 'https://scsanctions.un.org/resources/xml/en/consolidated.xml',
             parser      => \&_unsc_xml,
@@ -454,8 +453,8 @@ sub _unsc_xml {
 
         $entry{first_name}           = $individual->{'FIRST_NAME'}[0];
         $entry{second_name}          = $individual->{'SECOND_NAME'}[0];
-        $entry{third_name}           = $individual->{'THIRD_NAME'}[0]  // '';
-        $entry{fourth_name}          = $individual->{'FOURTH_NAME'}[0] // '';
+        $entry{third_name}           = $individual->{'THIRD_NAME'}[0]           // '';
+        $entry{fourth_name}          = $individual->{'FOURTH_NAME'}[0]          // '';
         $entry{name_original_script} = $individual->{'NAME_ORIGINAL_SCRIPT'}[0] // '';
 
         my @names = (
@@ -506,7 +505,7 @@ sub _unsc_xml {
             place_of_birth => \@place_of_birth,
             residence      => \@residence,
             nationality    => \@nationality,
-            citizen        => \@nationality, # no seprate field for citizenship in the XML 
+            citizen        => \@nationality,      # no seprate field for citizenship in the XML
             postal_code    => \@postal_code,
             national_id    => \@national_id,
             passport_no    => \@passport_no,

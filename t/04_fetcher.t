@@ -259,57 +259,43 @@ subtest 'OFAC Sanctions' => sub {
 
 subtest 'UNSC Sanctions' => sub {
     my $data = Data::Validate::Sanctions::Fetcher::run(%args);
-    
+
     my $source_name = 'UNSC-Sanctions';
     ok $data->{$source_name}, 'Sanctions are loaded from the sample file';
-    is $data->{$source_name}{updated}, 1729123202, "Sanctions update date matches the content of sample file";
-    is scalar @{$data->{$source_name}{content}}, 7, "Number of names matches the content of the sample file";
+    is $data->{$source_name}{updated},           1729123202, "Sanctions update date matches the content of sample file";
+    is scalar @{$data->{$source_name}{content}}, 7,          "Number of names matches the content of the sample file";
 
     is_deeply find_entry_by_name($data->{$source_name}, 'MOHAMMAD NAIM'),
         {
-          'citizen' => [
-                         'af'
-                       ],
-          'national_id' => [
-                             []
-                           ],
-          'place_of_birth' => [
-                                'af'
-                              ],
-          'dob_year' => [
-                          '1975'
-                        ],
-          'names' => [
-                       'MOHAMMAD NAIM',
-                       'BARICH',
-                       'KHUDAIDAD',
-                       "\x{645}\x{62d}\x{645}\x{62f} \x{646}\x{639}\x{64a}\x{645} \x{628}\x{631}\x{64a}\x{62e} \x{62e}\x{62f}\x{627}\x{64a}\x{62f}\x{627}\x{62f}",
-                       'Mullah Naeem Barech',
-                       'Mullah Naeem Baraich',
-                       'Mullah Naimullah',
-                       'Mullah Naim Bareh',
-                       'Mohammad Naim',
-                       'Mullah Naim Barich',
-                       'Mullah Naim Barech',
-                       'Mullah Naim Barech Akhund',
-                       'Mullah Naeem Baric',
-                       'Naim Berich',
-                       'Haji Gul Mohammed Naim Barich',
-                       'Gul Mohammad',
-                       'Haji Ghul Mohammad',
-                       'Spen Zrae',
-                       'Gul Mohammad Kamran',
-                       'Mawlawi Gul Mohammad'
-                     ],
-          'passport_no' => [
-                             []
-                           ],
-          'postal_code' => [
-                             '63000'
-                           ],
-          'nationality' => [
-                             'af'
-                           ]
+        'citizen'        => ['af'],
+        'national_id'    => [[]],
+        'place_of_birth' => ['af'],
+        'dob_year'       => ['1975'],
+        'names'          => [
+            'MOHAMMAD NAIM',
+            'BARICH',
+            'KHUDAIDAD',
+            "\x{645}\x{62d}\x{645}\x{62f} \x{646}\x{639}\x{64a}\x{645} \x{628}\x{631}\x{64a}\x{62e} \x{62e}\x{62f}\x{627}\x{64a}\x{62f}\x{627}\x{62f}",
+            'Mullah Naeem Barech',
+            'Mullah Naeem Baraich',
+            'Mullah Naimullah',
+            'Mullah Naim Bareh',
+            'Mohammad Naim',
+            'Mullah Naim Barich',
+            'Mullah Naim Barech',
+            'Mullah Naim Barech Akhund',
+            'Mullah Naeem Baric',
+            'Naim Berich',
+            'Haji Gul Mohammed Naim Barich',
+            'Gul Mohammad',
+            'Haji Ghul Mohammad',
+            'Spen Zrae',
+            'Gul Mohammad Kamran',
+            'Mawlawi Gul Mohammad'
+        ],
+        'passport_no' => [[]],
+        'postal_code' => ['63000'],
+        'nationality' => ['af']
         },
         'Alias names as saved in a single entry';
 };
