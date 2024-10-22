@@ -161,7 +161,7 @@ subtest 'Update Data' => sub {
     my $expected = {
         'EU-Sanctions' => {
             content  => [],
-            updated  => 90,
+            updated  => 91,
             verified => 1500,
         },
         'HMT-Sanctions' => {
@@ -185,7 +185,7 @@ subtest 'Update Data' => sub {
         'UNSC-Sanctions' => {
             content  => [],
             verified => 1500,
-            updated  => 91,
+            updated  => 90,
         },
     };
     is_deeply $validator->data, $expected, 'Data is correctly loaded';
