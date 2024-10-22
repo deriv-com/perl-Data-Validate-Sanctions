@@ -75,12 +75,12 @@ my $sample_data = {
     'UNSC-Sanctions' => {
         updated => 91,
         content => [{
-                names     => ['TMPA'],
+                names     => ['UBL'],
                 dob_epoch => [],
                 dob_year  => []
             },
             {
-                names     => ['MOHAMMAD EWAZ Mohammad Wali'],
+                names     => ['USAMA BIN LADEN'],
                 dob_epoch => [],
                 dob_year  => []
             },
@@ -200,7 +200,7 @@ subtest 'Update Data' => sub {
     # rewrite to redis if update (publish) time is changed
     set_fixed_time(1600);
     $mock_data->{'EU-Sanctions'}->{updated} = 91;
-    $mock_data->{'UNSC-Sanctions'}->{updated} = 91;
+    $mock_data->{'UNSC-Sanctions'}->{updated} = 90;
     $validator->update_data();
     $expected->{$_}->{verified} = 1600 for keys %$expected;
     is_deeply $validator->data, $expected, 'Data is loaded with new update time';
@@ -226,12 +226,12 @@ subtest 'Update Data' => sub {
         'UNSC-Sanctions' => {
             updated => 91,
             content => [{
-                    names     => ['TMPA'],
+                    names     => ['UBL'],
                     dob_epoch => [],
                     dob_year  => []
                 },
                 {
-                    names     => ['MOHAMMAD EWAZ Mohammad Wali'],
+                    names     => ['USAMA BIN LADEN'],
                     dob_epoch => [],
                     dob_year  => []
                 },
@@ -304,6 +304,11 @@ subtest 'load data' => sub {
             verified => 0,
             updated  => 0,
             error    => ''
+        },
+        'UNSC-Sanctions' => {
+            content  => [],
+            verified => 0,
+            updated  => 0,
         }};
     is_deeply $validator->data, $expected, 'Sanction lists are loaded with default values when redis is empty';
     is $validator->last_updated, 0, 'Updated date is zero';
