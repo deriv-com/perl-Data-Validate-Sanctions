@@ -161,7 +161,7 @@ subtest 'Update Data' => sub {
     my $expected = {
         'EU-Sanctions' => {
             content  => [],
-            updated  => 90,
+            updated  => 91,
             verified => 1500,
         },
         'HMT-Sanctions' => {
