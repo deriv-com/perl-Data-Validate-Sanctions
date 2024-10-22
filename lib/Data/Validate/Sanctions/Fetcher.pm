@@ -15,6 +15,7 @@ use XML::Fast;
 use Locale::Country;
 use JSON qw(to_json);
 use Digest::SHA qw(sha256_hex);
+use Encode qw(encode);
 use Data::Sanctions::DB;
 
 use constant MAX_REDIRECTS => 3;
@@ -565,7 +566,8 @@ Create SHA256 hash from a data structure
 sub _create_sha256 {
     my $data        = shift;
     my $json_string = to_json($data, {canonical => 1});
-    return sha256_hex($json_string);
+    my $utf8_string = encode('UTF-8', $json_string);  # Encode the JSON string to UTF-8
+    return sha256_hex($utf8_string);
 }
 
 =head2 _epoch_to_date
@@ -577,7 +579,7 @@ Converts an epoch timestamp to a date string in YYYY-MM-DD format.
 =cut
 
 sub _epoch_to_date {
-    my ($self, $epoch) = @_;
+    my $epoch = shift;
 
     # Input validation
     die "Epoch timestamp must be defined" unless defined $epoch;
