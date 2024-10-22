@@ -436,8 +436,10 @@ sub _unsc_xml {
 
     # Preprocess the XML content to escape unescaped ampersands
     $xml_content =~ s/&(?!(?:amp|lt|gt|quot|apos);)/&amp;/g;
-    my $data = xml2hash($xml_content, array => ['INDIVIDUALS', 'ENTITIES'])->{export};
-
+    $data = XML::Simple::XMLin(
+        $xml_content,
+        ForceArray => 1,
+        KeyAttr    => ['INDIVIDUALS', 'ENTITIES']);
     # Extract the dateGenerated attribute from the first line of the XML content
     my ($date_generated) = $data->{'dateGenerated'};
     die "Corrupt data. Release date is missing\n" unless $date_generated;
