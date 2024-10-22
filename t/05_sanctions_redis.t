@@ -161,7 +161,7 @@ subtest 'Update Data' => sub {
     my $expected = {
         'EU-Sanctions' => {
             content  => [],
-            updated  => 91,
+            updated  => 90,
             verified => 1500,
         },
         'HMT-Sanctions' => {
@@ -200,7 +200,7 @@ subtest 'Update Data' => sub {
 
     # rewrite to redis if update (publish) time is changed
     set_fixed_time(1600);
-    $mock_data->{'EU-Sanctions'}->{updated} = 91;
+    $mock_data->{'EU-Sanctions'}->{updated} = 90;
     $validator->update_data();
     $expected->{$_}->{verified} = 1600 for keys %$expected;
     is_deeply $validator->data, $expected, 'Data is loaded with new update time';
