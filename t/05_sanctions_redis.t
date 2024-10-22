@@ -185,6 +185,7 @@ subtest 'Update Data' => sub {
             content  => [],
             verified => 1500,
             updated  => 90,
+            error    => ''
         },
     };
     is_deeply $validator->data, $expected, 'Data is correctly loaded';
@@ -239,6 +240,7 @@ subtest 'Update Data' => sub {
         },
     };
     $expected->{'EU-Sanctions'} = clone($mock_data->{'EU-Sanctions'});
+    $expected->{'UNSC-Sanctions'} = clone($mock_data->{'UNSC-Sanctions'});
     set_fixed_time(1700);
     $validator->update_data();
     $expected->{$_}->{verified} = 1700 for keys %$expected;
@@ -309,6 +311,7 @@ subtest 'load data' => sub {
             content  => [],
             verified => 0,
             updated  => 0,
+            error    => ''
         }};
     is_deeply $validator->data, $expected, 'Sanction lists are loaded with default values when redis is empty';
     is $validator->last_updated, 0, 'Updated date is zero';
