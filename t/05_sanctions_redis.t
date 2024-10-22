@@ -170,7 +170,7 @@ subtest 'Update Data' => sub {
         'UNSC-Sanctions' => {
             content  => [],
             verified => 0,
-            updated  => 0,
+            updated  => 90,
             error    => ''
         },
     };
