@@ -471,7 +471,7 @@ sub run {
             # Store the data in the database
             my $sorted_data = _deep_sort($data->{content});
             my $hash        = _create_sha256($sorted_data);
-            $db->insert_or_update_sanction_list_provider($id, $source->{url}, $data->{updated}, $hash, scalar $data->{content}->@*);
+            $db->insert_or_update_sanction_list_provider($id, $source->{url}, _epoch_to_date($data->{updated}), $hash, scalar $data->{content}->@*);
 
         } catch ($e) {
             $result->{$id}->{error} = $e;
@@ -566,6 +566,27 @@ sub _create_sha256 {
     my $data        = shift;
     my $json_string = to_json($data, {canonical => 1});
     return sha256_hex($json_string);
+}
+
+=head2 _epoch_to_date
+
+Converts an epoch timestamp to a date string in YYYY-MM-DD format.
+
+  my $date = $fetcher->_epoch_to_date(1672444800);
+
+=cut
+
+sub _epoch_to_date {
+    my ($self, $epoch) = @_;
+
+    # Input validation
+    die "Epoch timestamp must be defined" unless defined $epoch;
+
+    # Convert epoch to DateTime object
+    my $dt = DateTime->from_epoch(epoch => $epoch);
+
+    # Return formatted date string
+    return $dt->ymd('-');
 }
 
 1;
