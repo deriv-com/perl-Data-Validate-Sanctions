@@ -200,8 +200,8 @@ subtest 'Update Data' => sub {
     # rewrite to redis if update (publish) time is changed
     set_fixed_time(1600);
     $mock_data->{'EU-Sanctions'}->{updated} = 91;
+    $mock_data->{'UNSC-Sanctions'}->{updated} = 91;
     $validator->update_data();
-    $expected->{'UNSC-Sanctions'}->{updated} = 91;
     $expected->{$_}->{verified} = 1600 for keys %$expected;
     is_deeply $validator->data, $expected, 'Data is loaded with new update time';
     check_redis_content('EU-Sanctions', $mock_data->{'EU-Sanctions'}, 1600, 'Redis content changed by increased update time');
@@ -239,34 +239,27 @@ subtest 'Update Data' => sub {
         },
     };
     $expected->{'EU-Sanctions'} = clone($mock_data->{'EU-Sanctions'});
-    $expected->{'USNC-Sanctions'} = clone($mock_data->{'UNSC-Sanctions'});
     set_fixed_time(1700);
     $validator->update_data();
     $expected->{$_}->{verified} = 1700 for keys %$expected;
     is_deeply $validator->data, $expected, 'Data is changed with new entries, even with the same update date';
     check_redis_content('EU-Sanctions', $expected->{'EU-Sanctions'}, 1700, 'New entries appear in Redis');
-    check_redis_content('UNSC-Sanctions', $expected->{'UNSC-Sanctions'}, 1700, 'New entries appear in Redis');
 
     # In case of error, content and dates are not changed
     set_fixed_time(1800);
     $mock_data->{'EU-Sanctions'}->{error}   = 'Test error';
     $mock_data->{'EU-Sanctions'}->{updated} = 92;
     $mock_data->{'EU-Sanctions'}->{content} = [1, 2, 3];
-    $mock_data->{'UNSC-Sanctions'}->{error}   = 'Test error';
-    $mock_data->{'UNSC-Sanctions'}->{updated} = 92;
-    $mock_data->{'UNSC-Sanctions'}->{content} = [1, 2, 3];
     like Test::Warnings::warning { $validator->update_data() }, qr/EU-Sanctions list update failed because: Test error/,
         'Error warning appears in logs';
     $expected->{'EU-Sanctions'}->{error} = 'Test error';
     $expected->{$_}->{verified} = 1800 for keys %$expected;
     is_deeply $validator->data, $expected, 'Data is not changed if there is error';
     check_redis_content('EU-Sanctions', $expected->{'EU-Sanctions'}, 1800, 'Redis content is not changed when there is an error');
-    check_redis_content('UNSC-Sanctions', $expected->{'UNSC-Sanctions'}, 1800, 'Redis content is not changed when there is an error');
 
     set_fixed_time(1850);
     $validator = Data::Validate::Sanctions::Redis->new(connection => $redis);
     is_deeply $validator->data->{'EU-Sanctions'}, $expected->{'EU-Sanctions'}, 'All fields are correctly loaded form redis in constructor';
-    is_deeply $validator->data->{'UNSC-Sanctions'}, $expected->{'UNSC-Sanctions'}, 'All fields are correctly loaded form redis in constructor';
 
     # All sources are updated at the same time
     $mock_data = $sample_data;
@@ -279,7 +272,6 @@ subtest 'Update Data' => sub {
     check_redis_content('HMT-Sanctions', $mock_data->{'HMT-Sanctions'}, 1900, 'Sanction list is stored in redis');
     check_redis_content('OFAC-Consolidated', $mock_data->{'OFAC-Consolidated'}, 1900, 'Sanction list is stored in redis');
     check_redis_content('OFAC-SDN',          $mock_data->{'OFAC-SDN'},          1900, 'Sanction list is stored in redis');
-    check_redis_content('UNSC-Sanctions',    $mock_data->{'UNSC-Sanctions'},    1900, 'UNSC-Sanctions error is removed with the same content and update date');
 
     restore_time();
     $mock_fetcher->unmock_all;
@@ -312,14 +304,7 @@ subtest 'load data' => sub {
             verified => 0,
             updated  => 0,
             error    => ''
-        },
-        'UNSC-Sanctions' => {
-            content  => [],
-            verified => 0,
-            updated  => 0,
-            error    => ''
-        },
-        };
+        }};
     is_deeply $validator->data, $expected, 'Sanction lists are loaded with default values when redis is empty';
     is $validator->last_updated, 0, 'Updated date is zero';
 
@@ -362,14 +347,7 @@ subtest 'load data' => sub {
             content  => [],
             verified => 1102,
             error    => 'Test error'
-        },
-        'UNSC-Sanctions' => {
-            content  => [],
-            verified => 0,
-            updated  => 0,
-            error    => ''
-        },
-        };
+        }};
 
     for my $source (keys %$test_data) {
         # save data to redis
@@ -413,14 +391,6 @@ subtest 'load data' => sub {
         error    => ''
         },
         'Missing source OFAC-Consolodated loaded with default values';
-    is_deeply $validator->data->{'UNSC-Sanctions'},
-        {
-        content  => [],
-        verified => 0,
-        updated  => 0,
-        error    => ''
-        },
-        'Missing source UNSC-Sanctions loaded with default values';
     is $validator->last_updated, 1002, 'Update date is the maximum of the dates in all sources';
 
     my $cache_data = clone $validator->data;
