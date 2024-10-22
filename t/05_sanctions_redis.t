@@ -179,7 +179,7 @@ subtest 'Update Data' => sub {
     check_redis_content('HMT-Sanctions',     {},                           1500);
     check_redis_content('OFAC-Consolidated', {},                           1500);
     check_redis_content('OFAC-SDN',          {},                           1500);
-    check_redis_content('UNSC-Sanctions',    {},                           1500);
+    check_redis_content('UNSC-Sanctions',    $mock_data->{'EU-Sanctions'}, 1500);
     is $index_call_counter, 1, 'index called after update';
     $validator->update_data();
     is $index_call_counter, 1, 'index not been called after update, due to unchanged data';
