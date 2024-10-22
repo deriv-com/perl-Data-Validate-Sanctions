@@ -72,6 +72,20 @@ my $sample_data = {
                 passport_no    => ['asdffdsa'],
             }]
     },
+    'UNSC-Sanctions' => {
+        updated => 91,
+        content => [{
+                names     => ['TMPA'],
+                dob_epoch => [],
+                dob_year  => []
+            },
+            {
+                names     => ['MOHAMMAD EWAZ Mohammad Wali'],
+                dob_epoch => [],
+                dob_year  => []
+            },
+        ],
+    },
 };
 
 subtest 'Class constructor' => sub {
@@ -187,7 +201,7 @@ subtest 'Update Data' => sub {
     set_fixed_time(1600);
     $mock_data->{'EU-Sanctions'}->{updated} = 91;
     $validator->update_data();
-    $expected->{'EU-Sanctions'}->{updated} = 91;
+    $expected->{'UNSC-Sanctions'}->{updated} = 91;
     $expected->{$_}->{verified} = 1600 for keys %$expected;
     is_deeply $validator->data, $expected, 'Data is loaded with new update time';
     check_redis_content('EU-Sanctions', $mock_data->{'EU-Sanctions'}, 1600, 'Redis content changed by increased update time');
