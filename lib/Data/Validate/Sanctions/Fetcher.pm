@@ -567,7 +567,7 @@ Removes specific query parameters from a URL.
 =cut
 
 sub _clean_url {
-    my ($self, $url) = @_;
+    my $url = shift;
 
     # Remove the token parameter from the URL
     $url =~ s/[?&]token=[^&]+//;
