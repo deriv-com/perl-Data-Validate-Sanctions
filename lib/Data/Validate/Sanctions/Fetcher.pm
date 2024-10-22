@@ -435,12 +435,10 @@ sub _unsc_xml {
 
     # Preprocess the XML content to escape unescaped ampersands
     $xml_content =~ s/&(?!(?:amp|lt|gt|quot|apos);)/&amp;/g;
-    my $data = XML::Simple::XMLin(
-        $xml_content,
-        ForceArray => 1,
-        KeyAttr    => ['INDIVIDUALS', 'ENTITIES']);
+    my $data = xml2hash($xml_content, array => ['INDIVIDUAL', 'INDIVIDUAL_ALIAS', 'INDIVIDUAL_ADDRESS', 'INDIVIDUAL_DATE_OF_BIRTH', 'INDIVIDUAL_PLACE_OF_BIRTH', 'INDIVIDUAL_DOCUMENT'])->{CONSOLIDATED_LIST};
+
     # Extract the dateGenerated attribute from the first line of the XML content
-    my ($date_generated) = $data->{'dateGenerated'};
+    my ($date_generated) = $data->{'-dateGenerated'};
     die "Corrupt data. Release date is missing\n" unless $date_generated;
 
     # Convert the dateGenerated to epoch milliseconds
@@ -448,14 +446,16 @@ sub _unsc_xml {
 
     my $dataset = [];
 
-    for my $individual (@{$data->{'INDIVIDUALS'}->[0]->{'INDIVIDUAL'}}) {
+    # p $data->{'INDIVIDUALS'}->{'INDIVIDUAL'}->[0];
+
+    for my $individual (@{$data->{'INDIVIDUALS'}->{'INDIVIDUAL'}}) {
         my %entry;
 
-        $entry{first_name}           = $individual->{'FIRST_NAME'}[0];
-        $entry{second_name}          = $individual->{'SECOND_NAME'}[0];
-        $entry{third_name}           = $individual->{'THIRD_NAME'}[0]           // '';
-        $entry{fourth_name}          = $individual->{'FOURTH_NAME'}[0]          // '';
-        $entry{name_original_script} = $individual->{'NAME_ORIGINAL_SCRIPT'}[0] // '';
+        $entry{first_name}           = $individual->{'FIRST_NAME'};
+        $entry{second_name}          = $individual->{'SECOND_NAME'};
+        $entry{third_name}           = $individual->{'THIRD_NAME'}           // '';
+        $entry{fourth_name}          = $individual->{'FOURTH_NAME'}          // '';
+        $entry{name_original_script} = $individual->{'NAME_ORIGINAL_SCRIPT'} // '';
 
         my @names = (
             $entry{first_name}           // '',
@@ -466,35 +466,34 @@ sub _unsc_xml {
         );
 
         foreach my $alias (@{$individual->{INDIVIDUAL_ALIAS}}) {
-            if (ref($alias->{'ALIAS_NAME'}[0]) ne 'HASH' || %{$alias->{'ALIAS_NAME'}[0]}) {
-                push @names, $alias->{'ALIAS_NAME'}[0] // '';
+            if (ref($alias->{'ALIAS_NAME'}) ne 'HASH' || %{$alias->{'ALIAS_NAME'}}) {
+                push @names, $alias->{'ALIAS_NAME'} // '';
             }
         }
 
-        my @dob_list = ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'YEAR'}[0] // '');
+        my @dob_list = ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'DATE'} // '');
 
         my @place_of_birth = (
-            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'CITY'}[0]           // '',
-            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'STATE_PROVINCE'}[0] // '',
-            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'COUNTRY'}[0]        // ''
+            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'CITY'}           // '',
+            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'STATE_PROVINCE'} // '',
+            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'COUNTRY'}       // ''
         );
 
-        my @residence   = (map { $_->{'COUNTRY'}[0]  // '' } @{$individual->{'INDIVIDUAL_ADDRESS'}});
-        my @postal_code = (map { $_->{'ZIP_CODE'}[0] // '' } @{$individual->{'INDIVIDUAL_ADDRESS'}});
+        my @residence   = (map { $_->{'COUNTRY'}  // '' } @{$individual->{'INDIVIDUAL_ADDRESS'}});
+        my @postal_code = (map { $_->{'ZIP_CODE'} // '' } @{$individual->{'INDIVIDUAL_ADDRESS'}});
 
-        my @nationality = ($individual->{'NATIONALITY'}[0]{'VALUE'}[0] // '');
+        my @nationality = ($individual->{'NATIONALITY'}->{'VALUE'} // '');
         my @national_id = [];
         my @passport_no = [];
 
         # Extract passport and national identification numbers
-        foreach my $document (@{$individual->{'INDIVIDUAL_DOCUMENT'}}) {
-            unless ($document->{'TYPE_OF_DOCUMENT'}[0] && $document->{'TYPE_OF_DOCUMENT'}[0]) {
-                next;
-            }
-            if ($document->{'TYPE_OF_DOCUMENT'}[0] eq 'Passport') {
-                push @passport_no, $document->{'NUMBER'}[0] // '';
-            } elsif ($document->{'TYPE_OF_DOCUMENT'}[0] eq 'National Identification Number') {
-                push @national_id, $document->{'NUMBER'}[0] // '';
+        foreach my $document (@{$individual->{INDIVIDUAL_DOCUMENT}}) {
+            if ($document ne ""){
+                if ($document->{'TYPE_OF_DOCUMENT'} eq 'Passport') {
+                    push @passport_no, $document->{'NUMBER'} // '';
+                } elsif ($document->{'TYPE_OF_DOCUMENT'} eq 'National Identification Number') {
+                    push @national_id, $document->{'NUMBER'} // '';
+                }
             }
         }
 

@@ -270,7 +270,6 @@ subtest 'UNSC Sanctions' => sub {
         'citizen'        => ['af'],
         'national_id'    => [[]],
         'place_of_birth' => ['af'],
-        'dob_year'       => ['1975'],
         'names'          => [
             'MOHAMMAD NAIM',
             'BARICH',
