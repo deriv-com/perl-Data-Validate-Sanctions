@@ -85,6 +85,7 @@ my $sample_data = {
                 dob_year  => []
             },
         ],
+        error => ''
     },
 };
 
@@ -124,6 +125,7 @@ subtest 'Class constructor' => sub {
             content  => [],
             verified => 0,
             updated  => 0,
+            error    => ''
         },
         },
         'There is no sanction data';
@@ -159,7 +161,7 @@ subtest 'Update Data' => sub {
     my $expected = {
         'EU-Sanctions' => {
             content  => [],
-            updated  => 91,
+            updated  => 90,
             verified => 1500,
         },
         'HMT-Sanctions' => {
@@ -183,7 +185,8 @@ subtest 'Update Data' => sub {
         'UNSC-Sanctions' => {
             content  => [],
             verified => 1500,
-            updated  => 90,
+            updated  => 91,
+            error    => ''
         },
     };
     is_deeply $validator->data, $expected, 'Data is correctly loaded';
