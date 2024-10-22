@@ -13,6 +13,7 @@ use Text::Trim qw(trim);
 use Syntax::Keyword::Try;
 use XML::Fast;
 use Locale::Country;
+use JSON qw(to_json);
 use Data::Sanctions::DB;
 
 use constant MAX_REDIRECTS => 3;
@@ -469,13 +470,7 @@ sub run {
             # Store the data in the database
             my $sorted_data = _deep_sort($data->{content});
             my $hash        = _create_sha256($sorted_data);
-            $db->insert_or_update_sanction_list_provider(
-                $id,
-                $source->{url},
-                $data->{updated},
-                $hash,
-                scalar $data->{content}->@*
-            );
+            $db->insert_or_update_sanction_list_provider($id, $source->{url}, $data->{updated}, $hash, scalar $data->{content}->@*);
 
         } catch ($e) {
             $result->{$id}->{error} = $e;
@@ -554,9 +549,9 @@ sub _deep_sort {
         my %sorted_hash = map { $_ => _deep_sort($structure->{$_}) } sort keys %$structure;
         return \%sorted_hash;
     } elsif (ref($structure) eq 'ARRAY') {
-        return [ map { _deep_sort($_) } sort { $a cmp $b } @$structure ];
+        return [map { _deep_sort($_) } sort { $a cmp $b } @$structure];
     } else {
-        return $structure;  # Base case: return the value
+        return $structure;    # Base case: return the value
     }
 }
 
@@ -567,8 +562,8 @@ Create SHA256 hash from a data structure
 =cut
 
 sub _create_sha256 {
-    my $data = shift;
-    my $json_string = to_json($data, { canonical => 1 });
+    my $data        = shift;
+    my $json_string = to_json($data, {canonical => 1});
     return sha256_hex($json_string);
 }
 

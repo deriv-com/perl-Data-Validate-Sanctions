@@ -50,9 +50,9 @@ sub new {
 
     # Initialize the database connection
     $self->{dbic} = BOM::Database::ClientDB->new({
-        broker_code  => 'FOG',
-        db_operation => 'write',
-    })->db->dbic;
+            broker_code  => 'FOG',
+            db_operation => 'write',
+        })->db->dbic;
 
     return $self;
 }
@@ -83,15 +83,10 @@ sub insert_or_update_sanction_list_provider {
             fixup => sub {
                 $_->selectall_arrayref(
                     'SELECT compliance.insert_or_update_sanction_list_provider(?, ?, ?, ?, ?)',
-                    { Slice => {} },
-                    $p_provider_name,
-                    $p_provider_url,
-                    $p_publish_date,
-                    $p_hash,
-                    $p_number_of_entries
+                    {Slice => {}},
+                    $p_provider_name, $p_provider_url, $p_publish_date, $p_hash, $p_number_of_entries
                 );
-            }
-        );
+            });
     } catch {
         warn "Failed to insert or update sanction list provider: $_";
         $success = 0;
@@ -118,13 +113,8 @@ sub fetch_audit_entries_for_sanction_list_provider {
     try {
         $audit_entries = $self->{dbic}->run(
             fixup => sub {
-                $_->selectall_arrayref(
-                    'SELECT * FROM audit.fetch_audit_entries_for_sanction_list_provider(?)',
-                    { Slice => {} },
-                    $p_id
-                );
-            }
-        );
+                $_->selectall_arrayref('SELECT * FROM audit.fetch_audit_entries_for_sanction_list_provider(?)', {Slice => {}}, $p_id);
+            });
     } catch {
         warn "Failed to fetch audit entries for sanction list provider: $_";
         return;
@@ -148,12 +138,8 @@ sub fetch_sanction_list_providers {
     try {
         $sanction_list_providers = $self->{dbic}->run(
             fixup => sub {
-                $_->selectall_arrayref(
-                    'SELECT * FROM compliance.fetch_sanction_list_providers()',
-                    { Slice => {} }
-                );
-            }
-        );
+                $_->selectall_arrayref('SELECT * FROM compliance.fetch_sanction_list_providers()', {Slice => {}});
+            });
     } catch {
         warn "Failed to fetch sanction list providers: $_";
         return;
