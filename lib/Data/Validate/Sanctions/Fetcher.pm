@@ -436,7 +436,7 @@ sub _unsc_xml {
 
     # Preprocess the XML content to escape unescaped ampersands
     $xml_content =~ s/&(?!(?:amp|lt|gt|quot|apos);)/&amp;/g;
-    $data = XML::Simple::XMLin(
+    my $data = XML::Simple::XMLin(
         $xml_content,
         ForceArray => 1,
         KeyAttr    => ['INDIVIDUALS', 'ENTITIES']);
