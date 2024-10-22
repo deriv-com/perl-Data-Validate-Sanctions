@@ -106,6 +106,12 @@ subtest 'Class constructor' => sub {
             updated  => 0,
             error    => ''
         },
+        'UNSC-Sanctions' => {
+            content  => [],
+            verified => 0,
+            updated  => 0,
+            error    => ''
+        },
         },
         'There is no sanction data';
 };
@@ -115,6 +121,10 @@ subtest 'Update Data' => sub {
     my $mock_fetcher = Test::MockModule->new('Data::Validate::Sanctions::Fetcher');
     my $mock_data    = {
         'EU-Sanctions' => {
+            updated => 90,
+            content => []
+        },
+        'UNSC-Sanctions' => {
             updated => 90,
             content => []
         },
@@ -157,12 +167,19 @@ subtest 'Update Data' => sub {
             updated  => 0,
             error    => ''
         },
+        'UNSC-Sanctions' => {
+            content  => [],
+            verified => 0,
+            updated  => 0,
+            error    => ''
+        },
     };
     is_deeply $validator->data, $expected, 'Data is correctly loaded';
     check_redis_content('EU-Sanctions',      $mock_data->{'EU-Sanctions'}, 1500);
     check_redis_content('HMT-Sanctions',     {},                           1500);
     check_redis_content('OFAC-Consolidated', {},                           1500);
     check_redis_content('OFAC-SDN',          {},                           1500);
+    check_redis_content('UNSC-Sanctions',    {},                           1500);
     is $index_call_counter, 1, 'index called after update';
     $validator->update_data();
     is $index_call_counter, 1, 'index not been called after update, due to unchanged data';
@@ -180,6 +197,20 @@ subtest 'Update Data' => sub {
     # redis is updated with change in the number of entities, even if the publish date is the same
     $mock_data = {
         'EU-Sanctions' => {
+            updated => 91,
+            content => [{
+                    names     => ['TMPA'],
+                    dob_epoch => [],
+                    dob_year  => []
+                },
+                {
+                    names     => ['MOHAMMAD EWAZ Mohammad Wali'],
+                    dob_epoch => [],
+                    dob_year  => []
+                },
+            ]
+        },
+        'UNSC-Sanctions' => {
             updated => 91,
             content => [{
                     names     => ['TMPA'],
