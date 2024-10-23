@@ -12,7 +12,6 @@ use Text::CSV;
 use Text::Trim qw(trim);
 use Syntax::Keyword::Try;
 use XML::Fast;
-use XML::Simple;
 use Locale::Country;
 
 use constant MAX_REDIRECTS => 3;
@@ -445,8 +444,6 @@ sub _unsc_xml {
     my $publish_epoch = _date_to_epoch($date_generated // '');
 
     my $dataset = [];
-
-    # p $data->{'INDIVIDUALS'}->{'INDIVIDUAL'}->[0];
 
     for my $individual (@{$data->{'INDIVIDUALS'}->{'INDIVIDUAL'}}) {
         my %entry;
