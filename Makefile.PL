@@ -131,7 +131,6 @@ my %FallbackPrereqs = (
   "Text::CSV" => 0,
   "Text::Trim" => 0,
   "XML::Fast" => 0,
-  "XML::Simple" => 0,
   "YAML" => 0,
   "YAML::XS" => 0,
   "constant" => 0,
