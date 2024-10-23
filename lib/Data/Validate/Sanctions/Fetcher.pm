@@ -434,7 +434,10 @@ sub _unsc_xml {
 
     # Preprocess the XML content to escape unescaped ampersands
     $xml_content =~ s/&(?!(?:amp|lt|gt|quot|apos);)/&amp;/g;
-    my $data = xml2hash($xml_content, array => ['INDIVIDUAL', 'INDIVIDUAL_ALIAS', 'INDIVIDUAL_ADDRESS', 'INDIVIDUAL_DATE_OF_BIRTH', 'INDIVIDUAL_PLACE_OF_BIRTH', 'INDIVIDUAL_DOCUMENT'])->{CONSOLIDATED_LIST};
+    my $data = xml2hash($xml_content,
+        array =>
+            ['INDIVIDUAL', 'INDIVIDUAL_ALIAS', 'INDIVIDUAL_ADDRESS', 'INDIVIDUAL_DATE_OF_BIRTH', 'INDIVIDUAL_PLACE_OF_BIRTH', 'INDIVIDUAL_DOCUMENT'])
+        ->{CONSOLIDATED_LIST};
 
     # Extract the dateGenerated attribute from the first line of the XML content
     my ($date_generated) = $data->{'-dateGenerated'};
@@ -467,13 +470,23 @@ sub _unsc_xml {
                 push @names, $alias->{'ALIAS_NAME'} // '';
             }
         }
+        my @dob_list;
 
-        my @dob_list = ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'DATE'} // '');
+        if ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TYPE_OF_DATE'} && $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TYPE_OF_DATE'} eq 'BETWEEN') {
+            push @dob_list, $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'FROM_YEAR'} // '';
+            push @dob_list, $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TO_YEAR'} // '';
+        } else {
+            if ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'DATE'}) {
+                @dob_list = $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'DATE'};
+            } elsif ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'YEAR'}) {
+                @dob_list = $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'YEAR'};
+            } 
+        }
 
         my @place_of_birth = (
             $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'CITY'}           // '',
             $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'STATE_PROVINCE'} // '',
-            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'COUNTRY'}       // ''
+            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'COUNTRY'}        // ''
         );
 
         my @residence   = (map { $_->{'COUNTRY'}  // '' } @{$individual->{'INDIVIDUAL_ADDRESS'}});
@@ -485,7 +498,7 @@ sub _unsc_xml {
 
         # Extract passport and national identification numbers
         foreach my $document (@{$individual->{INDIVIDUAL_DOCUMENT}}) {
-            if ($document ne ""){
+            if ($document ne "") {
                 if ($document->{'TYPE_OF_DOCUMENT'} eq 'Passport') {
                     push @passport_no, $document->{'NUMBER'} // '';
                 } elsif ($document->{'TYPE_OF_DOCUMENT'} eq 'National Identification Number') {
