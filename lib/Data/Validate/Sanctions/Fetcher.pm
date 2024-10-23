@@ -14,7 +14,6 @@ use Syntax::Keyword::Try;
 use XML::Fast;
 use Locale::Country;
 
-
 use constant MAX_REDIRECTS => 3;
 # VERSION
 
@@ -82,6 +81,11 @@ sub config {
             description => 'EUROPA.EU: Consolidated list of persons, groups and entities subject to EU financial sanctions',
             url         => $eu_url,
             parser      => \&_eu_xml,
+        },
+        'UNSC-Sanctions' => {
+            description => 'UN: United Nations Security Council Consolidated List',
+            url         => $args{unsc_url} || 'https://scsanctions.un.org/resources/xml/en/consolidated.xml',
+            parser      => \&_unsc_xml,
         },
     };
 }
@@ -418,6 +422,104 @@ sub _eu_xml {
     my $publish_epoch = _date_to_epoch($date_parts[0]        // '');
 
     die "Corrupt data. Release date is invalid\n" unless $publish_epoch;
+
+    return {
+        updated => $publish_epoch,
+        content => $dataset,
+    };
+}
+
+sub _unsc_xml {
+    my ($xml_content) = @_;
+
+    # Preprocess the XML content to escape unescaped ampersands
+    $xml_content =~ s/&(?!(?:amp|lt|gt|quot|apos);)/&amp;/g;
+    my $data = xml2hash($xml_content,
+        array =>
+            ['INDIVIDUAL', 'INDIVIDUAL_ALIAS', 'INDIVIDUAL_ADDRESS', 'INDIVIDUAL_DATE_OF_BIRTH', 'INDIVIDUAL_PLACE_OF_BIRTH', 'INDIVIDUAL_DOCUMENT'])
+        ->{CONSOLIDATED_LIST};
+
+    # Extract the dateGenerated attribute from the first line of the XML content
+    my ($date_generated) = $data->{'-dateGenerated'};
+    die "Corrupt data. Release date is missing\n" unless $date_generated;
+
+    # Convert the dateGenerated to epoch milliseconds
+    my $publish_epoch = _date_to_epoch($date_generated // '');
+
+    my $dataset = [];
+
+    for my $individual (@{$data->{'INDIVIDUALS'}->{'INDIVIDUAL'}}) {
+        my %entry;
+
+        $entry{first_name}           = $individual->{'FIRST_NAME'};
+        $entry{second_name}          = $individual->{'SECOND_NAME'};
+        $entry{third_name}           = $individual->{'THIRD_NAME'}           // '';
+        $entry{fourth_name}          = $individual->{'FOURTH_NAME'}          // '';
+        $entry{name_original_script} = $individual->{'NAME_ORIGINAL_SCRIPT'} // '';
+
+        my @names = (
+            $entry{first_name}           // '',
+            $entry{second_name}          // '',
+            $entry{third_name}           // '',
+            $entry{fourth_name}          // '',
+            $entry{name_original_script} // '',
+        );
+
+        foreach my $alias (@{$individual->{INDIVIDUAL_ALIAS}}) {
+            if (ref($alias->{'ALIAS_NAME'}) ne 'HASH' || %{$alias->{'ALIAS_NAME'}}) {
+                push @names, $alias->{'ALIAS_NAME'} // '';
+            }
+        }
+        my @dob_list;
+
+        if ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TYPE_OF_DATE'} && $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TYPE_OF_DATE'} eq 'BETWEEN') {
+            push @dob_list, $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'FROM_YEAR'} // '';
+            push @dob_list, $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TO_YEAR'} // '';
+        } else {
+            if ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'DATE'}) {
+                @dob_list = $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'DATE'};
+            } elsif ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'YEAR'}) {
+                @dob_list = $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'YEAR'};
+            } 
+        }
+
+        my @place_of_birth = (
+            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'CITY'}           // '',
+            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'STATE_PROVINCE'} // '',
+            $individual->{'INDIVIDUAL_PLACE_OF_BIRTH'}[0]{'COUNTRY'}        // ''
+        );
+
+        my @residence   = (map { $_->{'COUNTRY'}  // '' } @{$individual->{'INDIVIDUAL_ADDRESS'}});
+        my @postal_code = (map { $_->{'ZIP_CODE'} // '' } @{$individual->{'INDIVIDUAL_ADDRESS'}});
+
+        my @nationality = ($individual->{'NATIONALITY'}->{'VALUE'} // '');
+        my @national_id = [];
+        my @passport_no = [];
+
+        # Extract passport and national identification numbers
+        foreach my $document (@{$individual->{INDIVIDUAL_DOCUMENT}}) {
+            if ($document ne "") {
+                if ($document->{'TYPE_OF_DOCUMENT'} eq 'Passport') {
+                    push @passport_no, $document->{'NUMBER'} // '';
+                } elsif ($document->{'TYPE_OF_DOCUMENT'} eq 'National Identification Number') {
+                    push @national_id, $document->{'NUMBER'} // '';
+                }
+            }
+        }
+
+        _process_sanction_entry(
+            $dataset,
+            names          => \@names,
+            date_of_birth  => \@dob_list,
+            place_of_birth => \@place_of_birth,
+            residence      => \@residence,
+            nationality    => \@nationality,
+            citizen        => \@nationality,      # no seprate field for citizenship in the XML
+            postal_code    => \@postal_code,
+            national_id    => \@national_id,
+            passport_no    => \@passport_no,
+        );
+    }
 
     return {
         updated => $publish_epoch,
