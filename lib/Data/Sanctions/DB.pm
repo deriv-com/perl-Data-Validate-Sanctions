@@ -77,7 +77,6 @@ sub insert_or_update_sanction_list_provider {
     # Input validation
     return 0 unless defined $p_provider_name && defined $p_provider_url && defined $p_publish_date && defined $p_hash && defined $p_number_of_entries;
 
-    my $success = 1;
     try {
         $self->{dbic}->run(
             fixup => sub {
@@ -87,12 +86,11 @@ sub insert_or_update_sanction_list_provider {
                     $p_provider_name, $p_provider_url, $p_publish_date, $p_hash, $p_number_of_entries
                 );
             });
+        return 1;
     } catch {
         warn "Failed to insert or update sanction list provider: $_";
-        $success = 0;
+        return 0;
     };
-
-    return $success;
 }
 
 =head2 fetch_audit_entries_for_sanction_list_provider
