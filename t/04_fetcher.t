@@ -342,6 +342,8 @@ subtest '_create_hash' => sub {
         key2 => 'value with special characters: !@#$%^&*()'
     };
     is Data::Validate::Sanctions::Fetcher::_create_hash($special_data), sha256_hex(to_json($special_data, { canonical => 1, utf8 => 1 })), 'Hash creation for data with special characters';
+};
+
 subtest 'UNSC Sanctions' => sub {
     my $data = Data::Validate::Sanctions::Fetcher::run(%args);
 
