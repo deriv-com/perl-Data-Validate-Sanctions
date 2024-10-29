@@ -24,6 +24,7 @@ my %args = (
     ofac_sdn_url          => "file://t/data/sample_ofac_sdn.zip",
     ofac_consolidated_url => "file://t/data/sample_ofac_consolidated.xml",
     hmt_url               => "file://t/data/sample_hmt.csv",
+    unsc_url              => "file://t/data/sample_unsc.xml",
 );
 
 my $mocked_ua = Test::MockModule->new('Mojo::UserAgent');
@@ -59,10 +60,13 @@ subtest 'source url arguments' => sub {
         'OFAC-SDN' => {
             error => ignore(),
         },
+        'UNSC-Sanctions' => {
+            error => ignore(),
+        },
         },
         'All sources return errors - no content';
 
-    is $calls, 3 * 4, 'the fetcher tried thrice per source and failed finally.';
+    is $calls, 3 * 5, 'the fetcher tried thrice per source and failed finally.';
 
 };
 
@@ -338,12 +342,69 @@ subtest '_create_hash' => sub {
         key2 => 'value with special characters: !@#$%^&*()'
     };
     is Data::Validate::Sanctions::Fetcher::_create_hash($special_data), sha256_hex(to_json($special_data, { canonical => 1, utf8 => 1 })), 'Hash creation for data with special characters';
+subtest 'UNSC Sanctions' => sub {
+    my $data = Data::Validate::Sanctions::Fetcher::run(%args);
+
+    my $source_name = 'UNSC-Sanctions';
+    ok $data->{$source_name}, 'Sanctions are loaded from the sample file';
+    is $data->{$source_name}{updated},           1729123202, "Sanctions update date matches the content of sample file";
+    is scalar @{$data->{$source_name}{content}}, 7,          "Number of names matches the content of the sample file";
+
+
+    is_deeply find_entry_by_name($data->{$source_name}, 'MOHAMMAD NAIM'),
+        {
+          'national_id' => [
+                             []
+                           ],
+          'place_of_birth' => [
+                                'af'
+                              ],
+          'citizen' => [
+                         'af'
+                       ],
+          'nationality' => [
+                             'af'
+                           ],
+          'postal_code' => [
+                             '63000'
+                           ],
+          'passport_no' => [
+                             []
+                           ],
+          'dob_year' => [
+                          '1975'
+                        ],
+          'names' => [
+                       'MOHAMMAD NAIM',
+                       'BARICH',
+                       'KHUDAIDAD',
+                       "\x{645}\x{62d}\x{645}\x{62f} \x{646}\x{639}\x{64a}\x{645} \x{628}\x{631}\x{64a}\x{62e} \x{62e}\x{62f}\x{627}\x{64a}\x{62f}\x{627}\x{62f}",
+                       'Mullah Naeem Barech',
+                       'Mullah Naeem Baraich',
+                       'Mullah Naimullah',
+                       'Mullah Naim Bareh',
+                       'Mohammad Naim',
+                       'Mullah Naim Barich',
+                       'Mullah Naim Barech',
+                       'Mullah Naim Barech Akhund',
+                       'Mullah Naeem Baric',
+                       'Naim Berich',
+                       'Haji Gul Mohammed Naim Barich',
+                       'Gul Mohammad',
+                       'Haji Ghul Mohammad',
+                       'Spen Zrae',
+                       'Gul Mohammad Kamran',
+                       'Mawlawi Gul Mohammad'
+                     ]
+        },
+        'Alias names as saved in a single entry';
 };
 
 sub find_entry_by_name {
     my ($data, $name) = @_;
 
     my @result;
+
     for my $entry ($data->{content}->@*) {
         push(@result, $entry) if List::Util::any { $_ eq $name } $entry->{names}->@*;
     }
