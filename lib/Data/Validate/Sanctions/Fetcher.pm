@@ -16,7 +16,6 @@ use Locale::Country;
 use JSON        qw(to_json);
 use Digest::SHA qw(sha256_hex);
 use Encode      qw(encode);
-use Data::Sanctions::DB;
 
 use constant MAX_REDIRECTS => 3;
 # VERSION
@@ -546,7 +545,10 @@ sub run {
 
     my $retries = $args{retries} // 3;
 
-    my $db = Data::Sanctions::DB->new;
+    # Ensure the handler subroutine reference is provided
+    die "Handler subroutine reference 'handler' is required" unless $args{handler};
+
+    my $handler = $args{handler};
 
     foreach my $id (sort keys %$config) {
         my $source = $config->{$id};
@@ -574,7 +576,7 @@ sub run {
             }
 
             my $hash = _create_hash($data->{content});
-            $db->insert_or_update_sanction_list_provider(
+            $handler->(
                 $id,
                 _clean_url($source->{url}),
                 _epoch_to_date($data->{updated}),

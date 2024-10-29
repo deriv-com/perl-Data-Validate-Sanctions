@@ -25,6 +25,7 @@ my %args = (
     ofac_consolidated_url => "file://t/data/sample_ofac_consolidated.xml",
     hmt_url               => "file://t/data/sample_hmt.csv",
     unsc_url              => "file://t/data/sample_unsc.xml",
+    handler               => sub { },
 );
 
 my $mocked_ua = Test::MockModule->new('Mojo::UserAgent');
@@ -43,6 +44,7 @@ subtest 'source url arguments' => sub {
         ofac_sdn_url          => 'ofac_snd.binary.com',
         ofac_consolidated_url => 'ofac_con.binary.com',
         hmt_url               => 'hmt.binary.com',
+        handler               => sub { },
     );
 
     my $data = Data::Validate::Sanctions::Fetcher::run(%test_args);

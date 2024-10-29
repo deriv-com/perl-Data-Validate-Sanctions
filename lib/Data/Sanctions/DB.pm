@@ -14,8 +14,14 @@ Data::Sanctions::DB - A module for managing sanction list providers in the datab
 =head1 SYNOPSIS
 
   use Data::Sanctions::DB;
+  use BOM::Database::ClientDB;
 
-  my $sanctions_db = Data::Sanctions::DB->new();
+  my $dbic = BOM::Database::ClientDB->new({
+      broker_code  => 'FOG',
+      db_operation => 'write',
+  })->db->dbic;
+
+  my $sanctions_db = Data::Sanctions::DB->new(dbic => $dbic);
   $sanctions_db->insert_or_update_sanction_list_provider(
       'Provider A',
       'http://provider-a.com',
@@ -29,6 +35,8 @@ Data::Sanctions::DB - A module for managing sanction list providers in the datab
 =head2 new
 
 Creates a new instance of the Data::Sanctions::DB package.
+
+  my $sanctions_db = Data::Sanctions::DB->new(dbic => $dbic);
 
 =head2 insert_or_update_sanction_list_provider
 
@@ -48,14 +56,14 @@ sub new {
     my ($class, %args) = @_;
     my $self = bless {}, $class;
 
-    # Initialize the database connection
-    $self->{dbic} = BOM::Database::ClientDB->new({
-            broker_code  => 'FOG',
-            db_operation => 'write',
-        })->db->dbic;
+    # Check if the database handle is provided
+    die "Database handle 'dbic' is required" unless $args{dbic};
+
+    $self->{dbic} = $args{dbic};
 
     return $self;
 }
+
 
 =head2 insert_or_update_sanction_list_provider
 
