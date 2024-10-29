@@ -297,16 +297,20 @@ subtest '_clean_url' => sub {
     is Data::Validate::Sanctions::Fetcher::_clean_url('http://example.com?token=abc123'), 'http://example.com', 'URL with token parameter';
 
     # Test URL with multiple parameters including token
-    is Data::Validate::Sanctions::Fetcher::_clean_url('http://example.com?param1=value1&token=abc123&param2=value2'), 'http://example.com?param1=value1&param2=value2', 'URL with multiple parameters including token';
+    is Data::Validate::Sanctions::Fetcher::_clean_url('http://example.com?param1=value1&token=abc123&param2=value2'),
+        'http://example.com?param1=value1&param2=value2', 'URL with multiple parameters including token';
 
     # Test URL without token parameter
-    is Data::Validate::Sanctions::Fetcher::_clean_url('http://example.com?param1=value1&param2=value2'), 'http://example.com?param1=value1&param2=value2', 'URL without token parameter';
+    is Data::Validate::Sanctions::Fetcher::_clean_url('http://example.com?param1=value1&param2=value2'),
+        'http://example.com?param1=value1&param2=value2', 'URL without token parameter';
 
     # Test URL with token parameter at the end
-    is Data::Validate::Sanctions::Fetcher::_clean_url('http://example.com?param1=value1&param2=value2&token=abc123'), 'http://example.com?param1=value1&param2=value2', 'URL with token parameter at the end';
+    is Data::Validate::Sanctions::Fetcher::_clean_url('http://example.com?param1=value1&param2=value2&token=abc123'),
+        'http://example.com?param1=value1&param2=value2', 'URL with token parameter at the end';
 
     # Test URL with token parameter in the middle
-    is Data::Validate::Sanctions::Fetcher::_clean_url('http://example.com?param1=value1&token=abc123&param2=value2'), 'http://example.com?param1=value1&param2=value2', 'URL with token parameter in the middle';
+    is Data::Validate::Sanctions::Fetcher::_clean_url('http://example.com?param1=value1&token=abc123&param2=value2'),
+        'http://example.com?param1=value1&param2=value2', 'URL with token parameter in the middle';
 
     # Test URL with only token parameter
     is Data::Validate::Sanctions::Fetcher::_clean_url('http://example.com?token=abc123'), 'http://example.com', 'URL with only token parameter';
@@ -315,35 +319,36 @@ subtest '_clean_url' => sub {
 # Test _create_hash
 subtest '_create_hash' => sub {
     # Test hash creation for simple data
-    is Data::Validate::Sanctions::Fetcher::_create_hash({ key => 'value' }), sha256_hex(to_json({ key => 'value' }, { canonical => 1, utf8 => 1 })), 'Hash creation for simple data';
+    is Data::Validate::Sanctions::Fetcher::_create_hash({key => 'value'}), sha256_hex(to_json({key => 'value'}, {canonical => 1, utf8 => 1})),
+        'Hash creation for simple data';
 
     # Test hash creation for complex data
     my $complex_data = {
         key1 => 'value1',
         key2 => [1, 2, 3],
-        key3 => { subkey => 'subvalue' }
-    };
-    is Data::Validate::Sanctions::Fetcher::_create_hash($complex_data), sha256_hex(to_json($complex_data, { canonical => 1, utf8 => 1 })), 'Hash creation for complex data';
+        key3 => {subkey => 'subvalue'}};
+    is Data::Validate::Sanctions::Fetcher::_create_hash($complex_data), sha256_hex(to_json($complex_data, {canonical => 1, utf8 => 1})),
+        'Hash creation for complex data';
 
     # Test hash creation for empty data
-    is Data::Validate::Sanctions::Fetcher::_create_hash({}), sha256_hex(to_json({}, { canonical => 1, utf8 => 1 })), 'Hash creation for empty data';
+    is Data::Validate::Sanctions::Fetcher::_create_hash({}), sha256_hex(to_json({}, {canonical => 1, utf8 => 1})), 'Hash creation for empty data';
 
     # Test hash creation for nested data
     my $nested_data = {
         key1 => 'value1',
         key2 => {
             subkey1 => 'subvalue1',
-            subkey2 => [4, 5, 6]
-        }
-    };
-    is Data::Validate::Sanctions::Fetcher::_create_hash($nested_data), sha256_hex(to_json($nested_data, { canonical => 1, utf8 => 1 })), 'Hash creation for nested data';
+            subkey2 => [4, 5, 6]}};
+    is Data::Validate::Sanctions::Fetcher::_create_hash($nested_data), sha256_hex(to_json($nested_data, {canonical => 1, utf8 => 1})),
+        'Hash creation for nested data';
 
     # Test hash creation for data with special characters
     my $special_data = {
         key1 => 'value1',
         key2 => 'value with special characters: !@#$%^&*()'
     };
-    is Data::Validate::Sanctions::Fetcher::_create_hash($special_data), sha256_hex(to_json($special_data, { canonical => 1, utf8 => 1 })), 'Hash creation for data with special characters';
+    is Data::Validate::Sanctions::Fetcher::_create_hash($special_data), sha256_hex(to_json($special_data, {canonical => 1, utf8 => 1})),
+        'Hash creation for data with special characters';
 };
 
 subtest 'UNSC Sanctions' => sub {
@@ -354,52 +359,37 @@ subtest 'UNSC Sanctions' => sub {
     is $data->{$source_name}{updated},           1729123202, "Sanctions update date matches the content of sample file";
     is scalar @{$data->{$source_name}{content}}, 7,          "Number of names matches the content of the sample file";
 
-
     is_deeply find_entry_by_name($data->{$source_name}, 'MOHAMMAD NAIM'),
         {
-          'national_id' => [
-                             []
-                           ],
-          'place_of_birth' => [
-                                'af'
-                              ],
-          'citizen' => [
-                         'af'
-                       ],
-          'nationality' => [
-                             'af'
-                           ],
-          'postal_code' => [
-                             '63000'
-                           ],
-          'passport_no' => [
-                             []
-                           ],
-          'dob_year' => [
-                          '1975'
-                        ],
-          'names' => [
-                       'MOHAMMAD NAIM',
-                       'BARICH',
-                       'KHUDAIDAD',
-                       "\x{645}\x{62d}\x{645}\x{62f} \x{646}\x{639}\x{64a}\x{645} \x{628}\x{631}\x{64a}\x{62e} \x{62e}\x{62f}\x{627}\x{64a}\x{62f}\x{627}\x{62f}",
-                       'Mullah Naeem Barech',
-                       'Mullah Naeem Baraich',
-                       'Mullah Naimullah',
-                       'Mullah Naim Bareh',
-                       'Mohammad Naim',
-                       'Mullah Naim Barich',
-                       'Mullah Naim Barech',
-                       'Mullah Naim Barech Akhund',
-                       'Mullah Naeem Baric',
-                       'Naim Berich',
-                       'Haji Gul Mohammed Naim Barich',
-                       'Gul Mohammad',
-                       'Haji Ghul Mohammad',
-                       'Spen Zrae',
-                       'Gul Mohammad Kamran',
-                       'Mawlawi Gul Mohammad'
-                     ]
+        'national_id'    => [[]],
+        'place_of_birth' => ['af'],
+        'citizen'        => ['af'],
+        'nationality'    => ['af'],
+        'postal_code'    => ['63000'],
+        'passport_no'    => [[]],
+        'dob_year'       => ['1975'],
+        'names'          => [
+            'MOHAMMAD NAIM',
+            'BARICH',
+            'KHUDAIDAD',
+            "\x{645}\x{62d}\x{645}\x{62f} \x{646}\x{639}\x{64a}\x{645} \x{628}\x{631}\x{64a}\x{62e} \x{62e}\x{62f}\x{627}\x{64a}\x{62f}\x{627}\x{62f}",
+            'Mullah Naeem Barech',
+            'Mullah Naeem Baraich',
+            'Mullah Naimullah',
+            'Mullah Naim Bareh',
+            'Mohammad Naim',
+            'Mullah Naim Barich',
+            'Mullah Naim Barech',
+            'Mullah Naim Barech Akhund',
+            'Mullah Naeem Baric',
+            'Naim Berich',
+            'Haji Gul Mohammed Naim Barich',
+            'Gul Mohammad',
+            'Haji Ghul Mohammad',
+            'Spen Zrae',
+            'Gul Mohammad Kamran',
+            'Mawlawi Gul Mohammad'
+        ]
         },
         'Alias names as saved in a single entry';
 };

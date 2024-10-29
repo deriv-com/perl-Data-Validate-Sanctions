@@ -475,15 +475,16 @@ sub _unsc_xml {
         }
         my @dob_list;
 
-        if ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TYPE_OF_DATE'} && $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TYPE_OF_DATE'} eq 'BETWEEN') {
+        if ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TYPE_OF_DATE'} && $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TYPE_OF_DATE'} eq 'BETWEEN')
+        {
             push @dob_list, $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'FROM_YEAR'} // '';
-            push @dob_list, $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TO_YEAR'} // '';
+            push @dob_list, $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TO_YEAR'}   // '';
         } else {
             if ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'DATE'}) {
                 @dob_list = $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'DATE'};
             } elsif ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'YEAR'}) {
                 @dob_list = $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'YEAR'};
-            } 
+            }
         }
 
         my @place_of_birth = (
@@ -576,12 +577,7 @@ sub run {
             }
 
             my $hash = _create_hash($data->{content});
-            $handler->(
-                $id,
-                _clean_url($source->{url}),
-                _epoch_to_date($data->{updated}),
-                $hash, scalar $data->{content}->@*
-            );
+            $handler->($id, _clean_url($source->{url}), _epoch_to_date($data->{updated}), $hash, scalar $data->{content}->@*);
 
         } catch ($e) {
             $result->{$id}->{error} = $e;
