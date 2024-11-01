@@ -13,6 +13,7 @@ subtest 'Fetch and process all sources from default urls' => sub {
         eu_url => "file://t/data/sample_eu.xml",
         # the default HMT url takes too long to download. Let's use sample data to speed it up
         hmt_url => "file://t/data/sample_hmt.csv",
+        handler => sub { },
     );
 
     is_deeply [sort keys %$data], [qw(EU-Sanctions HMT-Sanctions OFAC-Consolidated OFAC-SDN UNSC-Sanctions)], 'sanction source list is correct';

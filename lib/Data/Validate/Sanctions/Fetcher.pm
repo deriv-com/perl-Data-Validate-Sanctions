@@ -13,6 +13,9 @@ use Text::Trim qw(trim);
 use Syntax::Keyword::Try;
 use XML::Fast;
 use Locale::Country;
+use JSON        qw(to_json);
+use Digest::SHA qw(sha256_hex);
+use Encode      qw(encode);
 
 use constant MAX_REDIRECTS => 3;
 # VERSION
@@ -472,15 +475,16 @@ sub _unsc_xml {
         }
         my @dob_list;
 
-        if ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TYPE_OF_DATE'} && $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TYPE_OF_DATE'} eq 'BETWEEN') {
+        if ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TYPE_OF_DATE'} && $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TYPE_OF_DATE'} eq 'BETWEEN')
+        {
             push @dob_list, $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'FROM_YEAR'} // '';
-            push @dob_list, $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TO_YEAR'} // '';
+            push @dob_list, $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'TO_YEAR'}   // '';
         } else {
             if ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'DATE'}) {
                 @dob_list = $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'DATE'};
             } elsif ($individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'YEAR'}) {
                 @dob_list = $individual->{'INDIVIDUAL_DATE_OF_BIRTH'}[0]{'YEAR'};
-            } 
+            }
         }
 
         my @place_of_birth = (
@@ -538,8 +542,14 @@ sub run {
 
     my $result = {};
 
-    my $config  = config(%args);
+    my $config = config(%args);
+
     my $retries = $args{retries} // 3;
+
+    # Ensure the handler subroutine reference is provided
+    die "Handler subroutine reference 'handler' is required" unless $args{handler};
+
+    my $handler = $args{handler};
 
     foreach my $id (sort keys %$config) {
         my $source = $config->{$id};
@@ -565,9 +575,14 @@ sub run {
                 my $count = $data->{content}->@*;
                 print "Source $id: $count entries fetched \n" if $args{verbose};
             }
+
+            my $hash = _create_hash($data->{content});
+            $handler->($id, _clean_url($source->{url}), _epoch_to_date($data->{updated}), $hash, scalar $data->{content}->@*);
+
         } catch ($e) {
             $result->{$id}->{error} = $e;
         }
+
     }
 
     return $result;
@@ -617,10 +632,8 @@ sub _entries_from_remote_src {
 
         try {
             my $resp = $ua->get($src_url);
-
             die "File not downloaded for $id\n" if $resp->result->is_error;
             $entries = $resp->result->body;
-
             last;
         } catch ($e) {
             $error_log = $e;
@@ -628,6 +641,67 @@ sub _entries_from_remote_src {
     }
 
     return $entries // die "An error occurred while fetching data from '$src_url' due to $error_log\n";
+}
+
+=head2 _epoch_to_date
+
+Converts an epoch timestamp to a date string in YYYY-MM-DD format.
+
+  my $date = $fetcher->_epoch_to_date(1672444800);
+
+=cut
+
+sub _epoch_to_date {
+    my $epoch = shift;
+
+    # Input validation
+    die "Epoch timestamp must be defined" unless defined $epoch;
+
+    # Convert epoch to DateTime object
+    my $dt = DateTime->from_epoch(epoch => $epoch);
+
+    # Return formatted date string
+    return $dt->ymd('-');
+}
+
+=head2 _clean_url
+
+Removes specific query parameters from a URL.
+
+  my $clean_url = $fetcher->_clean_url($url);
+
+=cut
+
+sub _clean_url {
+    my $url = shift;
+
+    # Remove the token parameter from the URL
+    $url =~ s/[?&]token=[^&]+//;
+
+    return $url;
+}
+
+=head2 _create_hash
+
+Converts the data to a string and creates a SHA-256 hash.
+
+  my $hash = $fetcher->create_hash($data);
+
+=cut
+
+sub _create_hash {
+    my ($data) = @_;
+
+    # Convert the data to a JSON string
+    my $json_string = to_json(
+        $data,
+        {
+            canonical => 1,
+            utf8      => 1
+        });
+
+    # Generate and return the SHA-256 hash
+    return sha256_hex($json_string);
 }
 
 1;
