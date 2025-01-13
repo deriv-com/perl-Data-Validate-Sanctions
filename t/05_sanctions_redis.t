@@ -148,7 +148,8 @@ subtest 'Class constructor' => sub {
         'MOHA-Sanctions' => {
             content  => [],
             verified => 0,
-            updated  => 0
+            updated  => 0,
+            error    => ''
         },
         },
         'There is no sanction data';
@@ -210,7 +211,7 @@ subtest 'Update Data' => sub {
             verified => 1500,
             updated  => 90,
         },
-        'UNSC-Sanctions' => {
+        'MOHA-Sanctions' => {
             content  => [],
             verified => 1500,
             updated  => 90,
