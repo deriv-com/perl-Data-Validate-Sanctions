@@ -16,7 +16,8 @@ subtest 'Fetch and process all sources from default urls' => sub {
         handler => sub { },
     );
 
-    is_deeply [sort keys %$data], [qw(EU-Sanctions HMT-Sanctions OFAC-Consolidated OFAC-SDN UNSC-Sanctions)], 'sanction source list is correct';
+    is_deeply [sort keys %$data], [qw(EU-Sanctions HMT-Sanctions MOHA-Sanctions OFAC-Consolidated OFAC-SDN UNSC-Sanctions)],
+        'sanction source list is correct';
 
     cmp_ok($data->{'EU-Sanctions'}{updated}, '>=', 1541376000, "Fetcher::run HMT-Sanctions sanctions.yml");
 
