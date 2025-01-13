@@ -400,9 +400,6 @@ subtest 'UNSC Sanctions' => sub {
 
 subtest 'MOHA Sanctions' => sub {
 
-    use Data::Dump 'pp';
-    use feature 'say';
-
     my $fetcher = Data::Validate::Sanctions::Fetcher::run(%args);
 
     my $source_name = 'MOHA-Sanctions';
