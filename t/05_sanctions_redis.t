@@ -215,6 +215,7 @@ subtest 'Update Data' => sub {
             content  => [],
             verified => 1500,
             updated  => 90,
+            error    => ''
         },
     };
     is_deeply $validator->data, $expected, 'Data is correctly loaded';
