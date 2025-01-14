@@ -167,6 +167,10 @@ subtest 'Update Data' => sub {
             updated => 90,
             content => []
         },
+        'MOHA-Sanctions' => {
+            updated => 90,
+            content => []
+        },
     };
     $mock_fetcher->redefine(run => sub { return clone($mock_data) });
 
@@ -224,7 +228,7 @@ subtest 'Update Data' => sub {
     check_redis_content('OFAC-Consolidated', {},                             1500);
     check_redis_content('OFAC-SDN',          {},                             1500);
     check_redis_content('UNSC-Sanctions',    $mock_data->{'UNSC-Sanctions'}, 1500);
-    check_redis_content('MOHA-Sanctions',          {},                             1500);
+    check_redis_content('MOHA-Sanctions',    $mock_data->{'MOHA-Sanctions'}, 1500);
     is $index_call_counter, 1, 'index called after update';
     $validator->update_data();
     is $index_call_counter, 1, 'index not been called after update, due to unchanged data';
@@ -233,6 +237,7 @@ subtest 'Update Data' => sub {
     set_fixed_time(1600);
     $mock_data->{'EU-Sanctions'}->{updated}   = 91;
     $mock_data->{'UNSC-Sanctions'}->{updated} = 91;
+    $mock_data->{'MOHA-Sanctions'}->{updated} = 99;
     $validator->update_data();
     $expected->{'EU-Sanctions'}->{updated}   = 91;
     $expected->{'UNSC-Sanctions'}->{updated} = 91;
