@@ -218,8 +218,7 @@ subtest 'Update Data' => sub {
         'MOHA-Sanctions' => {
             content  => [],
             verified => 1500,
-            updated  => 90,
-            error    => ''
+            updated  => 90
         },
     };
     is_deeply $validator->data, $expected, 'Data is correctly loaded';
