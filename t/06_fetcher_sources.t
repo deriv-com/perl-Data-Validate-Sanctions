@@ -12,9 +12,8 @@ subtest 'Fetch and process all sources from default urls' => sub {
         # EU sanctions need a token. Sample data should be used here to avoid failure.
         eu_url => "file://t/data/sample_eu.xml",
         # the default HMT url takes too long to download. Let's use sample data to speed it up
-        hmt_url  => "file://t/data/sample_hmt.csv",
-        unsc_url => "file://t/data/sample_unsc.xml",
-        handler  => sub { },
+        hmt_url => "file://t/data/sample_hmt.csv",
+        handler => sub { },
     );
 
     is_deeply [sort keys %$data], [qw(EU-Sanctions HMT-Sanctions MOHA-Sanctions OFAC-Consolidated OFAC-SDN UNSC-Sanctions)],
@@ -23,7 +22,7 @@ subtest 'Fetch and process all sources from default urls' => sub {
     cmp_ok($data->{'EU-Sanctions'}{updated}, '>=', 1541376000, "Fetcher::run HMT-Sanctions sanctions.yml");
 
     cmp_ok($data->{'HMT-Sanctions'}{updated}, '>=', 1541376000, "Fetcher::run HMT-Sanctions sanctions.yml");
-
+    
     cmp_ok($data->{'MOHA-Sanctions'}{updated}, '>=', 1725846735, "Fetcher::run MOHA-Sanctions sanctions.yml");
 
     cmp_ok($data->{'OFAC-SDN'}{updated}, '>=', 1541376000, "Fetcher::run OFAC-SDN sanctions.yml");
