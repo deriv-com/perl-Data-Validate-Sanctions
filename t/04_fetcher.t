@@ -295,6 +295,58 @@ subtest '_epoch_to_date' => sub {
     is Data::Validate::Sanctions::Fetcher::_epoch_to_date(-315619200), '1960-01-01', 'Epoch timestamp for a date in the past';
 };
 
+# Test _date_to_epoch function
+subtest '_date_to_epoch' => sub {
+    # ISO 8601 format tests
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025-02-04T17:53:20+08:00'), 1738627200, 'ISO 8601 with timezone offset');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025-02-04T09:53:20Z'),      1738627200, 'ISO 8601 with Z timezone');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025-02-04T17:53:20+0800'),  1738627200, 'ISO 8601 with compact timezone');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025-02-04T17:53:20'),       1738627200, 'ISO 8601 without timezone');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025-02-04'),                1738627200, 'ISO 8601 date only');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2023-12-31'),                1703980800, 'ISO 8601 end of year');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2024-01-01'),                1704067200, 'ISO 8601 start of year');
+
+    # DD/MM/YYYY and DD-MM-YYYY format tests
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('04/02/2025'), 1738627200, 'DD/MM/YYYY format');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('04-02-2025'), 1738627200, 'DD-MM-YYYY format');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('31/12/2023'), 1703980800, 'DD/MM/YYYY end of year');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('01/01/2024'), 1704067200, 'DD/MM/YYYY start of year');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('4/2/2025'),   1738627200, 'Single digit day/month with slash');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('4-2-2025'),   1738627200, 'Single digit day/month with dash');
+
+    # Edge cases and invalid inputs
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch(undef),          undef, 'Undefined input returns undef');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch(''),             undef, 'Empty string returns undef');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('   '),          undef, 'Whitespace only returns undef');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('invalid-date'), undef, 'Invalid date format');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025/02/04'),   undef, 'YYYY/MM/DD format not supported');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('Feb 4, 2025'),  undef, 'Month name format not supported');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025.02.04'),   undef, 'Dot separator not supported');
+
+    # Invalid dates that match regex but are not valid dates
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025-13-01'), undef, 'Invalid month (13)');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025-02-30'), undef, 'Invalid day for February');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('32/01/2025'), undef, 'Invalid day (32)');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('01/13/2025'), undef, 'Invalid month in DD/MM/YYYY');
+
+    # Leap year tests
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('29/02/2024'), 1709164800, 'Valid leap year date');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('29/02/2023'), undef,      'Invalid leap year date');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2024-02-29'), 1709164800, 'Valid leap year in ISO format');
+
+    # Boundary date tests
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('1970-01-01'), 0,          'Unix epoch start');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('01/01/1970'), 0,          'Unix epoch start DD/MM/YYYY');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2038-01-19'), 2147472000, 'Near 2038 boundary');
+    ok(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2050-01-01'), 'Far future date works');
+
+    # Mixed format variations with time components that should be stripped
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025-02-04T12:30:45'),       1738627200, 'Time without timezone');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025-02-04T09:15:30.123Z'),  1738627200, 'Time with milliseconds');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025-02-04T23:59:59+12:00'), 1738627200, 'End of day with timezone');
+    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025-02-04T00:00:00-05:00'), 1738627200, 'Negative timezone offset');
+};
+
 # Test _clean_url
 subtest '_clean_url' => sub {
     # Test URL with token parameter
