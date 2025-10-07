@@ -119,7 +119,17 @@ sub _ofac_xml_zip {
 sub _date_to_epoch {
     my $date = shift;
 
-    $date = "$3-$2-$1" if $date =~ m/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/;
+    return unless defined $date && $date ne '';
+
+    # Handle ISO 8601 format (YYYY-MM-DDTHH:MM:SS+TZ or variations)
+    if ($date =~ m/^(\d{4})-(\d{2})-(\d{2})(?:T[\d:+-]+)?/) {
+        # Already in YYYY-MM-DD format, just remove time/timezone part
+        $date = "$1-$2-$3";
+    }
+    # Handle DD/MM/YYYY or DD-MM-YYYY format
+    elsif ($date =~ m/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/) {
+        $date = "$3-$2-$1";
+    }
 
     my $result = eval { Date::Utility->new($date)->epoch; };
     return $result;
