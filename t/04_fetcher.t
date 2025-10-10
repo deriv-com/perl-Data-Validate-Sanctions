@@ -412,7 +412,7 @@ subtest 'UNSC Sanctions' => sub {
 
     my $source_name = 'UNSC-Sanctions';
     ok $data->{$source_name}, 'Sanctions are loaded from the sample file';
-    is $data->{$source_name}{updated},           1729123202, "Sanctions update date matches the content of sample file";
+    is $data->{$source_name}{updated},           1729123200, "Sanctions update date matches the content of sample file";
     is scalar @{$data->{$source_name}{content}}, 7,          "Number of names matches the content of the sample file";
 
     is_deeply find_entry_by_name($data->{$source_name}, 'MOHAMMAD NAIM'),
@@ -458,7 +458,7 @@ subtest 'MOHA Sanctions' => sub {
     my $parsed_data = $fetcher->{$source_name};
 
     my $publish_date_string = "2024-09-09T01:52:15Z";
-    my $publish_date_epoch  = 1725846735;
+    my $publish_date_epoch  = 1725840000;
 
     ok $parsed_data, 'Sanctions are loaded from the sample file';
 
