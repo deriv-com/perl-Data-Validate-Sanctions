@@ -12,12 +12,12 @@ subtest 'Fetch and process all sources from default urls' => sub {
         # EU sanctions need a token. Sample data should be used here to avoid failure.
         eu_url => "file://t/data/sample_eu.xml",
         # the default HMT url takes too long to download. Let's use sample data to speed it up
-        hmt_url => "file://t/data/sample_hmt.csv",
-        moha_url => "file://t/data/sample_moha.xml",
+        hmt_url               => "file://t/data/sample_hmt.csv",
+        moha_url              => "file://t/data/sample_moha.xml",
         ofac_consolidated_url => "file://t/data/sample_ofac_consolidated.xml",
-        ofac_sdn_url => "file://t/data/sample_ofac_sdn.zip",
-        unsc_url => "file://t/data/sample_unsc.xml",
-        handler => sub { },
+        ofac_sdn_url          => "file://t/data/sample_ofac_sdn.zip",
+        unsc_url              => "file://t/data/sample_unsc.xml",
+        handler               => sub { },
     );
 
     is_deeply [sort keys %$data], [qw(EU-Sanctions HMT-Sanctions MOHA-Sanctions OFAC-Consolidated OFAC-SDN UNSC-Sanctions)],
