@@ -572,10 +572,11 @@ sub _moha_xml {
         $publish_date = $data->{'xmp:CreateDate'};
     }
     # Check if it's nested within the rdf:Description
-    elsif (exists $data->{'TaggedPDF-doc'} &&
-           exists $data->{'TaggedPDF-doc'}{'x:xmpmeta'} &&
-           exists $data->{'TaggedPDF-doc'}{'x:xmpmeta'}{'rdf:RDF'} &&
-           exists $data->{'TaggedPDF-doc'}{'x:xmpmeta'}{'rdf:RDF'}{'rdf:Description'}) {
+    elsif (exists $data->{'TaggedPDF-doc'}
+        && exists $data->{'TaggedPDF-doc'}{'x:xmpmeta'}
+        && exists $data->{'TaggedPDF-doc'}{'x:xmpmeta'}{'rdf:RDF'}
+        && exists $data->{'TaggedPDF-doc'}{'x:xmpmeta'}{'rdf:RDF'}{'rdf:Description'})
+    {
         $publish_date = $data->{'TaggedPDF-doc'}{'x:xmpmeta'}{'rdf:RDF'}{'rdf:Description'}{'xmp:CreateDate'};
     }
     # If not found, try to extract it from the raw XML
@@ -587,7 +588,7 @@ sub _moha_xml {
     die "Invalid or missing creation date in XML\n" unless $publish_epoch;
 
     # Access the relevant table structure
-    my $tables = $data->{'TaggedPDF-doc'}{'Document'}{'Table'};
+    my $tables  = $data->{'TaggedPDF-doc'}{'Document'}{'Table'};
     my $dataset = [];
 
     # Handle both array and single table formats
@@ -650,7 +651,7 @@ sub _moha_xml {
             }
 
             $cells = \@all_cells;
-            next unless $cells && @$cells >= 11; # Need at least 11 cells for the required data
+            next unless $cells && @$cells >= 11;    # Need at least 11 cells for the required data
 
             my $name                  = $cells->[2]{'P'};
             my $date_of_birth         = $cells->[5]{'P'};
