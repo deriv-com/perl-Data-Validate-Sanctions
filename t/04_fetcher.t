@@ -457,25 +457,25 @@ subtest 'MOHA Sanctions' => sub {
     my $source_name = 'MOHA-Sanctions';
     my $parsed_data = $fetcher->{$source_name};
 
-    my $publish_date_string = "2024-09-09T01:52:15Z";
-    my $publish_date_epoch  = 1725840000;
+    my $publish_date_string = "2025-02-04T17:53:20+08:00";
+    my $publish_date_epoch  = 1738627200;
 
     ok $parsed_data, 'Sanctions are loaded from the sample file';
 
     is $parsed_data->{updated}, $publish_date_epoch, "Sanctions update date matches the content of sample file";
 
     my @data = $parsed_data->{content}->@*;
-    is scalar @data, 99, "Number of names matches the content of the sample file";
+    is scalar @data, 77, "Number of names matches the content of the sample file";
 
     my $entry = find_entry_by_name($parsed_data, "Zahar bin Abdullah");
     cmp_deeply $entry->{names}, ["Zahar bin Abdullah", "Abu Zahar"], "Multiple names extracted correctly";
 
     cmp_deeply find_entry_by_name($parsed_data, "Abu Zahar") == $entry, 1, "Can find entry by alias name";
 
-    cmp_deeply $entry->{dob_text}, ["24.04.1981"], "Date of birth extracted correctly";
+    cmp_deeply $entry->{dob_text}, ["24.4.1981"], "Date of birth extracted correctly";
 
     $entry = find_entry_by_name($parsed_data, "Mohamad Alsaied Alhmidan");
-    cmp_deeply $entry->{dob_text}, ["20.02.1976", "13.02.1975", "15.02.1976", "07.01.1977"], "Multiple Date of birth extracted correctly";
+    cmp_deeply $entry->{dob_text}, ["20.2.1976", "13.2.1975", "15.2.1976", "7.1.1977"], "Multiple Date of birth extracted correctly";
 
 };
 
