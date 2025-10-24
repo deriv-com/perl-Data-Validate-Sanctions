@@ -9,6 +9,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    container:
+      image: perldocker/perl-tester:${{ matrix.perl-version }}
     strategy:
       matrix:
         perl-version:
@@ -21,7 +25,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install Dzil
-      run: cpm install -g --no-test Dist::Zilla Dist::Zilla::App::Command::cover ExtUtils::MakeMaker
+      run: cpm install -g --no-test Dist::Zilla Dist::Zilla::App::Command::cover Devel::Cover::Report::Coveralls ExtUtils::MakeMaker
     - name: Install dzil author dependencies
       run: |
         cpm install --no-test -g \
@@ -36,9 +40,7 @@ jobs:
     - name: Install Redis Server
       run: apt-get install -y redis
     - name : Run Tests
-      run: |
-        source /etc/profile.d/perl5.sh
-        dzil smoke --release --author && dzil cover -test -report coveralls && dzil xtest
+      run: dzil smoke --release --author && dzil cover --test --report=coveralls && dzil xtest
   release:
     if: github.ref == 'refs/heads/master'
     needs: test
