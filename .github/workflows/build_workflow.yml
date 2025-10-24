@@ -25,7 +25,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install Dzil
-      run: cpm install -g --no-test Dist::Zilla Dist::Zilla::App::Command::cover Devel::Cover::Report::Coveralls ExtUtils::MakeMaker
+      run: cpm install -g --no-test Dist::Zilla Dist::Zilla::App::Command::cover ExtUtils::MakeMaker
     - name: Install dzil author dependencies
       run: |
         cpm install --no-test -g \
@@ -42,7 +42,7 @@ jobs:
     - name: Debug cover command
       run: dzil help cover
     - name : Run Tests
-      run: dzil smoke --release --author && dzil cover -test && dzil xtest
+      run: dzil smoke --release --author && dzil cover && dzil xtest
   release:
     if: github.ref == 'refs/heads/master'
     needs: test
