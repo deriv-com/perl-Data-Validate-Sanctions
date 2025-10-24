@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use 5.008005;
+use 5.020;
 
 use ExtUtils::MakeMaker 7.64;
 
@@ -24,7 +24,7 @@ my %WriteMakefileArgs = (
     "bin/update_sanctions_csv"
   ],
   "LICENSE" => "perl",
-  "MIN_PERL_VERSION" => "5.008005",
+  "MIN_PERL_VERSION" => "5.020",
   "NAME" => "Data::Validate::Sanctions",
   "PREREQ_PM" => {
     "Carp" => 0,
