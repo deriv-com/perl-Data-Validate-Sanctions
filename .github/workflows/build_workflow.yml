@@ -39,6 +39,11 @@ jobs:
         dzil listdeps --author --missing --cpanm-versions | xargs cpanm -n
     - name: Install Redis Server
       run: apt-get install -y redis
+    - name: Update CA certificates
+      run: |
+        apt-get update
+        apt-get install -y ca-certificates
+        update-ca-certificates
     - name: Debug cover command
       run: dzil help cover
     - name : Run Tests
