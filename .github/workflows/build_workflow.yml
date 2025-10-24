@@ -42,4 +42,12 @@ jobs:
     - name: Debug cover command
       run: dzil help cover
     - name : Run Tests
-      run: dzil smoke --release --author && dzil cover && dzil xtest
+      run: |
+        # Build once and run all tests
+        dzil build --tgz
+        # Run smoke tests
+        AUTOMATED_TESTING=1 RELEASE_TESTING=1 AUTHOR_TESTING=1 cd .build/* && perl Makefile.PL && make && make test
+        # Run coverage
+        cd .. && cover -test
+        # Run extra tests
+        cd .build/* && prove -r xt/
