@@ -42,7 +42,7 @@ jobs:
     - name: Debug cover command
       run: dzil help cover
     - name : Run Tests
-      run: dzil smoke --release --author && dzil cover && dzil xtest
+      run: dzil smoke --release --author && dzil cover -test && dzil xtest
   release:
     if: github.ref == 'refs/heads/master'
     needs: test
