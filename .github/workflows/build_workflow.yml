@@ -75,7 +75,6 @@ jobs:
         # https://metacpan.org/release/DERIV/Dist-Zilla-PluginBundle-Author-DERIV-0.003/source/lib/Dist/Zilla/PluginBundle/Author/DERIV.pm#L122
         git remote add github $(git remote get-url origin)
     - name: Release to PAUSE
-    - name: Update CA certificates
       run: |
         if grep -Pzq '\{\{\$NEXT\}\}\n\s*\n' Changes
         then
