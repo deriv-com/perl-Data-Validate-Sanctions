@@ -9,10 +9,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    container:
-      image: perldocker/perl-tester:${{ matrix.perl-version }}
     strategy:
       matrix:
         perl-version:
@@ -39,8 +35,10 @@ jobs:
         dzil listdeps --author --missing --cpanm-versions | xargs cpanm -n
     - name: Install Redis Server
       run: apt-get install -y redis
-    - name: Run Tests
-      run: dzil smoke --release --author && dzil cover -test coveralls && dzil xtest
+    - name : Run Tests
+      run: |
+        source /etc/profile.d/perl5.sh
+        dzil smoke --release --author && dzil cover -test -report coveralls && dzil xtest
   release:
     if: github.ref == 'refs/heads/master'
     needs: test
