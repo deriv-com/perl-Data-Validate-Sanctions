@@ -40,7 +40,7 @@ jobs:
     - name: Install Redis Server
       run: apt-get install -y redis
     - name: Run Tests
-      run: dzil smoke --release --author && dzil cover -test -report coveralls && dzil xtest
+      run: dzil smoke --release --author && dzil cover -test coveralls && dzil xtest
   release:
     if: github.ref == 'refs/heads/master'
     needs: test
