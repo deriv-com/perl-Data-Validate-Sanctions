@@ -39,8 +39,8 @@ jobs:
         dzil listdeps --author --missing --cpanm-versions | xargs cpanm -n
     - name: Install Redis Server
       run: apt-get install -y redis
-    - name: Run Tests
-      run: dzil smoke --release --author && dzil cover -test -report coveralls && dzil xtest
+    - name : Run Tests
+      run: dzil smoke --release --author && dzil cover && dzil xtest
   release:
     if: github.ref == 'refs/heads/master'
     needs: test

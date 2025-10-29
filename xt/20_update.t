@@ -45,22 +45,42 @@ my %args   = (
     # EU sanctions need a token. Sample data should be used here to avoid failure.
     '-eu_url' => "file://$Bin/../t/data/sample_eu.xml",
     # the default HMT url takes too long to download. Let's use sample data to speed it up.
-    '-hmt_url'       => "file://$Bin/../t/data/sample_hmt.csv",
-    '-sanction_file' => $sanction_file // ''
+    '-hmt_url'               => "file://$Bin/../t/data/sample_hmt.csv",
+    '-unsc_url'              => "file://$Bin/../t/data/sample_unsc.xml",
+    '-moha_url'              => "file://$Bin/../t/data/sample_moha.xml",
+    '-ofac_sdn_url'          => "file://$Bin/../t/data/sample_ofac_sdn.zip",
+    '-ofac_consolidated_url' => "file://$Bin/../t/data/sample_ofac_consolidated.xml",
+    '-sanction_file'         => $sanction_file // ''
 );
 
 is(system($^X, "-I$lib", $script, %args), 0, "download file successfully");
 ok($last_mtime < stat($sanction_file)->mtime, "mtime updated");
 
 ok(!is_sanctioned('ABCD'), "correct file content");
+
+# Create a Data::Validate::Sanctions object to use for testing
+my $validator = Data::Validate::Sanctions->new(sanction_file => $sanction_file);
+
+# Test that the name exists in the updated file
+ok($validator->is_sanctioned('Abid', 'Hammadou'), "correct file content");
+
+# Test name matching features
+ok($validator->is_sanctioned('Hammadou',           'Abid'),          "Name matches regardless of order");
+ok($validator->is_sanctioned('Abid1234~!@!      ', 'Hammadou'),      "Name matches even if non-alphabets are present");
+ok($validator->is_sanctioned('Abid1234~!@!      ', 'Hammadou abcd'), "Sanctioned when two words match");
+
+# Now test caching behavior
+# First, create a validator that will cache the current data
+my $cached_validator = Data::Validate::Sanctions->new(sanction_file => $sanction_file);
+ok($cached_validator->is_sanctioned('Abid', 'Hammadou'), "validator can find the name before modification");
+
+# Now modify the file but keep the same mtime
 $last_mtime = stat($sanction_file)->mtime;
-ok(is_sanctioned('NEVEROV', 'Sergei Ivanovich', -253411200), "correct file content");
 path($sanction_file)->spew($sanction_data);
-ok(utime($last_mtime, $last_mtime, $sanction_file),                        'change mtime to pretend the file not changed');
-ok(is_sanctioned('NEVEROV', 'Sergei Ivanovich', -253411200),               "the module still use old data because it think the file is not changed");
-ok(is_sanctioned('Sergei Ivanovich', 'NEVEROV', -253411200),               "Name matches regardless of order");
-ok(is_sanctioned('Sergei Ivanovich1234~!@!      ', 'NEVEROV', -253411200), "Name matches even if non-alphabets are present");
-ok(is_sanctioned('Sergei Ivanovich1234~!@!      ', 'NEVEROV abcd', -253411200), "Sanctioned when two words match");
+ok(utime($last_mtime, $last_mtime, $sanction_file), 'change mtime to pretend the file not changed');
+
+# The cached validator should still use the cached data
+ok($cached_validator->is_sanctioned('Abid', 'Hammadou'), "the module still use old data because it think the file is not changed");
 ok(is_sanctioned('TestOneWord'), "Sanctioned when sanctioned individual has only one name (coming from t/data/sample_eu.xml)");
 
 done_testing;
