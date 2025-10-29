@@ -13,8 +13,6 @@ my $sanction_file;
 my $hmt_url;
 my $ofac_sdn_url;
 my $ofac_consolidated_url;
-my $unsc_url;
-my $moha_url;
 
 GetOptions(
     "eu_token|token|t=s"               => \$eu_token,
@@ -23,8 +21,6 @@ GetOptions(
     "hmt_url|hmt=s"                    => \$hmt_url,
     "ofac_sdn_url|ofac=s"              => \$ofac_sdn_url,
     "ofac_consolidated_url|ofac_con=s" => \$ofac_consolidated_url,
-    "unsc_url|unsc=s"                  => \$unsc_url,
-    "moha_url|moha=s"                  => \$moha_url,
 
     'help|?' => \$help,
 );
@@ -42,8 +38,6 @@ my %args = (
     hmt_url               => $hmt_url,
     ofac_sdn_url          => $ofac_sdn_url,
     ofac_consolidated_url => $ofac_consolidated_url,
-    unsc_url              => $unsc_url,
-    moha_url              => $moha_url,
     handler               => sub { },
 );
 
@@ -67,8 +61,6 @@ update_sanctions_csv [options]
    -hmt_url|hmt                    HMT Sanctions url (or file path prefixed by 'file://')
    -ofac_sdn_url|ofac              OFAC Sanctions url (or file path prefixed by 'file://')
    -ofac_consolidated_url|ofac_con OFAC-Consolidated Sanctions url (or file path prefixed by 'file://')
-   -unsc_url|unsc                  UNSC Sanctions url (or file path prefixed by 'file://')
-   -moha_url|moha                  MOHA Sanctions url (or file path prefixed by 'file://')
 
 =head1 OPTIONS
 
@@ -101,14 +93,6 @@ OFAC Sanctions url. It can be a file url, useful for test purposes.
 =item B<-ofac_consolidated_url> or B<-ofac_con>: optional
 
 OFAC-Consolidated Sanctions url. It can be a file url, useful for test purposes.
-
-=item B<-unsc_url> or B<-unsc>: optional
-
-UNSC Sanctions url. It can be a file url, useful for test purposes.
-
-=item B<-moha_url> or B<-moha>: optional
-
-MOHA Sanctions url. It can be a file url, useful for test purposes.
 
 =back
 
