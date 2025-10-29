@@ -53,7 +53,18 @@ my %args   = (
     '-sanction_file'         => $sanction_file // ''
 );
 
-is(system($^X, "-I$lib", $script, %args), 0, "download file successfully");
+# Print the command for debugging
+my $cmd = "$^X -I$lib $script " . join(" ", %args);
+diag("Executing command: $cmd");
+
+# Execute the command and print output directly
+my $exit_code = system($^X, "-I$lib", $script, %args);
+diag("Exit code: $exit_code");
+
+# Add a delay to ensure file operations complete
+sleep(2);
+
+is($exit_code, 0, "download file successfully");
 ok($last_mtime < stat($sanction_file)->mtime, "mtime updated");
 
 ok(!is_sanctioned('ABCD'), "correct file content");
