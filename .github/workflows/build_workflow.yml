@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      MOJO_INSECURE: 1  # Disable SSL certificate verification for Mojo::UserAgent
     container:
       image: perldocker/perl-tester:${{ matrix.perl-version }}
     strategy:
@@ -39,6 +40,8 @@ jobs:
         dzil listdeps --author --missing --cpanm-versions | xargs cpanm -n
     - name: Install Redis Server
       run: apt-get install -y redis
+    - name: Install CA certificates
+      run: apt-get update && apt-get install -y ca-certificates
     - name: Run Tests
       run: dzil smoke --release --author && dzil cover && dzil xtest
   release:
