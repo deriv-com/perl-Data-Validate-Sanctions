@@ -38,7 +38,7 @@ jobs:
     - name : Run Tests
       run: |
         source /etc/profile.d/perl5.sh
-        dzil smoke --release --author && dzil cover -test -report coveralls && dzil xtest
+        dzil smoke --release --author && dzil cover && dzil xtest
   release:
     if: github.ref == 'refs/heads/master'
     needs: test
