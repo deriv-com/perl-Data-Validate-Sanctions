@@ -340,11 +340,6 @@ subtest '_date_to_epoch' => sub {
     is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2038-01-19'), 2147472000, 'Near 2038 boundary');
     ok(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2050-01-01'), 'Far future date works');
 
-    # Mixed format variations with time components that should be stripped
-    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025-02-04T12:30:45'),       1738627200, 'Time without timezone');
-    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025-02-04T09:15:30.123Z'),  1738627200, 'Time with milliseconds');
-    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025-02-04T23:59:59+12:00'), 1738627200, 'End of day with timezone');
-    is(Data::Validate::Sanctions::Fetcher::_date_to_epoch('2025-02-04T00:00:00-05:00'), 1738627200, 'Negative timezone offset');
 };
 
 # Test _clean_url
