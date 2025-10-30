@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      MOJO_INSECURE: 1  # Disable SSL certificate verification for Mojo::UserAgent
     container:
       image: perldocker/perl-tester:${{ matrix.perl-version }}
     strategy:
