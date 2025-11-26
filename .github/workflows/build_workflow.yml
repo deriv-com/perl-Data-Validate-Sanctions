@@ -29,9 +29,9 @@ jobs:
       run: cpm install -g --no-test Dist::Zilla Dist::Zilla::App::Command::cover ExtUtils::MakeMaker
     - name: Install dzil author dependencies
       run: |
-        cpm install --no-test -g \
+        cpm install --no-test -g --show-build-log-on-failure \
         -w 2 \
-        --mirror=http://cpan.cpantesters.org/ $(dzil authordeps --missing)
+        --mirror=http://cpan.org/ $(dzil authordeps --missing)
     - name: Install dist deps
       run: |
         # see https://github.com/team-at-cpan/Dist-Zilla-Plugin-PodInherit/issues/1 to check why we not use
