@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      MOJO_INSECURE: 1  # Disable SSL certificate verification for Mojo::UserAgent
     container:
       image: perldocker/perl-tester:${{ matrix.perl-version }}
     strategy:
@@ -28,9 +29,9 @@ jobs:
       run: cpm install -g --no-test Dist::Zilla Dist::Zilla::App::Command::cover ExtUtils::MakeMaker
     - name: Install dzil author dependencies
       run: |
-        cpm install --no-test -g \
+        cpm install --no-test -g --show-build-log-on-failure \
         -w 2 \
-        --mirror=http://cpan.cpantesters.org/ $(dzil authordeps --missing)
+        --mirror=http://cpan.org/ $(dzil authordeps --missing)
     - name: Install dist deps
       run: |
         # see https://github.com/team-at-cpan/Dist-Zilla-Plugin-PodInherit/issues/1 to check why we not use
@@ -39,8 +40,10 @@ jobs:
         dzil listdeps --author --missing --cpanm-versions | xargs cpanm -n
     - name: Install Redis Server
       run: apt-get install -y redis
+    - name: Install CA certificates
+      run: apt-get update && apt-get install -y ca-certificates
     - name: Run Tests
-      run: dzil smoke --release --author && dzil cover -test -report coveralls && dzil xtest
+      run: dzil smoke --release --author && dzil cover && dzil xtest
   release:
     if: github.ref == 'refs/heads/master'
     needs: test
