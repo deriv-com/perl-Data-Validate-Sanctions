@@ -57,10 +57,17 @@ sub config {
     my $eu_token = $args{eu_token} // $ENV{EU_SANCTIONS_TOKEN};
     my $eu_url   = $args{eu_url} || $ENV{EU_SANCTIONS_URL};
 
-    warn 'EU Sanctions will fail whithout eu_token or eu_url' unless $eu_token or $eu_url;
+    warn 'EU Sanctions will fail without eu_token or eu_url' unless $eu_token or $eu_url;
 
-    if ($eu_token) {
-        $eu_url ||= "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=$eu_token";
+    my $default_eu_base_url = 'https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content';
+
+    if ($eu_url && $eu_token && $eu_url !~ /[?&]token=/) {
+        # URL provided (e.g. from backoffice) but missing token — append it
+        my $separator = $eu_url =~ /\?/ ? '&' : '?';
+        $eu_url = "${eu_url}${separator}token=${eu_token}";
+    } elsif (!$eu_url && $eu_token) {
+        # No URL provided — build from default base + token
+        $eu_url = "${default_eu_base_url}?token=${eu_token}";
     }
 
     return {
@@ -93,7 +100,7 @@ sub config {
         'MOHA-Sanctions' => {
             description => 'MOHA: Sanction list made by the ministry of home affairs Malaysia',
             url         => $args{moha_url}
-                || 'https://www.moha.gov.my/utama/images/Perkhidmatan%20KDN/Membanteras%20Pembiayaan%20Keganasan/SENARAI_KDN_2025_UPDATE.xml',
+                || 'https://www.moha.gov.my/utama/images/Terkini/SENARAI_KDN_2026_BI_1.xml',
             parser => \&_moha_xml,
         },
     };
@@ -563,6 +570,130 @@ sub _moha_xml {
         warn "Error parsing XML: $@\n";
         return;
     }
+
+    # Detect new xmlResponse format vs legacy TaggedPDF-doc format
+    if (exists $data->{'xmlResponse'}) {
+        $data = xml2hash($raw_data, array => ['entry', 'field', 'section']);
+        return _moha_xml_new($data);
+    }
+
+    return _moha_xml_legacy($raw_data, $data);
+}
+
+=head2 _moha_xml_new
+
+Parses the new xmlResponse format from MOHA sanctions list.
+
+=cut
+
+sub _moha_xml_new {
+    my $data    = shift;
+    my $dataset = [];
+
+    my $xml = $data->{'xmlResponse'} or die "Invalid MOHA xmlResponse format\n";
+
+    # New format has no document creation date; use current time
+    my $publish_epoch = time();
+
+    my $sections = $xml->{'section'} // [];
+
+    for my $section (@$sections) {
+        my $entries = $section->{'entry'} // [];
+
+        for my $entry (@$entries) {
+            my $fields = $entry->{'field'} // [];
+
+            # Build field lookup by name
+            my %f;
+            for my $field (@$fields) {
+                my $name  = $field->{'-name'} // '';
+                my $value = $field->{'#text'} // '';
+                $f{$name} = trim($value);
+            }
+
+            # Determine individual vs group by presence of Date of Birth field
+            my $is_individual = exists $f{'(6) Date of Birth'};
+
+            my $name = $f{'(3) Name'} // '';
+            next unless $name && $name ne '-';
+
+            if ($is_individual) {
+                my $dob_raw         = $f{'(6) Date of Birth'}              // '';
+                my $pob             = $f{'(7) Place of Birth'}             // '';
+                my $other_names_raw = $f{'(8) Other Names'}               // '';
+                my $nationality     = $f{'(9) Nationality'}               // '';
+                my $passport_raw    = $f{'(10) Passport Number'}          // '';
+                my $id_number       = $f{'(11) Identification Card Number'} // '';
+
+                # Extract multiple DOBs (format: d{1,2}.d{1,2}.d{4})
+                my @dob;
+                if ($dob_raw && $dob_raw ne '-') {
+                    @dob = ($dob_raw =~ /(\d{1,2}\.\d{1,2}\.\d{4})/g);
+                }
+
+                # Other names / aliases
+                my @other_names;
+                if ($other_names_raw && $other_names_raw ne '-') {
+                    push @other_names, $other_names_raw;
+                }
+
+                # Passport numbers (may have / separator)
+                my @passports;
+                if ($passport_raw && $passport_raw ne '-') {
+                    @passports = map { trim($_) } split m{/}, $passport_raw;
+                }
+
+                # National ID
+                my @ids;
+                if ($id_number && $id_number ne '-') {
+                    push @ids, $id_number;
+                }
+
+                _process_sanction_entry(
+                    $dataset,
+                    names          => [$name, @other_names],
+                    date_of_birth  => \@dob,
+                    place_of_birth => [$pob],
+                    nationality    => [$nationality],
+                    national_id    => \@ids,
+                    passport_no    => \@passports,
+                );
+            } else {
+                # Group entry
+                my $alias      = $f{'(4) Alias'}      // '';
+                my $other_name = $f{'(5) Other Name'}  // '';
+
+                my @names_list = ($name);
+                push @names_list, $alias      if $alias      && $alias      ne '-';
+                push @names_list, $other_name if $other_name && $other_name ne '-';
+
+                _process_sanction_entry(
+                    $dataset,
+                    names          => \@names_list,
+                    date_of_birth  => [],
+                    place_of_birth => [],
+                    nationality    => [],
+                    national_id    => [],
+                    passport_no    => [],
+                );
+            }
+        }
+    }
+
+    return {
+        updated => $publish_epoch,
+        content => $dataset,
+    };
+}
+
+=head2 _moha_xml_legacy
+
+Parses the legacy TaggedPDF-doc XML format from MOHA sanctions list.
+
+=cut
+
+sub _moha_xml_legacy {
+    my ($raw_data, $data) = @_;
 
     # Try to find the creation date
     my $publish_date;
