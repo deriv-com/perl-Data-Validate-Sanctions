@@ -561,6 +561,7 @@ Parses the XML data from MOHA (Ministry of Home Affairs Malaysia) and returns a 
 sub _moha_xml {
     my $raw_data = shift;
 
+    # Parse the XML data using XML::Fast
     my $data = eval { xml2hash($raw_data) };
 
     if ($@ || !$data) {
@@ -568,6 +569,7 @@ sub _moha_xml {
         return;
     }
 
+    # Detect new xmlResponse format vs legacy TaggedPDF-doc format
     if (exists $data->{'xmlResponse'}) {
         $data = xml2hash($raw_data, array => ['entry', 'field', 'section']);
         return _moha_xml_new($data);
@@ -673,32 +675,41 @@ Parses the legacy TaggedPDF-doc XML format from MOHA sanctions list.
 sub _moha_xml_legacy {
     my ($raw_data, $data) = @_;
 
+    # Try to find the creation date
     my $publish_date;
 
+    # Check if it's a standalone tag at the beginning
     if (exists $data->{'xmp:CreateDate'}) {
         $publish_date = $data->{'xmp:CreateDate'};
-    } elsif (exists $data->{'TaggedPDF-doc'}
+    }
+    # Check if it's nested within the rdf:Description
+    elsif (exists $data->{'TaggedPDF-doc'}
         && exists $data->{'TaggedPDF-doc'}{'x:xmpmeta'}
         && exists $data->{'TaggedPDF-doc'}{'x:xmpmeta'}{'rdf:RDF'}
         && exists $data->{'TaggedPDF-doc'}{'x:xmpmeta'}{'rdf:RDF'}{'rdf:Description'})
     {
         $publish_date = $data->{'TaggedPDF-doc'}{'x:xmpmeta'}{'rdf:RDF'}{'rdf:Description'}{'xmp:CreateDate'};
-    } elsif ($raw_data =~ /<xmp:CreateDate>([^<]+)<\/xmp:CreateDate>/) {
+    }
+    # If not found, try to extract it from the raw XML
+    elsif ($raw_data =~ /<xmp:CreateDate>([^<]+)<\/xmp:CreateDate>/) {
         $publish_date = $1;
     }
 
     my $publish_epoch = _date_to_epoch($publish_date);
     die "Invalid or missing creation date in XML\n" unless $publish_epoch;
 
+    # Access the relevant table structure
     my $tables  = $data->{'TaggedPDF-doc'}{'Document'}{'Table'};
     my $dataset = [];
 
+    # Handle both array and single table formats
     $tables = [$tables] if ref $tables eq 'HASH';
 
     foreach my $table (@$tables) {
         my $rows = $table->{'TBody'}{'TR'};
         next unless ref $rows eq 'ARRAY';
 
+        # Determine if the first row is a header row
         my $start_index = 0;
         if (@$rows > 0) {
             my $first_row = $rows->[0];
@@ -718,15 +729,20 @@ sub _moha_xml_legacy {
                 }
             }
 
+            # Check if the first cell contains a header-like value
             my $first_id = ref $first_cells[0]{'P'} eq 'ARRAY' ? join(' ', @{$first_cells[0]{'P'}}) : $first_cells[0]{'P'};
             if ($first_id =~ /^\(1\)/ || $first_id =~ /^No\./) {
+                # This is a header row, skip it
                 $start_index = 1;
             }
         }
 
+        # Process all data rows
         foreach my $row (@$rows[$start_index .. $#$rows]) {
+            # Get cells from a mix of TD and TH tags
             my @all_cells;
 
+            # Handle TH cells
             if (exists $row->{'TH'}) {
                 if (ref $row->{'TH'} eq 'ARRAY') {
                     push @all_cells, @{$row->{'TH'}};
@@ -735,6 +751,7 @@ sub _moha_xml_legacy {
                 }
             }
 
+            # Handle TD cells
             if (exists $row->{'TD'}) {
                 if (ref $row->{'TD'} eq 'ARRAY') {
                     push @all_cells, @{$row->{'TD'}};
@@ -744,7 +761,7 @@ sub _moha_xml_legacy {
             }
 
             my $cells = \@all_cells;
-            next unless $cells && @$cells >= 11;
+            next unless $cells && @$cells >= 11;    # Need at least 11 cells for the required data
 
             my $name                  = $cells->[2]{'P'};
             my $date_of_birth         = $cells->[5]{'P'};
@@ -754,12 +771,18 @@ sub _moha_xml_legacy {
             my $passport_number       = $cells->[9]{'P'};
             my $identification_number = $cells->[10]{'P'};
 
+            # Trim whitespace from values
             for ($name, $date_of_birth, $other_name, $place_of_birth, $nationality, $passport_number, $identification_number) {
                 $_ =~ s/^\s+|\s+$//g if defined $_;
             }
 
+            # if $name is array, convert it to a string
             $name = join ' ', @$name if ref $name eq 'ARRAY';
+
+            # if multiple aliases (other_name) are present, convert them to an array
             my @other_name = ref $other_name eq 'ARRAY' ? @$other_name : ($other_name);
+
+            # pass DOB as array
             my @dob = ref $date_of_birth eq 'ARRAY' ? @$date_of_birth : ($date_of_birth);
 
             _process_sanction_entry(
