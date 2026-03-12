@@ -541,7 +541,7 @@ subtest 'MOHA Sanctions - new xmlResponse format' => sub {
     # Test group entry with other name
     $entry = find_entry_by_name($parsed_data, "Tanzim Al-Qaeda Malaysia (TAQM)");
     ok $entry, "Found group entry TAQM";
-    ok((any { $_ eq 'TAQM' } $entry->{names}->@*), "Group other name (TAQM) included in names");
+    ok((List::Util::any { $_ eq 'TAQM' } $entry->{names}->@*), "Group other name (TAQM) included in names");
 };
 
 sub find_entry_by_name {

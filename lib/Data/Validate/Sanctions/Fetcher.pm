@@ -62,11 +62,9 @@ sub config {
     my $default_eu_base_url = 'https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content';
 
     if ($eu_url && $eu_token && $eu_url !~ /[?&]token=/) {
-        # URL provided (e.g. from backoffice) but missing token — append it
         my $separator = $eu_url =~ /\?/ ? '&' : '?';
         $eu_url = "${eu_url}${separator}token=${eu_token}";
     } elsif (!$eu_url && $eu_token) {
-        # No URL provided — build from default base + token
         $eu_url = "${default_eu_base_url}?token=${eu_token}";
     }
 
@@ -563,7 +561,6 @@ Parses the XML data from MOHA (Ministry of Home Affairs Malaysia) and returns a 
 sub _moha_xml {
     my $raw_data = shift;
 
-    # Parse the XML data using XML::Fast
     my $data = eval { xml2hash($raw_data) };
 
     if ($@ || !$data) {
@@ -571,7 +568,6 @@ sub _moha_xml {
         return;
     }
 
-    # Detect new xmlResponse format vs legacy TaggedPDF-doc format
     if (exists $data->{'xmlResponse'}) {
         $data = xml2hash($raw_data, array => ['entry', 'field', 'section']);
         return _moha_xml_new($data);
@@ -592,10 +588,8 @@ sub _moha_xml_new {
 
     my $xml = $data->{'xmlResponse'} or die "Invalid MOHA xmlResponse format\n";
 
-    # New format has no document creation date; use current time
     my $publish_epoch = time();
-
-    my $sections = $xml->{'section'} // [];
+    my $sections      = $xml->{'section'} // [];
 
     for my $section (@$sections) {
         my $entries = $section->{'entry'} // [];
@@ -603,7 +597,6 @@ sub _moha_xml_new {
         for my $entry (@$entries) {
             my $fields = $entry->{'field'} // [];
 
-            # Build field lookup by name
             my %f;
             for my $field (@$fields) {
                 my $name  = $field->{'-name'} // '';
@@ -611,43 +604,29 @@ sub _moha_xml_new {
                 $f{$name} = trim($value);
             }
 
-            # Determine individual vs group by presence of Date of Birth field
             my $is_individual = exists $f{'(6) Date of Birth'};
-
             my $name = $f{'(3) Name'} // '';
             next unless $name && $name ne '-';
 
             if ($is_individual) {
-                my $dob_raw         = $f{'(6) Date of Birth'}              // '';
-                my $pob             = $f{'(7) Place of Birth'}             // '';
-                my $other_names_raw = $f{'(8) Other Names'}               // '';
-                my $nationality     = $f{'(9) Nationality'}               // '';
-                my $passport_raw    = $f{'(10) Passport Number'}          // '';
-                my $id_number       = $f{'(11) Identification Card Number'} // '';
+                my $dob_raw         = $f{'(6) Date of Birth'}                // '';
+                my $pob             = $f{'(7) Place of Birth'}               // '';
+                my $other_names_raw = $f{'(8) Other Names'}                  // '';
+                my $nationality     = $f{'(9) Nationality'}                  // '';
+                my $passport_raw    = $f{'(10) Passport Number'}             // '';
+                my $id_number       = $f{'(11) Identification Card Number'}  // '';
 
-                # Extract multiple DOBs (format: d{1,2}.d{1,2}.d{4})
                 my @dob;
-                if ($dob_raw && $dob_raw ne '-') {
-                    @dob = ($dob_raw =~ /(\d{1,2}\.\d{1,2}\.\d{4})/g);
-                }
+                @dob = ($dob_raw =~ /(\d{1,2}\.\d{1,2}\.\d{4})/g) if $dob_raw && $dob_raw ne '-';
 
-                # Other names / aliases
                 my @other_names;
-                if ($other_names_raw && $other_names_raw ne '-') {
-                    push @other_names, $other_names_raw;
-                }
+                push @other_names, $other_names_raw if $other_names_raw && $other_names_raw ne '-';
 
-                # Passport numbers (may have / separator)
                 my @passports;
-                if ($passport_raw && $passport_raw ne '-') {
-                    @passports = map { trim($_) } split m{/}, $passport_raw;
-                }
+                @passports = map { trim($_) } split m{/}, $passport_raw if $passport_raw && $passport_raw ne '-';
 
-                # National ID
                 my @ids;
-                if ($id_number && $id_number ne '-') {
-                    push @ids, $id_number;
-                }
+                push @ids, $id_number if $id_number && $id_number ne '-';
 
                 _process_sanction_entry(
                     $dataset,
@@ -659,9 +638,8 @@ sub _moha_xml_new {
                     passport_no    => \@passports,
                 );
             } else {
-                # Group entry
-                my $alias      = $f{'(4) Alias'}      // '';
-                my $other_name = $f{'(5) Other Name'}  // '';
+                my $alias      = $f{'(4) Alias'}     // '';
+                my $other_name = $f{'(5) Other Name'} // '';
 
                 my @names_list = ($name);
                 push @names_list, $alias      if $alias      && $alias      ne '-';
@@ -695,41 +673,32 @@ Parses the legacy TaggedPDF-doc XML format from MOHA sanctions list.
 sub _moha_xml_legacy {
     my ($raw_data, $data) = @_;
 
-    # Try to find the creation date
     my $publish_date;
 
-    # Check if it's a standalone tag at the beginning
     if (exists $data->{'xmp:CreateDate'}) {
         $publish_date = $data->{'xmp:CreateDate'};
-    }
-    # Check if it's nested within the rdf:Description
-    elsif (exists $data->{'TaggedPDF-doc'}
+    } elsif (exists $data->{'TaggedPDF-doc'}
         && exists $data->{'TaggedPDF-doc'}{'x:xmpmeta'}
         && exists $data->{'TaggedPDF-doc'}{'x:xmpmeta'}{'rdf:RDF'}
         && exists $data->{'TaggedPDF-doc'}{'x:xmpmeta'}{'rdf:RDF'}{'rdf:Description'})
     {
         $publish_date = $data->{'TaggedPDF-doc'}{'x:xmpmeta'}{'rdf:RDF'}{'rdf:Description'}{'xmp:CreateDate'};
-    }
-    # If not found, try to extract it from the raw XML
-    elsif ($raw_data =~ /<xmp:CreateDate>([^<]+)<\/xmp:CreateDate>/) {
+    } elsif ($raw_data =~ /<xmp:CreateDate>([^<]+)<\/xmp:CreateDate>/) {
         $publish_date = $1;
     }
 
     my $publish_epoch = _date_to_epoch($publish_date);
     die "Invalid or missing creation date in XML\n" unless $publish_epoch;
 
-    # Access the relevant table structure
     my $tables  = $data->{'TaggedPDF-doc'}{'Document'}{'Table'};
     my $dataset = [];
 
-    # Handle both array and single table formats
     $tables = [$tables] if ref $tables eq 'HASH';
 
     foreach my $table (@$tables) {
         my $rows = $table->{'TBody'}{'TR'};
         next unless ref $rows eq 'ARRAY';
 
-        # Determine if the first row is a header row
         my $start_index = 0;
         if (@$rows > 0) {
             my $first_row = $rows->[0];
@@ -749,21 +718,15 @@ sub _moha_xml_legacy {
                 }
             }
 
-            # Check if the first cell contains a header-like value
             my $first_id = ref $first_cells[0]{'P'} eq 'ARRAY' ? join(' ', @{$first_cells[0]{'P'}}) : $first_cells[0]{'P'};
             if ($first_id =~ /^\(1\)/ || $first_id =~ /^No\./) {
-                # This is a header row, skip it
                 $start_index = 1;
             }
         }
 
-        # Process all data rows
         foreach my $row (@$rows[$start_index .. $#$rows]) {
-            # Get cells from a mix of TD and TH tags
-            my $cells;
             my @all_cells;
 
-            # Handle TH cells
             if (exists $row->{'TH'}) {
                 if (ref $row->{'TH'} eq 'ARRAY') {
                     push @all_cells, @{$row->{'TH'}};
@@ -772,7 +735,6 @@ sub _moha_xml_legacy {
                 }
             }
 
-            # Handle TD cells
             if (exists $row->{'TD'}) {
                 if (ref $row->{'TD'} eq 'ARRAY') {
                     push @all_cells, @{$row->{'TD'}};
@@ -781,8 +743,8 @@ sub _moha_xml_legacy {
                 }
             }
 
-            $cells = \@all_cells;
-            next unless $cells && @$cells >= 11;    # Need at least 11 cells for the required data
+            my $cells = \@all_cells;
+            next unless $cells && @$cells >= 11;
 
             my $name                  = $cells->[2]{'P'};
             my $date_of_birth         = $cells->[5]{'P'};
@@ -792,18 +754,12 @@ sub _moha_xml_legacy {
             my $passport_number       = $cells->[9]{'P'};
             my $identification_number = $cells->[10]{'P'};
 
-            # Trim whitespace from values
             for ($name, $date_of_birth, $other_name, $place_of_birth, $nationality, $passport_number, $identification_number) {
                 $_ =~ s/^\s+|\s+$//g if defined $_;
             }
 
-            # if $name is array, convert it to a string
             $name = join ' ', @$name if ref $name eq 'ARRAY';
-
-            # if multiple aliases (other_name) are present, convert them to an array
             my @other_name = ref $other_name eq 'ARRAY' ? @$other_name : ($other_name);
-
-            # pass DOB as array
             my @dob = ref $date_of_birth eq 'ARRAY' ? @$date_of_birth : ($date_of_birth);
 
             _process_sanction_entry(
