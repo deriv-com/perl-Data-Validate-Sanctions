@@ -603,6 +603,8 @@ sub _moha_xml_new {
             for my $field (@$fields) {
                 my $name  = $field->{'-name'} // '';
                 my $value = $field->{'#text'} // '';
+                # Normalize whitespace in field names (real XML has &#10; newlines between column number and label)
+                $name =~ s/\s+/ /g;
                 $f{$name} = trim($value);
             }
 
